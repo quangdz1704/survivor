@@ -176,21 +176,37 @@ document.getElementById("verify")!.onclick = () => {
         "Lá xoáy chuyển sang pha trở về",
       );
     const time = s.run.time,
-      phase = s.combat.evolved.time;
+      phase = s.combat.evolved.time,
+      snowAge = s.combat.evolved.blizzard.age;
     bridge.send("pause", true);
     s.update(0, 200);
     check(
-      s.run.time === time && s.combat.evolved.time === phase,
+      s.run.time === time &&
+        s.combat.evolved.time === phase &&
+        s.combat.evolved.blizzard.age === snowAge,
       `${UPGRADE_NAMES[id]} dừng khi pause`,
     );
     bridge.send("pause", false);
-    const count = s.children.length;
+    const count = s.children.list.length;
     for (let i = 0; i < 200; i++) s.update(0, 1000 / 60);
-    check(s.children.length === count, `${UPGRADE_NAMES[id]} tái dùng pool`);
+    check(
+      s.children.list.length === count,
+      `${UPGRADE_NAMES[id]} tái dùng pool`,
+    );
+    if (id === "blizzard") {
+      s.finish(false);
+      check(
+        !s.combat.evolved.blizzard.ground.visible &&
+          !s.combat.evolved.blizzard.snow.visible,
+        "Bão tuyết dọn cả hai lớp khi kết thúc lượt",
+      );
+    }
     bridge.send("home", undefined);
     check(
       s.combat.evolved.swords.every((sword: any) => !sword.visible) &&
         !s.combat.evolved.aura.visible &&
+        !s.combat.evolved.blizzard.ground.visible &&
+        !s.combat.evolved.blizzard.snow.visible &&
         s.combat.projectiles.every((p: any) => !p.active),
       `${UPGRADE_NAMES[id]} xóa khi về trại`,
     );

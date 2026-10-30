@@ -65,3 +65,10 @@ Audio attack colors and the evolution chord use existing synthesis. Hit/death/XP
 `EliteEncounters` owns two fixed slots, one ground Graphics and one crown/chest Graphics; its simulation timer drives warnings/dash and chest decoration. EnemyActor scales complete bodies uniformly and resets elite metadata on reuse. ForestScene protects active elites when reserving pool capacity, sends actual damage through shared immunity/hit/death paths, and drops one chest without finishing the run. Segment collision prevents dash tunneling. The pickup callback dispatches Heart area hits; ReturningFlight's phase controls the leaf bonus without resetting hit IDs.
 
 Bridge publishes at the existing10Hz rate; only two elite/chest records and two relic IDs cross into React. `treasure` event/`relic` command wire the modal, store and validated model selection. HUD points to the nearest chest; pause/result show relic descriptions. Begin/home clear both pending event channels, preventing stale cards across runs. Effects now reuses eight rings with simulation-time expiry and reset cleanup instead of allocating a new tween/circle for each burst.
+
+
+### Blizzard rendering repair
+
+`BlizzardVisual.ts` adds two reusable Graphics owned by EvolutionCombat: ground haze/range fragments and airborne wind/snow. Deterministic phases avoid frame-dependent random emission and per-frame game-object creation.32 snow motes/full mode or9/reduced mode and four two-pass ribbons bound the geometry. The existing158px hit radius, frost cadence, damage and slow still run in EvolutionCombat/ForestScene.
+
+`CombatSystem.stop()` hides pooled attack visuals while retaining the run attack counter; `reset()` also clears that counter. ForestScene calls stop before result effects, so snow cannot freeze behind the result panel. A per-sword ended guard handles a hit finishing the run reentrantly while orbit blades are being positioned. Result effects continue through the existing Effects update path.

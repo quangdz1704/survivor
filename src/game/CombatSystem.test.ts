@@ -68,9 +68,17 @@ function graphics(): unknown {
   );
 }
 function setup(weapon: WeaponId) {
+  const sprites: ReturnType<typeof image>[] = [];
   const scene = {
     make: { graphics },
-    add: { image, graphics },
+    add: {
+      image: () => {
+        const sprite = image();
+        sprites.push(sprite);
+        return sprite;
+      },
+      graphics,
+    },
   } as unknown as Phaser.Scene;
   const effects = { burst: vi.fn(), ring: vi.fn() } as unknown as Effects;
   const combat = new CombatSystem(scene, effects),
@@ -91,9 +99,37 @@ function setup(weapon: WeaponId) {
     for (let i = 0; i < Math.round(seconds * 60); i++)
       combat.update(1 / 60, 0, 6, run, grid, hit);
   };
-  return { combat, step, hit, enemy, grid, run };
+  return { combat, step, hit, enemy, grid, run, sprites };
 }
 describe("pooled new weapons", () => {
+  it("keeps every blade hidden when a sword hit finishes the run inside its render loop", () => {
+    const { combat, run, grid, enemy, sprites } = setup("sword");
+    run.weapons.sword = 6;
+    run.evolutions["sword-array"] = true;
+    enemy.x = 86;
+    grid.rebuild([enemy]);
+    combat.update(1 / 60, 0, 6, run, grid, () => {
+      run.finish(true);
+      combat.stop();
+    });
+    expect(run.ended).toBe(true);
+    expect(sprites.every((sprite) => !sprite.visible)).toBe(true);
+  });
+  it("stops continuous attacks at a result while retaining the run attack count", () => {
+    const { combat, run, hit, step } = setup("frost");
+    run.weapons.frost = 6;
+    run.evolutions.blizzard = true;
+    step(0.8);
+    expect(hit).toHaveBeenCalledTimes(2);
+    const attacks = combat.attacks;
+    run.finish(false);
+    combat.stop();
+    step(1);
+    expect(combat.attacks).toBe(attacks);
+    expect(hit).toHaveBeenCalledTimes(2);
+    combat.reset();
+    expect(combat.attacks).toBe(0);
+  });
   it("boosts returning leaves without changing outward damage or per-flight hit immunity", () => {
     const { step, hit, enemy, grid, run } = setup("leaf");
     run.relics = ["return"];

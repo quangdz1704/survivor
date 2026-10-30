@@ -5,6 +5,7 @@ import type { EnemyActor } from "./EnemyActor";
 import type { SpatialGrid } from "./SpatialGrid";
 import type { Effects } from "./Effects";
 import { audioManager } from "../audio/AudioManager";
+import { BlizzardVisual } from "./BlizzardVisual";
 
 export type WeaponHit = (
   enemy: EnemyActor,
@@ -20,6 +21,7 @@ export const BLIZZARD_RADIUS = 158;
 export class EvolutionCombat {
   private aura: Phaser.GameObjects.Graphics;
   private swords: Phaser.GameObjects.Image[];
+  private blizzard: BlizzardVisual;
   private targets: EnemyActor[] = [];
   private swordHits = new Map<number, number>();
   private time = 0;
@@ -30,6 +32,7 @@ export class EvolutionCombat {
     private effects: Effects,
   ) {
     this.aura = scene.add.graphics().setVisible(false);
+    this.blizzard = new BlizzardVisual(scene);
     this.swords = Array.from({ length: 4 }, () =>
       scene.add
         .image(0, 0, "blade")
@@ -41,6 +44,7 @@ export class EvolutionCombat {
   reset() {
     this.time = this.frostClock = this.swordSound = 0;
     this.swordHits.clear();
+    this.blizzard.reset();
     this.aura.clear().setVisible(false);
     this.swords.forEach((sword) => sword.setVisible(false));
   }
@@ -80,6 +84,7 @@ export class EvolutionCombat {
       grid.query(x, y, r + 65, this.targets);
       let struck = false;
       this.swords.forEach((sword, i) => {
+        if (run.ended) return;
         const angle = phase + (i * Math.PI) / 2;
         const sx = x + Math.cos(angle) * r,
           sy = y + Math.sin(angle) * r;
@@ -110,34 +115,7 @@ export class EvolutionCombat {
     if (run.ended) return attacks;
     if (run.evolutions.blizzard && run.weapons.frost > 0) {
       const r = BLIZZARD_RADIUS;
-      this.aura
-        .fillStyle(0x89e3ff, this.effects.enabled ? 0.07 : 0.035)
-        .fillCircle(0, 0, r);
-      this.aura.lineStyle(1.5, 0xb7eeff, 0.32).strokeCircle(0, 0, r);
-      if (this.effects.enabled) {
-        for (let i = 0; i < 3; i++) {
-          const a = this.time * 1.2 + (i * Math.PI * 2) / 3;
-          this.aura
-            .lineStyle(3, 0xdafaff, 0.3)
-            .beginPath()
-            .arc(0, 0, r - 7 - i * 8, a, a + 0.9)
-            .strokePath();
-        }
-        for (let i = 0; i < 18; i++) {
-          const a = this.time * (i % 2 ? 0.8 : -0.65) + i * 2.4;
-          const radius = 24 + ((i * 37) % 120);
-          const sx = Math.cos(a) * radius,
-            sy = Math.sin(a) * radius;
-          const size = 2.5 + (i % 3);
-          this.aura
-            .lineStyle(1.5, 0xe3ffff, 0.7)
-            .lineBetween(sx - size, sy, sx + size, sy)
-            .lineBetween(sx, sy - size, sx, sy + size);
-          this.aura
-            .fillStyle(0x9ceaff, 0.65)
-            .fillTriangle(sx, sy - size * 2, sx + size, sy, sx - size, sy);
-        }
-      }
+      this.blizzard.update(dt, x, y, r, this.effects.enabled);
       const interval = 0.38 / stats.attackSpeed;
       this.frostClock = Math.min(interval, this.frostClock + dt);
       if (this.frostClock >= interval) {
@@ -161,7 +139,10 @@ export class EvolutionCombat {
           attacks++;
         }
       }
-    } else this.frostClock = 0;
+    } else {
+      this.frostClock = 0;
+      this.blizzard.reset();
+    }
     if (
       run.evolutions["leaf-vortex"] &&
       run.weapons.leaf > 0 &&

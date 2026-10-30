@@ -150,8 +150,11 @@ export class CombatSystem {
     g.destroy();
   }
   reset() {
-    this.evolved.reset();
     this.attacks = 0;
+    this.stop();
+  }
+  stop() {
+    this.evolved.reset();
     this.cooldowns = { sword: 0, fireball: 0, lightning: 0, frost: 0, leaf: 0 };
     for (const p of this.projectiles) {
       p.active = false;
@@ -171,6 +174,7 @@ export class CombatSystem {
     grid: SpatialGrid<EnemyActor>,
     hit: Hit,
   ) {
+    if (run.ended) return;
     this.attacks += this.evolved.update(dt, x, y, run, grid, hit);
     if (run.ended) return;
     for (const weapon of WEAPONS) {

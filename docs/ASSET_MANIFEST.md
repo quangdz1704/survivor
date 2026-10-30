@@ -96,3 +96,8 @@ Orbit blades and curved leaves reuse the project's procedural CombatSystem textu
 ## Elite treasure /1.3
 
 Slime vương and Orc captain reuse local enemy textures with whole-body scaling; crowns, warning regions, chest shapes and sparkle are original procedural Graphics in EliteEncounters.ts. Relic/treasure icons use the existing Lucide ISC dependency (TreePine, Gem, HeartPulse, Snowflake, Wind, Skull, PackageOpen, Crown). Treasure chime uses original local Web Audio synthesis. No new external image/audio file, dependency or runtime download.
+
+
+### Blizzard visual repair
+
+Original procedural wind ribbons, frost accents, snow streaks and faceted ice in `src/game/BlizzardVisual.ts`; no added texture, image download or dependency. The snow-vortex glyph in SkillIcon.tsx is original inline SVG replacing the Lucide CloudSnow mapping. Existing Lucide icons remain used elsewhere under their retained license. Native browser screenshots/animation38–40 are QA evidence, not generated concept art.

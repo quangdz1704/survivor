@@ -47,3 +47,8 @@ Kiếm trận: four full-sized cream/gold blades, faint gold orbit trails. Bão 
 ## Elite treasure /1.3
 
 Reuse Slime/Orc artwork with uniform1.5/1.3 body scaling, a small procedural gold crown and warm HP bar. Do not change individual joint proportions. Fixed pale-gold/orange pulse and full-width capsule warnings remain visible with reduced effects. Chests use warm wood, a gold lid/clasp and restrained sparkle; the HUD gold arrow remains readable when loot is offscreen. Three treasure cards follow the existing green/gold forest panels, readable effect descriptions and smaller synergy hints. Relic icons use pale green, red, pink, ice blue and gold; conditional effects light their HUD border. Native browser evidence is retained, not generated previews.
+
+
+## Blizzard visual repair after user feedback
+
+Replace the hard cyan circle and cross/triangle snow symbols with a cool ground haze, broken frost accents at158px, four tapered wind ribbons, drifting snow streaks and small two-face ice crystals. Ground and airborne details use separate depths; the center stays open for the hero silhouette. Wind follows gently uneven paths with a soft outer stroke and a brighter narrow core. All animation uses simulation time, including a0.4s entrance. Reduced effects keeps the ground/range accents and9 small snow streaks, omitting the ribbons and crystals. The HUD/card icon is an original SVG snowflake inside two swirling arrows. Browser captures38/39 show the implemented replacement; aesthetic acceptance remains the user's decision.

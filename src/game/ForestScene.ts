@@ -615,6 +615,7 @@ export class ForestScene extends Phaser.Scene {
     const result = this.run?.finish(victory);
     if (!result) return;
     this.activeRun = false;
+    this.combat.stop();
     this.motion.reset();
     this.move = { x: 0, y: 0 };
     this.stomp?.circle.destroy();
