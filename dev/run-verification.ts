@@ -13,7 +13,15 @@ const game = createGame(document.getElementById("game")!);
 const log = document.getElementById("log")!;
 const hero =
   new URLSearchParams(location.search).get("hero") === "linh" ? "linh" : "an";
-const freshProfile = () => ({ ...newProfile(), hero });
+const params = new URLSearchParams(location.search);
+const map = ["forest", "ashlands", "glacier"].includes(params.get("map") ?? "")
+  ? (params.get("map")! as "forest" | "ashlands" | "glacier")
+  : "forest";
+const freshProfile = () => {
+  const profile = { ...newProfile(), hero };
+  profile.campaign.map = map;
+  return profile;
+};
 const requested = new URLSearchParams(location.search).get(
   "evolve",
 ) as EvolutionId;
@@ -36,10 +44,12 @@ let testing = false,
   slowClockPassed = false,
   pauseChecked = false;
 const report = (extra = "") => {
-  log.textContent = `Lượt đã xong: ${results.map((r) => `${r.victory ? "Thắng" : "Thua"} ${r.time.toFixed(2)}s, ${r.kills} quái, cấp${r.level}, ${r.gold} vàng, bảo vật ${r.relics?.join("+") || "không"}`).join("; ")}\nMini-boss: ${JSON.stringify(eliteLog)}\nRương đã chọn: ${rewardChoices}\nBảo vật: ${latest?.relics.join(", ") || "chưa có"}\nNhân vật: ${hero} · Vũ khí: ${[...seenWeapons].join(", ")}\nMục tiêu: ${goalEvolution ? UPGRADE_NAMES[goalEvolution] : "phối hợp"}\nTiến hóa đã thấy: ${JSON.stringify(seenEvolutions)}\nSlow: ${sawSlow} · Lá trở về: ${sawReturn}\nĐồng hồ ở 15 FPS: ${slowClockPassed ? "ĐẠT" : "CHƯA CHẠY"}\nChế độ: ${mode}\nThời gian: ${latest?.time.toFixed(1) ?? 0}s\nHP: ${latest?.hp ?? 0} · Cấp: ${latest?.level ?? 1}\nQuái đã hạ: ${latest?.kills ?? 0}\nĐồng thời tối đa: ${maxEnemies}\nLoại quái đã gặp: ${[...seen].join(", ")}\nLần chọn nâng cấp: ${pauses}\n${extra}\nKết quả: ${JSON.stringify(results, null, 2)}`;
+  log.textContent = `Lượt đã xong: ${results.map((r) => `${r.victory ? "Thắng" : "Thua"} ${r.time.toFixed(2)}s, ${r.kills} quái, cấp${r.level}, ${r.gold} vàng, bảo vật ${r.relics?.join("+") || "không"}`).join("; ")}\nMini-boss: ${JSON.stringify(eliteLog)}\nRương đã chọn: ${rewardChoices}\nBảo vật: ${latest?.relics.join(", ") || "chưa có"}\nNhân vật: ${hero} · Map: ${map} · Vũ khí: ${[...seenWeapons].join(", ")}\nMục tiêu: ${goalEvolution ? UPGRADE_NAMES[goalEvolution] : "phối hợp"}\nTiến hóa đã thấy: ${JSON.stringify(seenEvolutions)}\nSlow: ${sawSlow} · Lá trở về: ${sawReturn}\nĐồng hồ ở 15 FPS: ${slowClockPassed ? "ĐẠT" : "CHƯA CHẠY"}\nChế độ: ${mode}\nThời gian: ${latest?.time.toFixed(1) ?? 0}s\nHP: ${latest?.hp ?? 0} · Cấp: ${latest?.level ?? 1}\nQuái đã hạ: ${latest?.kills ?? 0}\nĐồng thời tối đa: ${maxEnemies}\nLoại quái đã gặp: ${[...seen].join(", ")}\nLần chọn nâng cấp: ${pauses}\n${extra}\nKết quả: ${JSON.stringify(results, null, 2)}`;
 };
 bridge.subscribe((snapshot) => {
   latest = snapshot;
+  if (testing && mode === "victory" && snapshot.mana >= 100)
+    bridge.send("rage", undefined);
   for (const id of EVOLUTION_IDS)
     if (snapshot.evolutions[id] && !seenEvolutions[id])
       seenEvolutions[id] = { time: snapshot.time, level: snapshot.level };

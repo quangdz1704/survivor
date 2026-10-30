@@ -41,3 +41,11 @@ Slime vương xuất hiện ở60s, Đội trưởng Orc ở180s; mỗi con ch�
 Rương rơi tại chỗ thủ lĩnh chết, không biến mất theo xác; HUD chỉ hướng tới rương gần nhất. Đi tới trong38px sẽ mở ba thẻ bảo vật độc nhất, không đưa món đã sở hữu. Ấn sương giá/Hạt hồi phong chỉ xuất hiện khi đã có Băng tinh/Lá xoáy. Chọn một món; mỗi lượt có tối đa hai bảo vật. Rương chờ nếu đang chọn cấp, không mất XP hay phần thưởng. Đồng hồ, chuyển động và chiến đấu dừng trong lúc chọn.
 
 Sáu món: Rễ cổ thụ (+35% sát thương sau1s đứng yên); Huyết thạch (+30% tốc đánh khi HP<=40%); Tim cộng hưởng (nhặt tim tạo sóng nổ, nhận sẵn3 tim quanh mình khi chọn); Ấn sương giá (+25% sát thương lên quái đang bị băng làm chậm); Hạt hồi phong (+50% sát thương lá trên đường về); Nanh thủ lĩnh (+40% sát thương lên mini-boss/Golem). Các món dùng chung với tiến hóa. HUD hiện biểu tượng và sáng lên khi Rễ/Huyết thạch kích hoạt. Màn tạm dừng/kết quả cho xem lại mô tả. Tất cả bị xóa khi bắt đầu lượt mới, không đổi cấu trúc save.
+
+## Chiến dịch và hành trang /2.0
+
+Tại trại có màn Hành trang: sáu ô đồ quanh nhân vật, chỉ số tổng, kho12 món theo độ hiếm và ba pet. Đồ nâng tới20, pet tới10 bằng vàng/tinh hoa nhận sau trận. Cáo cắn lao và tăng chí mạng; Cú bắn băng và tăng hút XP; Mầm xanh hồi máu/phát sóng và tăng HP. Nhân vật khởi đầu có sáu đồ hiếm và Cáo cấp1 để tự chọn trang bị/đồng hành. Save cũ được bổ sung dữ liệu mới, giữ nguyên tiến trình.
+
+Chạm thẻ vùng đất để chọn Rừng thì thầm/Vực tro tàn/Thành băng vĩnh cửu. Thắng Thường mở vùng tiếp theo và Khắc nghiệt; thắng Khắc nghiệt mở Ác mộng. Mỗi vùng có roster và boss riêng. Vực tro có Imp bắn lửa, Bọ than bền bỉ, Hỏa long thả thiên thạch/phun đạn/cột lửa. Thành băng có Ma băng bắn chùm, Sói băng lao nhanh, Băng vệ đặt vùng băng/bắn tinh thể/đường thương. Boss tăng nhịp dưới40%HP. Golem giữ đòn bom rồi thêm chùm đá và cụm nổ. Ác mộng tăng mật độ lên tối đa480 quái và thưởng×2.8; khả năng chơi mượt trên máy thật cần đo riêng.
+
+Sau tiến hóa vẫn lên cấp: thẻ sức mạnh, tầm phủ và chọn lại vũ khí gốc để thêm kiếm/băng bắn hoặc lá xoáy. Mana tăng khi chiến đấu; đủ100 thì bấm Cuồng nộ hoặc SPACE. Chạm một vũ khí đang sở hữu ở thanh dưới để chọn chiêu cuồng nộ:10 kiếm xoay, mưa thiên thạch, sét liên hoàn, đại băng hà hoặc24 lá xoáy. Mỗi lần kéo dài6s, tiêu hết mana; đồng hồ dừng khi tạm dừng/chọn cấp và không giữ sang lượt khác.

@@ -83,3 +83,23 @@ Orc dash collision is a swept capsule with radius32.5+13=45.5px; warning uses th
 Relics are unique, chosen from three compatible unowned options, maximum2 per run. Root multiplies current damage by1.35 after1s without displacement; moving clears it. Rage multiplies attackSpeed by1.3 at<=40% maximum HP. Heart uses current damage×3 in a140px area (includes enemy radius); each collected heal pickup triggers once, even at full HP. Selecting Heart drops three8HP hearts80px around the player. Rime multiplies damage against an already-chilled target by1.25; Fang multiplies elite/Golem damage by1.4; these combine before critical rounding. Return multiplies only returning-leaf hits by1.5, keeping one-hit-per-target-per-flight immunity. Projectile damage otherwise retains its normal launch-time stats; continuous attacks use current stats.
 
 These are initial tuning values. Three default-profile accelerated bot wins establish attainable builds and reward flow, not human difficulty or phone performance certification.
+
+## Campaign expansion /2.0
+
+`core/campaign.ts`, `equipment.ts`, `mastery.ts` and the scene are now the source of truth for these additions. Values below are initial balancing, not broad human playtesting.
+
+| Difficulty | Enemy HP | Damage | Speed | Spawn interval | Group size | Actor cap | Reward |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Normal | ×1 | ×1 | ×1 | ×1 |1 |150 |×1 |
+| Hard | ×1.6 | ×1.4 | ×1.12 | ×0.7 |2 |280 |×1.7 |
+| Nightmare | ×2.7 | ×2 | ×1.22 | ×0.45 |4 |480 |×2.8 |
+
+Map HP multiplier: forest1, ashlands1.15, glacier1.3. Ordinary wave HP/speed scaling still applies; boss HP is independent of elapsed time. New enemy base HP/contact/speed/XP: Ash Imp28/9/62/7; Ember Beetle145/20/30/20; Frost Wolf60/12/78/12; Ice Wisp32/10/48/7. Imp/Wisp launch warned ranged shots every3.3/4s; Wolf/Beetle periodically sprint×1.7. Ranged difficulty damage applies once. Bosses: Ember Drake2300HP/34contact/44speed/180XP; Frost Warden2900/38/36/220. Their base attack damage27–40 scales with difficulty. They cycle warned clusters, fans and400px lanes every3s; below40%HP cooldown1.65s and added hazards. Fans warn0.65s, clusters0.95s+, lanes1.1s. Golem alternates its existing stomp with9 stone shots and five58px blast circles; first attack remains the stomp. Global0.8s immunity prevents stacking simultaneous hazards. Hostile caps:24 zones,16 pending fans,128 projectiles, swept projectile collision; zones use the exact warned radius.
+
+After evolution, the original Sword/Frost/Leaf may reach11. Sword/Frost add one support projectile per rank above6; evolved Leaf gains one leaf per rank (8 at6 through13 at11). Separate mastery cards give+15% evolution/support damage per rank, cap20, and+8% radius/range per rank, cap5. Base rank damage/cooldown calculations stay capped6. Blizzard's visuals expand with its actual range.
+
+Mana cap100, +2 per ordinary kill/+10 elite or boss, passive+0.4/s outside rage. Rage consumes100 once, lasts6s, grants×1.5 damage/×1.35 attack speed and0.3s initial immunity; no mana gain while active. Timers freeze on pause/choices. Sword10 orbit blades; Fireball two targeted100px meteors every0.28s after0.45s travel; Lightning up to8 targets every0.32s; Frost255px pulse every0.6s plus65% slow with boss resistance; Leaf24 spiral leaves. All reset on result/home/new run.
+
+Gear:6 slots/12 items, ranks1–20, bonus factor1+0.22×(rank−1). Initial six rare items are owned but unequipped. Craft300gold/15essence; upgrade50+40×rank gold and2+floor(rank/2) essence. Pet fox starts owned at1 but unselected; unlock other pets240gold/12essence, upgrade90+70×rank gold and4+rank essence, cap10. Fox gains2% crit/rank and dash bite; Owl8% pickup/rank plus slowing beam; Sprout5HP/rank plus heal3+2×rank every8s and a damage pulse. All pet damage scales with rank and player damage. Equipment bonuses apply to all weapons and preserve each hero's starting weapon.
+
+Runs lasting60s or winning drop one item selected deterministically from the run ID. Already-owned drops grant5essence. Base essence=floor((time/20+kills/30+10 if victory)×reward multiplier). Gold uses the existing formula×difficulty reward. Settlement is idempotent by run ID. Win Normal unlocks the next map and the completed map's Hard; winning Hard unlocks its Nightmare.

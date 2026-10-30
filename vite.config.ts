@@ -12,9 +12,10 @@ export default defineConfig({
       includeAssets: ["favicon.svg", "icons/*.png"],
       manifest: {
         id: "/",
-        name: "Survivor Mini — Rừng thì thầm",
+        name: "Survivor Mini — Ba vùng đất",
         short_name: "Survivor Mini",
-        description: "Cuộc phiêu lưu sinh tồn nhỏ bé trong khu rừng cổ tích.",
+        description:
+          "Phiêu lưu sinh tồn qua ba vùng đất, nuôi pet và chinh phục Ác mộng.",
         lang: "vi",
         start_url: "/",
         scope: "/",

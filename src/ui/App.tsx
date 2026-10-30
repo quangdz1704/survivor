@@ -31,6 +31,11 @@ import { GameHUD, formatTime } from "./components/GameHUD";
 import { LevelUp, Records, Shop } from "./components/Progression";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { HeroChooser } from "./components/HeroChooser";
+import { CampaignChooser } from "./components/CampaignChooser";
+import { RageControl } from "./components/RageControl";
+import { MAPS, DIFFICULTIES } from "../core/campaign";
+import { GEAR } from "../core/equipment";
+import { Armory } from "./components/Armory";
 import { observeUpdate, applyUpdate } from "../pwa";
 interface InstallPrompt extends Event {
   prompt: () => Promise<void>;
@@ -49,6 +54,8 @@ export function App() {
     storageAvailable = useUI((s) => s.storageAvailable);
   const [settingsOpen, setSettingsOpen] = useState(false),
     [heroesOpen, setHeroesOpen] = useState(false),
+    [armoryOpen, setArmoryOpen] = useState(false),
+    [campaignOpen, setCampaignOpen] = useState(false),
     [shop, setShop] = useState(false),
     [guide, setGuide] = useState(false),
     [records, setRecords] = useState(false),
@@ -192,7 +199,18 @@ export function App() {
       <section className="game-shell" ref={shell} aria-label="Survivor Mini">
         <div className="game-canvas" ref={mount} />
         {mode === "menu" && (
-          <div className="menu-screen" inert={heroesOpen}>
+          <div
+            className="menu-screen"
+            inert={
+              heroesOpen ||
+              armoryOpen ||
+              campaignOpen ||
+              shop ||
+              settingsOpen ||
+              records ||
+              guide
+            }
+          >
             <div className="menu-vignette" />
             <div className="menu-top">
               <span className="edition">
@@ -246,16 +264,25 @@ export function App() {
               </button>
             </div>
             <div className="menu-bottom">
-              <div className="chapter-card">
+              <button
+                className="chapter-card"
+                onClick={() => setCampaignOpen(true)}
+                aria-label="Chọn vùng đất và độ khó"
+              >
                 <div className="chapter-icon">
                   <Leaf size={23} />
                 </div>
                 <div>
-                  <span>VÙNG ĐẤT ĐẦU TIÊN</span>
-                  <h2>Rừng thì thầm</h2>
+                  <span>
+                    {DIFFICULTIES[
+                      profile.campaign.difficulty
+                    ].name.toUpperCase()}{" "}
+                    · CHỌN VÙNG ĐẤT
+                  </span>
+                  <h2>{MAPS[profile.campaign.map].name}</h2>
                 </div>
-                <span className="chapter-number">01</span>
-              </div>
+                <ChevronRight className="chapter-number" size={22} />
+              </button>
               <button
                 className="play-button"
                 onClick={start}
@@ -263,11 +290,15 @@ export function App() {
               >
                 <Swords size={23} />
                 <span>
-                  {ready && profileReady ? "VÀO RỪNG" : "ĐANG CHUẨN BỊ…"}
+                  {ready && profileReady ? "XUẤT PHÁT" : "ĐANG CHUẨN BỊ…"}
                 </span>
                 <ArrowRight size={23} />
               </button>
               <div className="camp-actions">
+                <button onClick={() => setArmoryOpen(true)}>
+                  <Sparkles size={16} />
+                  Hành trang
+                </button>
                 <button onClick={() => setShop(true)}>
                   <Shield size={16} /> Nâng cấp
                 </button>
@@ -311,7 +342,12 @@ export function App() {
         {mode !== "menu" && (
           <>
             <GameHUD pause={pause} />
-            {mode === "playing" && <Joystick />}
+            {mode === "playing" && (
+              <>
+                <Joystick />
+                <RageControl />
+              </>
+            )}
           </>
         )}
         {mode === "paused" && (
@@ -357,7 +393,7 @@ export function App() {
               </h2>
               <p>
                 {result.victory
-                  ? "Golem đã gục ngã. Khu rừng cảm ơn bạn."
+                  ? "Thủ lĩnh đã gục ngã. Thử thách mới đang chờ bạn."
                   : "Mỗi chuyến đi đều giúp bạn mạnh mẽ hơn."}
               </p>
               <div className="result-stats">
@@ -379,6 +415,15 @@ export function App() {
                 <strong>+{result.gold}</strong>
                 <span>vàng</span>
               </div>
+              <p className="earned-loot">
+                +{result.essence ?? 0} tinh hoa
+                {result.gearDrop && (
+                  <>
+                    <br />
+                    {GEAR[result.gearDrop].name} · món trùng → +5 tinh hoa
+                  </>
+                )}
+              </p>
               <small className="reward-status">
                 {rewardSaved
                   ? "Phần thưởng đã được nhận."
@@ -403,6 +448,22 @@ export function App() {
           </div>
         )}
         {settingsOpen && <SettingsPanel close={() => setSettingsOpen(false)} />}
+        {armoryOpen && (
+          <Armory
+            close={() => setArmoryOpen(false)}
+            chooseHero={() => {
+              setArmoryOpen(false);
+              setHeroesOpen(true);
+            }}
+            permanent={() => {
+              setArmoryOpen(false);
+              setShop(true);
+            }}
+          />
+        )}
+        {campaignOpen && (
+          <CampaignChooser close={() => setCampaignOpen(false)} />
+        )}
         {heroesOpen && <HeroChooser close={() => setHeroesOpen(false)} />}
         {shop && <Shop close={() => setShop(false)} />}
         {records && <Records close={() => setRecords(false)} />}
@@ -438,8 +499,9 @@ export function App() {
               <div className="guide-row">
                 <span>03</span>
                 <p>
-                  <strong>Bảo vệ rừng</strong>Sống sót 5 phút, hạ Golem và né
-                  vòng nện đỏ. Dùng vàng sau mỗi lượt để nâng cấp vĩnh viễn.
+                  <strong>Chinh phục vùng đất</strong>Sống sót 5 phút, hạ thủ
+                  lĩnh và né vùng báo chưởng. Dùng vàng, tinh hoa để nâng trang
+                  bị và pet trong Hành trang.
                 </p>
               </div>
               <EvolutionRecipes />
@@ -449,6 +511,15 @@ export function App() {
                   <strong>Thách đấu thủ lĩnh</strong>Mini-boss xuất hiện ở phút
                   1 và phút 3. Né vòng sáng hoặc đường lao; hạ chúng rồi nhặt
                   rương để chọn bảo vật cho lượt chơi.
+                </p>
+              </div>
+              <div className="guide-row">
+                <span>05</span>
+                <p>
+                  <strong>Cuồng nộ và sức mạnh mới</strong>Hạ quái để nạp mana.
+                  Chạm biểu tượng vũ khí để chọn chiêu; đủ100 mana, bấm Cuồng nộ
+                  hoặc SPACE. Kiếm trận, Bão tuyết và Lốc lá vẫn nhận nâng cấp
+                  sát thương, tầm phủ và đạn hỗ trợ sau tiến hóa.
                 </p>
               </div>
               <button className="play-button compact" onClick={start}>
@@ -466,10 +537,10 @@ export function App() {
       </section>
       <footer className="desktop-footer">
         <span>
-          <span className="live-dot" /> SURVIVOR MINI 1.3
+          <span className="live-dot" /> SURVIVOR MINI 2.0
         </span>
         <span>
-          WASD để di chuyển <i>·</i> ESC để tạm dừng
+          WASD di chuyển <i>·</i> SPACE cuồng nộ <i>·</i> ESC tạm dừng
         </span>
         <button
           onClick={() => {

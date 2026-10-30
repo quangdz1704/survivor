@@ -1,3 +1,4 @@
+import { useDialogFocus } from "./useDialogFocus";
 import {
   ArrowLeft,
   ArrowRight,
@@ -23,6 +24,7 @@ import { profileRepository } from "../../core/profile";
 import { audioManager } from "../../audio/AudioManager";
 import { SkillIcon } from "./SkillIcon";
 import { useState } from "react";
+import { isMastery } from "../../core/mastery";
 import { EvolutionRecipes } from "./EvolutionRecipes";
 export function LevelUp() {
   const choices = useUI((s) => s.choices),
@@ -48,13 +50,17 @@ export function LevelUp() {
               </span>
               <span className="upgrade-copy">
                 <small>
-                  {choice.evolution
-                    ? "TIẾN HÓA VŨ KHÍ"
-                    : choice.current === 0
-                      ? choice.weapon
-                        ? "VŨ KHÍ MỚI"
-                        : "KỸ NĂNG MỚI"
-                      : `CẤP ${choice.current} → ${choice.next}`}
+                  {isMastery(choice.id)
+                    ? "CƯỜNG HÓA TIẾN HÓA"
+                    : choice.weapon && choice.current >= 6
+                      ? "THÊM ĐẠN HỖ TRỢ"
+                      : choice.evolution
+                        ? "TIẾN HÓA VŨ KHÍ"
+                        : choice.current === 0
+                          ? choice.weapon
+                            ? "VŨ KHÍ MỚI"
+                            : "KỸ NĂNG MỚI"
+                          : `CẤP ${choice.current} → ${choice.next}`}
                 </small>
                 <strong>{choice.name}</strong>
                 <span>{choice.description}</span>
@@ -72,6 +78,7 @@ export function LevelUp() {
   );
 }
 export function Shop({ close }: { close: () => void }) {
+  const dialog = useDialogFocus();
   const profile = useUI((s) => s.profile),
     setProfile = useUI((s) => s.setProfile);
   const [busy, setBusy] = useState(false);
@@ -119,7 +126,13 @@ export function Shop({ close }: { close: () => void }) {
   }
   return (
     <div className="modal-backdrop">
-      <section className="modal shop-modal">
+      <section
+        ref={dialog}
+        className="modal shop-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Nâng cấp nội tại"
+      >
         <button
           className="modal-close icon-button"
           aria-label="Đóng cửa hàng"

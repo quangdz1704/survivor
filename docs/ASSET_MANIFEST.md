@@ -101,3 +101,7 @@ Slime vương and Orc captain reuse local enemy textures with whole-body scaling
 ### Blizzard visual repair
 
 Original procedural wind ribbons, frost accents, snow streaks and faceted ice in `src/game/BlizzardVisual.ts`; no added texture, image download or dependency. The snow-vortex glyph in SkillIcon.tsx is original inline SVG replacing the Lucide CloudSnow mapping. Existing Lucide icons remain used elsewhere under their retained license. Native browser screenshots/animation38–40 are QA evidence, not generated concept art.
+
+## Campaign expansion /2026-10-30
+
+11 original AI-generated runtime WebPs under `public/assets/expansion/`: ashlands/glacier512² opaque tiles; ash-imp/ember-beetle/frost-wolf/ice-wisp and fox/owl/sprout256² transparent whole bodies; ember-drake/frost-warden384² transparent bosses. Total399,102bytes. Exact prompts, retained source PNGs and processing/provenance notes: `docs/artwork/expansion/{prompts.json,README.md,sources/}`. Contact sheet visually inspected. No third-party character or segmented anatomical assembly. Gear uses existing Lucide SVG vocabulary rather than raster art. Runtime art is precached; source images are excluded from dist.

@@ -1,3 +1,4 @@
+import { useDialogFocus } from "./useDialogFocus";
 import { useState } from "react";
 import { ArrowRight, Check, Heart, Sparkles, X } from "lucide-react";
 import { HEROES, UPGRADE_NAMES } from "../../core/game";
@@ -8,6 +9,7 @@ import { SkillIcon } from "./SkillIcon";
 import { audioManager } from "../../audio/AudioManager";
 
 export function HeroChooser({ close }: { close: () => void }) {
+  const dialog = useDialogFocus();
   const current = useUI((s) => s.profile.hero);
   const [selected, setSelected] = useState<HeroId>(current);
   const [busy, setBusy] = useState(false);
@@ -30,6 +32,7 @@ export function HeroChooser({ close }: { close: () => void }) {
   return (
     <div className="modal-backdrop">
       <section
+        ref={dialog}
         className="modal hero-modal"
         role="dialog"
         aria-modal="true"
