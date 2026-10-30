@@ -1,0 +1,25 @@
+The following is a diff from the previous accessibility tree for Window: "Survivor Mini — kiểm thử lượt chơi" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~					144 text Đồng hồ ở 15 FPS: ĐẠT
+Chế độ: defeat
+Thời gian: 151.8s
+HP: 0 · Cấp: 4
+Quái đã hạ: 177
+Đồng thời tối đa: 25
+Loại quái đã gặp: slime, bat, skeleton, orc, golem
+Lần chọn nâng cấp: 16
+HOÀN TẤT · Hai kết quả đã đi qua cùng engine.
+Kết quả: [
+  {
+    "id": "c814c9fb-5711-4a1e-ba2b-c3e105694582",
+    "victory": true,
+    "time": 321.13342600003534,
+    "kills": 584,
+    "level": 14,
+    "gold": 1136
+  },
+  {
+    "id": "835b8d35-1417-4bae-9f5d-bb13ac2241a3",
+    "victory": false,
+    "time": 151.78350466667942,
+
+The focused UI element is 143 button Chạy kiểm thử

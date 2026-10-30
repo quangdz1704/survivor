@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Survivor Mini — tải 150 quái</title>
+    <style>
+      body {
+        margin: 0;
+        background: #112c27;
+        color: #fff3cb;
+        font: 14px Arial;
+        display: flex;
+        gap: 25px;
+        padding: 20px;
+        justify-content: center;
+      }
+      #game {
+        width: 390px;
+        height: 844px;
+      }
+      aside {
+        width: 360px;
+      }
+      button {
+        padding: 15px;
+        background: #f2c779;
+        border: 0;
+        border-radius: 10px;
+      }
+      pre {
+        white-space: pre-wrap;
+        line-height: 1.8;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <aside>
+      <h1>Kiểm thử tải 150 quái</h1>
+      <p>
+        Cảnh kiểm thử nhân tạo: 150 actor được đặt quanh người chơi, HP cao và
+        bất tử để giữ tải ổn định. Dùng engine, combat và animation thật; không
+        phải lượt chơi cân bằng.
+      </p>
+      <button id="start" disabled>Đang tải…</button>
+      <pre id="log"></pre>
+    </aside>
+    <script type="module" src="/dev/load-verification.ts"></script>
+  </body>
+</html>

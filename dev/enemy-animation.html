@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Survivor Mini — chuyển động quái</title>
+    <style>
+      body {
+        margin: 0;
+        background: #112c27;
+        color: #fff1ca;
+        font: 16px Arial;
+        min-height: 100vh;
+        display: grid;
+        place-content: center;
+        text-align: center;
+        gap: 12px;
+      }
+      #preview {
+        width: min(96vw, 1000px);
+        aspect-ratio: 1000/360;
+      }
+      canvas {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 20px;
+      }
+      h1 {
+        font: 700 26px Georgia;
+      }
+      p {
+        font-size: 12px;
+        color: #b3c6a6;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Những cư dân của Rừng thì thầm</h1>
+    <p>Nhảy · Vỗ cánh · Sải bước · Vung chùy · Nện đất</p>
+    <div id="preview"></div>
+    <p>Bộ actor và animation đang dùng trong game.</p>
+    <script type="module">
+      import Phaser from "phaser";
+      import { EnemyActor } from "/src/game/EnemyActor.ts";
+      class Preview extends Phaser.Scene {
+        preload() {
+          EnemyActor.preload(this);
+          this.load.spritesheet("atlas", "/assets/forest-atlas.webp", {
+            frameWidth: 512,
+            frameHeight: 512,
+          });
+        }
+        create() {
+          this.actors = ["slime", "bat", "skeleton", "orc", "golem"].map(
+            (kind, i) => {
+              const a = new EnemyActor(this, kind);
+              a.activate(100 + i * 200, 210);
+              this.add
+                .text(
+                  100 + i * 200,
+                  325,
+                  ["SLIME", "DƠI", "BỘ XƯƠNG", "ORC", "GOLEM"][i],
+                  { fontSize: "11px", fontFamily: "Arial", color: "#dfd5b1" },
+                )
+                .setOrigin(0.5);
+              return a;
+            },
+          );
+        }
+        update(t, delta) {
+          if (!this.actors) return;
+          const dt = Math.min(delta, 45) / 1000;
+          this.actors.forEach((a, i) => {
+            a.charging = i === 4 ? Math.max(0, Math.sin(t / 1300)) : 0;
+            a.animate(dt, dt * (i === 4 ? 30 : 50), Math.sin(t / 3500));
+            a.setScale(
+              Math.sign(a.scaleX) * (i === 4 ? 1.25 : 2),
+              i === 4 ? 1.25 : 2,
+            );
+          });
+        }
+      }
+      new Phaser.Game({
+        type: Phaser.AUTO,
+        parent: "preview",
+        width: 1000,
+        height: 360,
+        backgroundColor: "#244a37",
+        scene: Preview,
+        audio: { noAudio: true },
+        banner: false,
+      });
+    </script>
+  </body>
+</html>

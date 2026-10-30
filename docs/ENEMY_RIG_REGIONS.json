@@ -1,0 +1,136 @@
+{
+  "skeleton": {
+    "head": {
+      "left": 59,
+      "top": 48,
+      "width": 438,
+      "height": 418
+    },
+    "torso": {
+      "left": 586,
+      "top": 110,
+      "width": 376,
+      "height": 344
+    },
+    "arm-left": {
+      "left": 1103,
+      "top": 70,
+      "width": 377,
+      "height": 367
+    },
+    "arm-right": {
+      "left": 149,
+      "top": 551,
+      "width": 265,
+      "height": 386
+    },
+    "leg-left": {
+      "left": 616,
+      "top": 538,
+      "width": 270,
+      "height": 422
+    },
+    "leg-right": {
+      "left": 1220,
+      "top": 539,
+      "width": 250,
+      "height": 414
+    }
+  },
+  "orc": {
+    "head": {
+      "left": 74,
+      "top": 101,
+      "width": 429,
+      "height": 373
+    },
+    "torso": {
+      "left": 591,
+      "top": 147,
+      "width": 389,
+      "height": 342
+    },
+    "arm-left": {
+      "left": 1082,
+      "top": 98,
+      "width": 409,
+      "height": 393
+    },
+    "arm-right": {
+      "left": 128,
+      "top": 557,
+      "width": 265,
+      "height": 373
+    },
+    "leg-left": {
+      "left": 582,
+      "top": 535,
+      "width": 279,
+      "height": 413
+    },
+    "leg-right": {
+      "left": 1174,
+      "top": 539,
+      "width": 278,
+      "height": 411
+    }
+  },
+  "golem": {
+    "head": {
+      "left": 76,
+      "top": 32,
+      "width": 414,
+      "height": 449
+    },
+    "torso": {
+      "left": 564,
+      "top": 57,
+      "width": 477,
+      "height": 437
+    },
+    "arm-left": {
+      "left": 1092,
+      "top": 49,
+      "width": 406,
+      "height": 470
+    },
+    "arm-right": {
+      "left": 65,
+      "top": 533,
+      "width": 405,
+      "height": 453
+    },
+    "leg-left": {
+      "left": 522,
+      "top": 527,
+      "width": 356,
+      "height": 464
+    },
+    "leg-right": {
+      "left": 1142,
+      "top": 531,
+      "width": 346,
+      "height": 459
+    }
+  },
+  "bat": {
+    "body": {
+      "left": 97,
+      "top": 228,
+      "width": 425,
+      "height": 557
+    },
+    "wing-left": {
+      "left": 567,
+      "top": 347,
+      "width": 457,
+      "height": 326
+    },
+    "wing-right": {
+      "left": 1061,
+      "top": 345,
+      "width": 435,
+      "height": 328
+    }
+  }
+}

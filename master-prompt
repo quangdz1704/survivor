@@ -1,0 +1,1321 @@
+# MASTER PROMPT — SURVIVOR MINI
+
+## Build a Polished 2D Cartoon Mobile Survival Game
+
+You are a senior game developer, game designer, technical artist, UI/UX designer, and autonomous coding agent.
+
+Your mission is to build a beautiful, polished, mobile-first 2D survival action game inspired by the gameplay mechanics of Vampire Survivors, Survivor.io, and Archero.
+
+The game must have its own original identity, characters, artwork, environments, UI, and progression systems.
+
+**Project:** Survivor Mini  
+**Genre:** 2D Top-Down Action Roguelite / Bullet Heaven  
+**Primary Platform:** Mobile Web (Android and iOS)  
+**Secondary Platform:** Desktop Web  
+**Orientation:** Portrait (9:16)  
+**Game Language:** Vietnamese  
+**Deployment:** Vercel  
+**Backend:** None for MVP
+
+---
+
+# 1. CORE OBJECTIVES
+
+Build a genuinely enjoyable game, not a technical demonstration.
+
+The final game must include:
+
+- Beautiful, sharp, HD cartoon-style 2D graphics.
+- Smooth character movement and animations.
+- Responsive virtual joystick.
+- Automatically attacking weapons.
+- Multiple enemy types.
+- Progressive enemy waves.
+- Experience collection and leveling.
+- Random skill upgrades.
+- Weapon upgrades.
+- Boss battles.
+- Satisfying combat effects.
+- Sound effects and background music.
+- Permanent character progression.
+- Persistent game saves.
+- Polished mobile-first UI.
+- PWA installation and offline support.
+
+Prioritize gameplay quality, visual consistency, and mobile performance.
+
+---
+
+# 2. AUTONOMOUS DEVELOPMENT RULES
+
+You are responsible for designing and implementing the project end to end.
+
+Do not ask the user to manually:
+
+- Search for game assets.
+- Download sprites.
+- Design maps.
+- Create UI components.
+- Prepare animations.
+- Write missing implementation details.
+
+Make reasonable technical and design decisions independently.
+
+### Required workflow
+
+1. Inspect the repository.
+2. Create an implementation plan.
+3. Establish the technical architecture.
+4. Research and acquire suitable game assets.
+5. Create a consistent visual design system.
+6. Build a playable visual prototype.
+7. Test and capture screenshots.
+8. **STOP and request user approval.**
+9. Continue full development only after approval.
+10. Test, optimize, and document the completed game.
+
+### Important restrictions
+
+- Do not automatically commit or push code.
+- Do not deploy to production without explicit approval.
+- Do not install paid tools or purchase assets without approval.
+- Do not expose API keys in frontend code.
+- Do not claim unimplemented features are complete.
+- Do not continue past the visual approval checkpoint without permission.
+
+---
+
+# 3. TECHNOLOGY STACK
+
+Use:
+
+| Layer            | Technology      |
+| ---------------- | --------------- |
+| Game Engine      | Phaser 3        |
+| Language         | TypeScript      |
+| UI               | React           |
+| Build            | Vite            |
+| Styling          | TailwindCSS     |
+| State Management | Zustand         |
+| Persistence      | IndexedDB       |
+| PWA              | vite-plugin-pwa |
+| Hosting          | Vercel          |
+
+Use a frontend-only architecture.
+
+No backend, database server, or authentication is required for the MVP.
+
+### Architecture
+
+Phaser handles:
+
+- Game loop.
+- Rendering.
+- Movement.
+- Enemy AI.
+- Combat.
+- Projectiles.
+- Physics and collisions.
+- Camera.
+- Particle effects.
+- World animations.
+
+React handles:
+
+- Main menu.
+- Gameplay HUD.
+- Pause menu.
+- Level-up modal.
+- Game-over screen.
+- Upgrade shop.
+- Settings.
+
+Use a typed event bridge between Phaser and React.
+
+Do not store individual enemy positions in React or Zustand.
+
+---
+
+# 4. ART DIRECTION — CRITICAL
+
+The game must use a modern, sharp, high-quality 2D cartoon visual style.
+
+### Visual inspiration
+
+- Survivor.io
+- Archero
+- Brotato
+
+Use these games only as references for quality, readability, and gameplay presentation.
+
+Do not copy their copyrighted characters, artwork, maps, or interface designs.
+
+### Required visual style
+
+- HD cartoon graphics.
+- Clean, smooth outlines.
+- Vibrant but harmonious colors.
+- Soft shadows.
+- Attractive lighting.
+- Consistent proportions.
+- Clear silhouettes.
+- Polished skill effects.
+- Beautiful environments.
+- Modern mobile-game UI.
+
+### Avoid
+
+- Pixel art.
+- Blurry sprites.
+- Low-resolution textures.
+- Inconsistent asset perspectives.
+- Generic emoji graphics.
+- Basic circles or rectangles as final character artwork.
+- Unstyled HTML interfaces.
+- Empty or repetitive environments.
+
+### Perspective
+
+Use a consistent three-quarter top-down perspective.
+
+Characters, enemies, buildings, trees, and environmental objects must share the same visual perspective.
+
+### Character style
+
+Create an original fantasy adventurer with:
+
+- Cute stylized proportions.
+- Large expressive head.
+- Compact body.
+- Distinctive clothing.
+- Clear silhouette.
+- Attractive color palette.
+- Smooth movement animations.
+
+The character should remain recognizable on a small mobile screen.
+
+---
+
+# 5. ASSET DISCOVERY & GENERATION
+
+Asset discovery and visual consistency are mandatory responsibilities.
+
+## 5.1 Research assets
+
+Proactively search legitimate asset providers, including:
+
+- Kenney.
+- itch.io game assets.
+- OpenGameArt.
+- CraftPix.
+- Other reputable game-asset sources.
+
+Prioritize:
+
+1. CC0 assets.
+2. Public-domain assets.
+3. Assets licensed for commercial use.
+4. Original AI-generated assets.
+5. Original vector assets.
+
+Verify licenses before using assets.
+
+Never assume that a freely downloadable asset is automatically licensed for commercial use.
+
+Never bypass paywalls or access restrictions.
+
+## 5.2 Evaluate assets
+
+Before selecting assets, evaluate:
+
+- Visual quality.
+- Art style.
+- Perspective.
+- Resolution.
+- Animation support.
+- Character proportions.
+- Color palette.
+- License.
+- Performance impact.
+
+Do not combine assets that look visually inconsistent.
+
+## 5.3 Generate missing assets
+
+If suitable assets cannot be found, generate original assets.
+
+### Priority A — AI image generation
+
+If an image-generation tool or API is available, use it to create:
+
+- Player characters.
+- Enemy sprites.
+- Boss sprites.
+- Environment tiles.
+- Trees and vegetation.
+- Decorative objects.
+- Skill icons.
+- UI illustrations.
+- Backgrounds.
+
+Use transparent backgrounds when appropriate.
+
+Maintain consistent perspective, lighting, proportions, and colors.
+
+### Priority B — SVG generation
+
+If image generation is unavailable, create original vector assets for:
+
+- UI icons.
+- Buttons.
+- Skill icons.
+- Decorative elements.
+- Simple stylized characters.
+
+SVG assets must look professionally designed.
+
+### Priority C — Procedural graphics
+
+Use Phaser Graphics or Canvas for:
+
+- Terrain patterns.
+- Grass.
+- Stones.
+- Particles.
+- Projectile effects.
+- Environmental details.
+
+Do not use basic geometric placeholders as final artwork.
+
+## 5.4 Shared generation prompt
+
+Use a consistent visual prompt for AI-generated assets:
+
+"Premium-quality 2D cartoon fantasy mobile game asset, polished casual game illustration, three-quarter top-down perspective, vibrant harmonious colors, smooth clean outlines, soft shadows, detailed but readable silhouette, professional HD mobile game artwork, consistent lighting, transparent background where appropriate, no text, no watermark."
+
+Adapt this prompt for each asset category.
+
+## 5.5 Animation requirements
+
+Required player animations:
+
+- Idle.
+- Walk.
+- Take damage.
+- Death.
+
+Support four-direction movement initially.
+
+Use sprite sheets or layered skeletal-style animation where appropriate.
+
+If AI-generated animation frames are inconsistent, use existing licensed animated sprites or controlled procedural animation.
+
+Do not claim animations are complete when frames visibly deform or flicker.
+
+## 5.6 Asset documentation
+
+Create `docs/ASSET_MANIFEST.md`.
+
+For each asset, record:
+
+- Asset name.
+- Category.
+- Source URL or generation method.
+- Author or provider.
+- License.
+- Commercial-use status.
+- Attribution requirements.
+- Local file path.
+
+---
+
+# 6. MANDATORY VISUAL PROTOTYPE
+
+**THIS IS THE FIRST MAJOR MILESTONE.**
+
+Before implementing the complete game, build a playable visual prototype.
+
+The prototype must demonstrate the actual intended visual quality.
+
+## 6.1 Prototype scope
+
+Implement:
+
+- One HD cartoon player character.
+- One beautifully designed forest map.
+- Two enemy types: Slime and Bat.
+- One automatic weapon: Magic Sword.
+- Functional virtual joystick.
+- Smooth character movement.
+- Basic enemy AI.
+- Automatic attacks.
+- Enemy damage and death.
+- Basic combat visual effects.
+- Polished gameplay HUD.
+- Main menu.
+- Responsive portrait layout.
+
+Use actual game-ready assets.
+
+Do not present temporary placeholders as finished artwork.
+
+## 6.2 Prototype map
+
+Create a forest arena containing:
+
+- Grass terrain.
+- Dirt paths.
+- Trees.
+- Bushes.
+- Stones.
+- Flowers.
+- Small ruins.
+- Decorative environmental details.
+
+The map must feel intentionally designed.
+
+Do not use an empty green rectangle with random circles.
+
+Use coherent terrain textures, decorative layers, and environmental composition.
+
+## 6.3 Prototype UI
+
+Create:
+
+**Main Menu**
+
+- Game logo.
+- Character illustration.
+- Play button.
+- Settings button.
+- Attractive background.
+
+**Gameplay HUD**
+
+- HP bar.
+- XP bar.
+- Current level.
+- Survival timer.
+- Kill count.
+- Pause button.
+
+All UI must be mobile-first and visually polished.
+
+## 6.4 Prototype verification
+
+After implementation:
+
+1. Run the game locally.
+2. Open it in a browser.
+3. Test a 390 × 844 mobile viewport.
+4. Capture screenshots of the actual running game.
+5. Capture the main menu.
+6. Capture gameplay with enemies.
+7. Capture gameplay with attack effects.
+8. Check visual consistency.
+9. Check character proportions.
+10. Verify joystick usability.
+
+If browser automation is available, use it.
+
+Do not present AI-generated concept art as screenshots of implemented gameplay.
+
+## 6.5 MANDATORY USER APPROVAL CHECKPOINT
+
+**STOP after completing the visual prototype.**
+
+Present:
+
+1. Main menu screenshot.
+2. Gameplay screenshot.
+3. Combat screenshot.
+4. Description of the art direction.
+5. Asset sources and licenses.
+6. Generated asset list.
+7. Known visual limitations.
+8. Instructions to run the prototype locally.
+
+Ask the user to approve the visual style.
+
+**DO NOT CONTINUE FULL DEVELOPMENT UNTIL THE USER EXPLICITLY APPROVES.**
+
+Do not implement the remaining weapons, bosses, permanent progression, or complete gameplay systems before approval.
+
+## 6.6 Revision process
+
+If the user is not satisfied:
+
+- Identify visual problems.
+- Replace unsuitable assets.
+- Improve character design.
+- Improve the map.
+- Refine the UI.
+- Regenerate assets when necessary.
+- Capture new screenshots.
+- Request approval again.
+
+Repeat until approved.
+
+## 6.7 After approval
+
+Once approved:
+
+- Update `ART_STYLE_GUIDE.md`.
+- Treat the approved visuals as the baseline.
+- Continue full development.
+- Maintain consistent visual quality.
+- Do not introduce conflicting art styles without approval.
+
+---
+
+# 7. CORE GAMEPLAY
+
+The game follows this loop:
+
+1. Start a survival run.
+2. Enemies spawn outside the camera.
+3. Enemies move toward the player.
+4. Weapons automatically attack.
+5. Defeated enemies drop XP.
+6. Player collects XP.
+7. Player levels up.
+8. Gameplay pauses.
+9. Three random upgrades appear.
+10. Player selects one upgrade.
+11. Gameplay resumes.
+12. Enemy difficulty increases.
+13. Final boss appears.
+14. Player wins or loses.
+15. Player receives gold.
+16. Gold is spent on permanent upgrades.
+17. Player starts another run.
+
+### Match duration
+
+Target: approximately 5 minutes.
+
+The first 30 seconds should be easy to understand and satisfying.
+
+Difficulty should increase progressively.
+
+---
+
+# 8. PLAYER SYSTEM
+
+Create one playable character for the MVP.
+
+### Default attributes
+
+```typescript
+interface PlayerStats {
+  maxHp: number;
+  currentHp: number;
+  damage: number;
+  movementSpeed: number;
+  attackSpeed: number;
+  criticalChance: number;
+  criticalMultiplier: number;
+  pickupRadius: number;
+  armor: number;
+}
+
+const DEFAULT_PLAYER_STATS: PlayerStats = {
+  maxHp: 100,
+  currentHp: 100,
+  damage: 10,
+  movementSpeed: 180,
+  attackSpeed: 1,
+  criticalChance: 0.05,
+  criticalMultiplier: 1.5,
+  pickupRadius: 60,
+  armor: 0,
+};
+```
+
+Implement:
+
+- Smooth movement.
+- Joystick controls.
+- Keyboard controls.
+- HP system.
+- Damage feedback.
+- Temporary invulnerability after damage.
+- Death animation.
+- Level-up effects.
+
+Movement must use delta time.
+
+---
+
+# 9. MOBILE CONTROLS
+
+Implement a responsive virtual joystick.
+
+Requirements:
+
+- Lower-left screen positioning.
+- Touch and pointer support.
+- Smooth analog movement.
+- Adjustable dead zone.
+- Automatic recentering.
+- No accidental page scrolling.
+- Compatibility with iOS Safari and Android Chrome.
+
+Desktop controls:
+
+- WASD.
+- Arrow keys.
+
+Joystick interaction must not interfere with other UI elements.
+
+---
+
+# 10. ENEMY SYSTEM
+
+Create five enemy types.
+
+| Enemy      |   HP | Damage | Behavior      |
+| ---------- | ---: | -----: | ------------- |
+| Slime      |   20 |      5 | Slow, common  |
+| Bat        |   12 |      4 | Fast, fragile |
+| Skeleton   |   40 |      8 | Balanced      |
+| Orc        |  100 |     15 | Slow, durable |
+| Golem Boss | 1500 |     25 | Boss          |
+
+Enemies must:
+
+- Spawn outside the visible camera.
+- Move toward the player.
+- Attack through contact.
+- Have different movement speeds.
+- Display damage feedback.
+- Play death animations.
+- Drop experience.
+- Respect active entity limits.
+
+Use lightweight steering behavior.
+
+Avoid expensive pathfinding in the MVP.
+
+---
+
+# 11. ENEMY WAVE SYSTEM
+
+Create a configurable wave director.
+
+Suggested progression:
+
+| Time      | Enemies                 |
+| --------- | ----------------------- |
+| 0:00–1:00 | Slimes                  |
+| 1:00–2:00 | Slimes + Bats           |
+| 2:00–3:00 | Skeletons introduced    |
+| 3:00–4:00 | Orcs introduced         |
+| 4:00–5:00 | Increased enemy density |
+| 5:00      | Final Boss              |
+
+Difficulty should scale through:
+
+- Spawn frequency.
+- Enemy count.
+- Enemy composition.
+- Enemy movement speed.
+- Enemy HP.
+
+Avoid sudden, unfair difficulty spikes.
+
+Pause the run timer during level-up and pause screens.
+
+---
+
+# 12. WEAPON SYSTEM
+
+Build a modular weapon architecture.
+
+Each weapon must define:
+
+- ID.
+- Name.
+- Description.
+- Icon.
+- Damage.
+- Attack interval.
+- Range.
+- Projectile speed.
+- Maximum level.
+- Upgrade effects.
+- Visual effects.
+
+## Weapon 1 — Magic Sword
+
+Automatically attacks the nearest enemy.
+
+Upgrades:
+
+- Increased damage.
+- Additional projectiles.
+- Faster attacks.
+- Piercing attacks.
+
+## Weapon 2 — Fireball
+
+Launches explosive projectiles.
+
+Upgrades:
+
+- Increased explosion radius.
+- Increased damage.
+- Additional fireballs.
+- Faster projectiles.
+
+## Weapon 3 — Lightning
+
+Strikes enemies within range.
+
+Upgrades:
+
+- Additional targets.
+- Increased damage.
+- Chain lightning.
+- Reduced cooldown.
+
+All three weapons must be implemented after visual prototype approval.
+
+Design the architecture to support additional weapons later.
+
+---
+
+# 13. EXPERIENCE & LEVEL-UP
+
+Enemies drop XP orbs.
+
+XP orbs must:
+
+- Be visually attractive.
+- Have pickup animations.
+- Be collectible within pickup radius.
+- Move toward the player when nearby.
+
+Use a configurable XP curve.
+
+```typescript
+function xpRequired(level: number): number {
+  return Math.floor(20 * Math.pow(level, 1.35));
+}
+```
+
+Treat this as XP required for the next level.
+
+### Level-up behavior
+
+When leveling up:
+
+1. Pause gameplay.
+2. Dim the background.
+3. Display three random upgrade cards.
+4. Player selects one.
+5. Apply the upgrade.
+6. Resume gameplay.
+
+Prevent duplicate or invalid choices.
+
+Do not offer max-level upgrades.
+
+If fewer than three valid upgrades exist, show only valid choices.
+
+### Additional upgrades
+
+- +10% damage.
+- +15% attack speed.
+- +10% movement speed.
+- +20% XP pickup radius.
+- +5% critical chance.
+- +20 maximum HP.
+
+Use sensible upgrade limits.
+
+---
+
+# 14. MAP SYSTEM
+
+Create a beautiful cartoon-style forest arena.
+
+### World size
+
+2400 × 2400 pixels.
+
+### Environment
+
+Include:
+
+- Grass terrain.
+- Dirt paths.
+- Flowers.
+- Stones.
+- Bushes.
+- Trees.
+- Small ruins.
+- Decorative objects.
+
+### Generation
+
+Implement deterministic map generation using a seed.
+
+Use:
+
+- Terrain variation.
+- Decorative object distribution.
+- Controlled clustering.
+- Clear walking areas.
+- Consistent composition.
+
+Decorative objects should not block movement in the MVP.
+
+### Camera
+
+Implement:
+
+- Smooth camera follow.
+- World bounds.
+- Portrait-friendly framing.
+- Responsive zoom.
+- Safe player visibility.
+
+Enemies must spawn outside the visible camera.
+
+---
+
+# 15. COMBAT VISUAL EFFECTS
+
+Combat should feel satisfying.
+
+Implement:
+
+- Hit flashes.
+- Damage numbers.
+- Critical hit indicators.
+- Enemy death effects.
+- XP pickup effects.
+- Projectile trails.
+- Fireball explosions.
+- Lightning effects.
+- Level-up particles.
+- Boss warning.
+- Screen shake for major impacts.
+
+Use object pooling where appropriate.
+
+Provide reduced-effects settings.
+
+Keep combat readable.
+
+---
+
+# 16. UI/UX SYSTEM
+
+All player-facing text must be in Vietnamese.
+
+## Main Menu
+
+Include:
+
+- Game logo.
+- Animated character.
+- Play button.
+- Upgrade button.
+- Settings button.
+- Current gold.
+- Attractive background.
+
+## Gameplay HUD
+
+Display:
+
+- HP.
+- XP.
+- Current level.
+- Survival timer.
+- Kill count.
+- Pause button.
+- Active weapons.
+
+Avoid obstructing the gameplay area.
+
+Respect mobile safe areas.
+
+## Level-up Modal
+
+Display three upgrade cards.
+
+Each card includes:
+
+- Skill icon.
+- Skill name.
+- Current or next level.
+- Description.
+- Rarity styling where applicable.
+
+## Game Over
+
+Display:
+
+- Victory or defeat.
+- Survival duration.
+- Enemies defeated.
+- Level reached.
+- Gold earned.
+- Retry button.
+- Return home button.
+
+## Upgrade Shop
+
+Display permanent upgrades.
+
+Each upgrade includes:
+
+- Current level.
+- Next-level benefit.
+- Upgrade cost.
+- Purchase button.
+
+## Settings
+
+Include:
+
+- Music volume.
+- Sound effects volume.
+- Visual effects quality.
+- Joystick sensitivity.
+- Vibration toggle where supported.
+
+---
+
+# 17. UI DESIGN SYSTEM
+
+Create a reusable design system.
+
+Visual direction:
+
+- Fantasy cartoon.
+- Rounded panels.
+- Soft gradients.
+- Clear typography.
+- Bright action buttons.
+- Subtle shadows.
+- Consistent spacing.
+- High-contrast text.
+
+Define tokens for:
+
+- Colors.
+- Typography.
+- Border radius.
+- Shadows.
+- Spacing.
+- Animation duration.
+
+Touch targets should generally be at least 44 × 44 CSS pixels.
+
+---
+
+# 18. AUDIO SYSTEM
+
+Implement a lightweight audio manager.
+
+Required sounds:
+
+- Button click.
+- Weapon attack.
+- Enemy hit.
+- Enemy death.
+- XP pickup.
+- Level up.
+- Player damage.
+- Boss spawn.
+- Victory.
+- Defeat.
+
+Background music:
+
+- Main menu.
+- Gameplay.
+
+Use appropriately licensed audio.
+
+Initialize sound after a user gesture to comply with mobile browser restrictions.
+
+Support mute and volume settings.
+
+---
+
+# 19. PERMANENT PROGRESSION
+
+Implement persistent currency and upgrades.
+
+### Currency
+
+Name: Gold.
+
+Gold is earned after each run.
+
+Rewards depend on:
+
+- Survival time.
+- Enemies defeated.
+- Boss victory.
+
+### Permanent upgrades
+
+Implement:
+
+- Maximum HP.
+- Base damage.
+- Movement speed.
+
+Upgrade costs should increase by level.
+
+Prevent purchases when gold is insufficient.
+
+### Persistence
+
+Save:
+
+- Gold.
+- Permanent upgrades.
+- Settings.
+- Best survival time.
+- Highest kill count.
+- Total runs.
+
+Use IndexedDB with a versioned schema.
+
+Handle unavailable or corrupted storage gracefully.
+
+---
+
+# 20. MOBILE PERFORMANCE
+
+Optimize for mobile devices.
+
+### Targets
+
+- 60 FPS on capable mid-range devices.
+- Graceful degradation to 30 FPS.
+- Stable gameplay with approximately 100–150 active enemies during initial testing.
+
+Implement:
+
+- Object pooling.
+- Efficient collision detection.
+- Delta-time movement.
+- Active entity limits.
+- Texture atlases where appropriate.
+- Optimized particles.
+- Reduced allocations in the game loop.
+- Device-aware quality settings.
+
+Avoid expensive React updates every frame.
+
+Use spatial partitioning when needed.
+
+Pause gameplay when the browser becomes inactive.
+
+---
+
+# 21. PWA SUPPORT
+
+Configure the game as an installable PWA.
+
+Requirements:
+
+- Web app manifest.
+- App icons.
+- Service worker.
+- Offline asset caching.
+- Mobile viewport configuration.
+- Portrait-first layout.
+- Standalone display mode.
+
+The game should work offline after required assets have been cached.
+
+Handle updates without corrupting saved progress.
+
+---
+
+# 22. TESTING
+
+Create automated tests for:
+
+- Damage calculations.
+- XP progression.
+- Upgrade selection.
+- Currency rewards.
+- Permanent upgrades.
+- Save/load behavior.
+- Weapon cooldowns.
+- Wave progression.
+
+Perform browser testing for:
+
+- Joystick.
+- Movement.
+- Enemy spawning.
+- Combat.
+- Collisions.
+- Level-up.
+- Boss encounter.
+- Victory and defeat.
+- Responsive UI.
+- PWA behavior.
+
+If browser automation tools are available, use them.
+
+Do not claim tests passed unless they were executed.
+
+---
+
+# 23. IMPLEMENTATION PHASES
+
+Follow this exact order.
+
+## Phase 1 — Foundation
+
+- Inspect repository.
+- Initialize project if needed.
+- Configure React, Vite, TypeScript, and Phaser.
+- Establish architecture.
+- Create design tokens.
+
+## Phase 2 — Art Research
+
+- Research game assets.
+- Verify licenses.
+- Create asset manifest.
+- Establish art style guide.
+- Generate missing assets.
+
+## Phase 3 — Visual Prototype
+
+- Create forest map.
+- Create player.
+- Create Slime and Bat.
+- Implement joystick.
+- Implement basic combat.
+- Implement Magic Sword.
+- Create main menu.
+- Create gameplay HUD.
+
+## Phase 4 — Visual Verification
+
+- Run prototype.
+- Test mobile viewport.
+- Capture actual screenshots.
+- Review visual consistency.
+- Fix visual problems.
+
+## Phase 5 — USER APPROVAL
+
+**STOP AND WAIT FOR USER APPROVAL.**
+
+Do not proceed without explicit permission.
+
+## Phase 6 — Combat Completion
+
+After approval:
+
+- Implement remaining weapons.
+- Complete combat system.
+- Improve effects.
+- Add enemy types.
+
+## Phase 7 — Progression
+
+- Implement XP.
+- Implement leveling.
+- Implement upgrade selection.
+- Implement weapon upgrades.
+
+## Phase 8 — Complete Run
+
+- Implement waves.
+- Implement boss.
+- Implement victory.
+- Implement defeat.
+- Implement result screen.
+
+## Phase 9 — Meta Progression
+
+- Implement gold.
+- Implement permanent upgrades.
+- Implement persistence.
+
+## Phase 10 — Polish
+
+- Add audio.
+- Improve animations.
+- Improve UI.
+- Refine effects.
+- Balance gameplay.
+
+## Phase 11 — Mobile Optimization
+
+- Optimize rendering.
+- Optimize collisions.
+- Improve touch controls.
+- Configure PWA.
+
+## Phase 12 — Verification
+
+- Run type checking.
+- Run linting.
+- Run automated tests.
+- Run production build.
+- Test mobile viewport.
+- Verify complete gameplay loop.
+- Prepare Vercel deployment instructions.
+
+---
+
+# 24. ACCEPTANCE CRITERIA
+
+The complete game must satisfy:
+
+1. The game starts successfully.
+2. The player moves using touch controls.
+3. Enemies spawn and pursue the player.
+4. Weapons automatically attack.
+5. Enemies take damage and die.
+6. Enemies drop XP.
+7. XP collection works.
+8. Level-up choices work.
+9. Weapon upgrades affect gameplay.
+10. Enemy difficulty increases.
+11. The boss appears.
+12. The boss can be defeated.
+13. Victory and defeat work.
+14. Result screen works.
+15. Gold rewards are correct.
+16. Permanent upgrades work.
+17. Save data survives reloads.
+18. Audio settings work.
+19. Mobile UI is usable.
+20. Cartoon graphics are visually consistent.
+21. Essential assets are present.
+22. No critical runtime errors remain.
+23. Production build succeeds.
+24. PWA requirements are implemented.
+
+---
+
+# 25. DOCUMENTATION
+
+Create:
+
+```text
+docs/
+├── GAME_DESIGN.md
+├── ARCHITECTURE.md
+├── ASSET_MANIFEST.md
+├── ART_STYLE_GUIDE.md
+├── GAME_BALANCE.md
+├── TESTING.md
+└── DEPLOYMENT.md
+```
+
+Document:
+
+- Game mechanics.
+- Architecture.
+- Asset sources and licenses.
+- Visual style.
+- Balance configuration.
+- Test results.
+- Known limitations.
+- Local setup.
+- Vercel deployment.
+
+---
+
+# 26. QUALITY STANDARDS
+
+Avoid:
+
+- Placeholder graphics presented as final assets.
+- Emoji characters.
+- Inconsistent art styles.
+- Unresponsive controls.
+- Small touch targets.
+- Empty maps.
+- Unbalanced spawning.
+- Missing animations.
+- Broken audio.
+- Fake implementations.
+- Nonfunctional UI buttons.
+- Unnecessary backend complexity.
+
+Prioritize:
+
+1. Fun gameplay.
+2. Responsive controls.
+3. High-quality cartoon graphics.
+4. Visual consistency.
+5. Satisfying combat.
+6. Stable mobile performance.
+7. Clear progression.
+8. Maintainable architecture.
+
+---
+
+# 27. FINAL EXECUTION INSTRUCTIONS
+
+Start by inspecting the repository.
+
+If empty, initialize the project.
+
+Then:
+
+1. Create a concise implementation plan.
+2. Define architecture.
+3. Research and acquire assets.
+4. Generate missing artwork using available tools.
+5. Build the playable visual prototype.
+6. Test the prototype.
+7. Capture screenshots from the actual running game.
+8. Present screenshots and asset information.
+9. **STOP and request visual approval.**
+
+Do not continue to full development until the user approves.
+
+After approval:
+
+1. Complete gameplay systems.
+2. Add remaining enemies and weapons.
+3. Implement progression.
+4. Implement boss battles.
+5. Add audio and visual polish.
+6. Optimize mobile performance.
+7. Implement PWA.
+8. Run tests.
+9. Prepare production deployment.
+
+If an image-generation service is unavailable, use the best legally available assets or create original vector artwork.
+
+Clearly report limitations.
+
+Do not pretend missing assets or unfinished features are complete.
+
+At the end of each major milestone, summarize:
+
+- Completed features.
+- Assets created or acquired.
+- Tests executed.
+- Known limitations.
+- Next implementation steps.
+
+**FINAL GOAL:**
+
+Deliver a beautiful, responsive, polished 2D cartoon mobile survivor game that feels like a real casual mobile game.
+
+The first milestone is an attractive, playable prototype with real assets that the user can review and approve.
+
+**BEGIN IMPLEMENTATION NOW.**

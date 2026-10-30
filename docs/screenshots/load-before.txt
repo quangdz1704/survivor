@@ -1,0 +1,8 @@
+The following is a diff from the previous accessibility tree for Window: "Survivor Mini — tải 150 quái" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~					139 button Chạy tải 20 giây
+~					141 text Thời gian đo: 20.0s
+Số quái: 150 (min 150, max 150)
+FPS trung bình: 27.8
+Kiểm tra giới hạn + boss: ĐẠT
+HOÀN TẤT · Chỉ phản ánh máy desktop hiện tại.
+The focused UI element is 133 HTML Content Description: Survivor Mini — tải 150 quái, URL: 127.0.0.1:5180/dev/load-verification.html

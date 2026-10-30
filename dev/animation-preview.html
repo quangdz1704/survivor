@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Survivor Mini — xem chuyển động</title>
+    <style>
+      body {
+        margin: 0;
+        background: #112c27;
+        color: #fff1ca;
+        font:
+          16px Trebuchet MS,
+          Arial;
+        min-height: 100vh;
+        display: grid;
+        place-content: center;
+        gap: 12px;
+        text-align: center;
+      }
+      h1 {
+        font: 700 26px Georgia;
+        margin: 0;
+      }
+      p {
+        color: #abc3a9;
+        font-size: 13px;
+      }
+      #preview {
+        width: min(94vw, 780px);
+        aspect-ratio: 780/360;
+      }
+      canvas {
+        display: block;
+        width: 100% !important;
+        height: 100% !important;
+        border-radius: 24px;
+        border: 1px solid #94ad7444;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Nhịp chân mới của An</h1>
+    <p>Cùng nhân vật và bộ điều khiển animation đang dùng trong game.</p>
+    <div id="preview"></div>
+    <p>Đứng nghỉ · Đi chậm · Chạy — đổi hướng mỗi 4 giây.</p>
+    <script type="module">
+      import Phaser from "phaser";
+      import { PlayerActor } from "/src/game/PlayerActor.ts";
+      import { PlayerMotion } from "/src/game/PlayerMotion.ts";
+      class Preview extends Phaser.Scene {
+        preload() {
+          PlayerActor.preload(this);
+        }
+        create() {
+          this.actors = [];
+          this.motions = [];
+          for (let i = 0; i < 3; i++) {
+            this.add.ellipse(130 + i * 260, 280, 112, 26, 0x0b211d, 0.55);
+            this.actors.push(new PlayerActor(this, 130 + i * 260, 205));
+            this.motions.push(new PlayerMotion());
+            this.add
+              .text(130 + i * 260, 320, ["ĐỨNG NGHỈ", "ĐI CHẬM", "CHẠY"][i], {
+                fontFamily: "Arial",
+                fontSize: "12px",
+                color: "#e5d5a7",
+              })
+              .setOrigin(0.5);
+          }
+        }
+        update(time, delta) {
+          if (!this.actors) return;
+          const dt = Math.min(delta, 45) / 1000;
+          this.actors.forEach((actor, i) => {
+            const direction = Math.floor(time / 4000) % 2 ? -1 : 1;
+            const m = this.motions[i].step([0, 0.35, 1][i] * direction, 0, dt);
+            actor.animate(m.dx, m.dy, dt);
+            actor.setScale(actor.scaleX * 2.7, actor.scaleY * 2.7);
+          });
+        }
+      }
+      new Phaser.Game({
+        type: Phaser.AUTO,
+        parent: "preview",
+        width: 780,
+        height: 360,
+        backgroundColor: "#244a37",
+        scene: Preview,
+        audio: { noAudio: true },
+        banner: false,
+      });
+    </script>
+  </body>
+</html>
