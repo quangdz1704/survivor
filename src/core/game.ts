@@ -1,3 +1,7 @@
+import { ELITE_IDS, ELITES, initialElites } from "./encounters";
+import type { EliteId } from "./encounters";
+import { RELIC_IDS, RELICS } from "./relics";
+import type { RelicId } from "./relics";
 export type WeaponId = "sword" | "fireball" | "lightning" | "frost" | "leaf";
 export type HeroId = "an" | "linh";
 export const HEROES: Record<
@@ -426,6 +430,10 @@ export class RunModel {
   kills = 0;
   weapons: Record<WeaponId, number>;
   evolutions = initialEvolutions();
+  elites = initialElites();
+  relics: RelicId[] = [];
+  relicChoices: RelicId[] = [];
+  stationaryTime = 0;
   ranks: Record<PassiveId, number> = {
     damage: 0,
     haste: 0,
@@ -450,10 +458,56 @@ export class RunModel {
     this.hp = this.stats.maxHp;
   }
   get stats() {
-    return statsFor(this.profile, this.ranks);
+    const stats = statsFor(this.profile, this.ranks);
+    if (this.relics.includes("root") && this.stationaryTime >= 1)
+      stats.damage *= 1.35;
+    if (this.relics.includes("rage") && this.hp <= stats.maxHp * 0.4)
+      stats.attackSpeed *= 1.3;
+    return stats;
   }
   get pending() {
-    return this.choices.length > 0;
+    return this.choices.length > 0 || this.relicChoices.length > 0;
+  }
+  trackMovement(dt: number, distance: number) {
+    this.stationaryTime =
+      distance > 0.01 ? 0 : Math.min(1, this.stationaryTime + dt);
+  }
+  dueElites() {
+    return ELITE_IDS.filter(
+      (id) => this.elites[id] === "waiting" && this.time >= ELITES[id].time,
+    );
+  }
+  openTreasure(id: EliteId) {
+    if (this.ended || this.pending || this.elites[id] !== "defeated")
+      return false;
+    const pool = RELIC_IDS.filter(
+      (relic) =>
+        !this.relics.includes(relic) &&
+        (!RELICS[relic].weapon || this.weapons[RELICS[relic].weapon!] > 0),
+    );
+    this.relicChoices = [];
+    while (this.relicChoices.length < 3 && pool.length) {
+      const index = Math.min(
+        pool.length - 1,
+        Math.floor(this.random() * pool.length),
+      );
+      this.relicChoices.push(pool.splice(index, 1)[0]);
+    }
+    if (!this.relicChoices.length) return false;
+    this.elites[id] = "claimed";
+    return true;
+  }
+  selectRelic(id: RelicId) {
+    if (
+      this.ended ||
+      !this.relicChoices.includes(id) ||
+      this.relics.includes(id)
+    )
+      return false;
+    this.relics.push(id);
+    this.relicChoices = [];
+    this.checkLevel();
+    return true;
   }
   rank(id: UpgradeId) {
     if (isEvolution(id)) return Number(this.evolutions[id]);
@@ -564,8 +618,7 @@ export class RunModel {
     else if (WEAPONS.includes(id as WeaponId)) {
       this.focusedWeapon = id as WeaponId;
       this.weapons[this.focusedWeapon]++;
-    }
-    else this.ranks[id as PassiveId]++;
+    } else this.ranks[id as PassiveId]++;
     if (id === "health") this.hp = Math.min(this.stats.maxHp, this.hp + 20);
     this.choices = [];
     this.checkLevel();
