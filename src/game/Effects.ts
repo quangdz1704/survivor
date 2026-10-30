@@ -1,4 +1,4 @@
-import Phaser from "phaser";
+import type Phaser from "phaser";
 import { GolemBlast } from "./GolemBlast";
 interface Particle {
   image: Phaser.GameObjects.Arc;
@@ -16,8 +16,18 @@ export class Effects {
   private particles: Particle[] = [];
   private numbers: NumberEffect[] = [];
   private blast: GolemBlast;
-  constructor(private scene: Phaser.Scene) {
+  private rings: {
+    image: Phaser.GameObjects.Arc;
+    life: number;
+    duration: number;
+  }[] = [];
+  constructor(scene: Phaser.Scene) {
     this.blast = new GolemBlast(scene);
+    this.rings = Array.from({ length: 8 }, () => ({
+      image: scene.add.circle(0, 0, 1).setVisible(false),
+      life: 0,
+      duration: 1,
+    }));
     for (let i = 0; i < 130; i++)
       this.particles.push({
         image: scene.add
@@ -80,20 +90,29 @@ export class Effects {
   }
   ring(x: number, y: number, radius: number, color: number, duration = 300) {
     if (!this.enabled) return;
-    const ring = this.scene.add
-      .circle(x, y, radius * 0.5)
+    const ring = this.rings.find((r) => r.life <= 0);
+    if (!ring) return;
+    ring.duration = ring.life = duration / 1000;
+    ring.image
+      .setPosition(x, y)
+      .setRadius(radius * 0.5)
       .setStrokeStyle(2, color, 0.7)
-      .setDepth(y + 50);
-    this.scene.tweens.add({
-      targets: ring,
-      scale: 2,
-      alpha: 0,
-      duration,
-      onComplete: () => ring.destroy(),
-    });
+      .setDepth(y + 50)
+      .setScale(1)
+      .setAlpha(1)
+      .setVisible(true);
   }
   update(dt: number) {
     this.blast.update(dt, this.enabled);
+    for (const ring of this.rings)
+      if (ring.life > 0) {
+        ring.life = Math.max(0, ring.life - dt);
+        const progress = 1 - ring.life / ring.duration;
+        ring.image
+          .setScale(1 + progress)
+          .setAlpha(1 - progress)
+          .setVisible(ring.life > 0);
+      }
     for (const p of this.particles)
       if (p.life > 0) {
         p.life -= dt;
@@ -112,6 +131,10 @@ export class Effects {
   }
   clear() {
     this.blast.clear();
+    for (const ring of this.rings) {
+      ring.life = 0;
+      ring.image.setVisible(false);
+    }
     for (const p of this.particles) {
       p.life = 0;
       p.image.setVisible(false);
