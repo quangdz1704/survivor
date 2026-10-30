@@ -3,6 +3,7 @@ import type { GameMode, Snapshot } from "../game/bridge";
 import { emptySnapshot } from "../game/bridge";
 import { newProfile, DEFAULT_SETTINGS } from "../core/game";
 import type { Profile, RunResult, Settings, UpgradeChoice } from "../core/game";
+import type { RelicId } from "../core/relics";
 interface UIState {
   mode: GameMode;
   ready: boolean;
@@ -12,6 +13,7 @@ interface UIState {
   storageAvailable: boolean;
   stats: Snapshot;
   choices: UpgradeChoice[];
+  relicChoices: RelicId[];
   result: RunResult | null;
   rewardSaved: boolean;
   effects: boolean;
@@ -25,6 +27,7 @@ interface UIState {
   setEffects: (effects: boolean) => void;
   setSensitivity: (sensitivity: number) => void;
   setChoices: (choices: UpgradeChoice[]) => void;
+  setRelicChoices: (relicChoices: RelicId[]) => void;
   setResult: (result: RunResult) => void;
   markRewardSaved: () => void;
 }
@@ -37,6 +40,7 @@ export const useUI = create<UIState>((set) => ({
   storageAvailable: true,
   stats: emptySnapshot(),
   choices: [],
+  relicChoices: [],
   result: null,
   rewardSaved: false,
   effects: true,
@@ -68,7 +72,30 @@ export const useUI = create<UIState>((set) => ({
       settings: { ...state.settings, sensitivity },
     })),
   setChoices: (choices) =>
-    set({ choices, mode: choices.length ? "levelup" : "playing" }),
-  setResult: (result) => set({ result, rewardSaved: false, mode: "ended" }),
+    set((state) => ({
+      choices,
+      mode: choices.length
+        ? "levelup"
+        : state.relicChoices.length
+          ? "treasure"
+          : "playing",
+    })),
+  setRelicChoices: (relicChoices) =>
+    set((state) => ({
+      relicChoices,
+      mode: relicChoices.length
+        ? "treasure"
+        : state.choices.length
+          ? "levelup"
+          : "playing",
+    })),
+  setResult: (result) =>
+    set({
+      result,
+      rewardSaved: false,
+      mode: "ended",
+      choices: [],
+      relicChoices: [],
+    }),
   markRewardSaved: () => set({ rewardSaved: true }),
 }));

@@ -1807,3 +1807,136 @@ button:active {
     display: none;
   }
 }
+
+/* Elite treasure uses the existing forest palette and portrait card layout. */
+.treasure-modal {
+  border-color: #edc77d99;
+  background:
+    radial-gradient(ellipse at top, #78613145, transparent 65%), #16372ff5;
+}
+.relic-card {
+  border-color: #dcc77e77;
+  background: #203c32;
+}
+.relic-card .upgrade-copy em {
+  display: block;
+  font-size: 10px;
+  font-style: normal;
+  color: #cfbd8c;
+  margin-top: 5px;
+  line-height: 1.4;
+}
+.relic-card .upgrade-copy > span {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.elite-health {
+  max-width: 270px;
+  margin: 9px auto 0;
+  padding: 7px 10px;
+  border: 1px solid #eac17b66;
+  border-radius: 9px;
+  background: #253e30ed;
+}
+.elite-health > span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #ffe4aa;
+}
+.elite-health small {
+  margin-left: auto;
+  font-size: 8px;
+  color: #d2bb8b;
+}
+.elite-health > div {
+  height: 4px;
+  border-radius: 4px;
+  background: #172a24;
+  margin-top: 5px;
+  overflow: hidden;
+}
+.elite-health i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #c18d52, #ffda8a);
+}
+.chest-guide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 10px auto 0;
+  padding: 8px;
+  border: 1px solid #e8c67a55;
+  border-radius: 9px;
+  background: #233e30ef;
+  color: #ffe0a1;
+  font-size: 11px;
+  max-width: 275px;
+}
+.relic-rack {
+  position: absolute;
+  z-index: 0;
+  bottom: 99px;
+  left: 22px;
+  display: flex;
+  gap: 7px;
+  pointer-events: none;
+}
+.relic-badge {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: #173d32e8;
+  border: 1px solid #dfc58966;
+  border-radius: 50%;
+}
+.relic-active {
+  border-color: #fff1a9;
+  box-shadow: 0 0 11px #e6ca7777;
+}
+.relic-inventory {
+  text-align: left;
+  margin-top: 14px;
+  border: 1px solid #e9cc7d55;
+  border-radius: 10px;
+  background: #112d25;
+}
+.relic-inventory summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 10px 12px;
+  color: #f4d991;
+  font-size: 12px;
+}
+.relic-inventory summary > span {
+  margin-left: auto;
+}
+.relic-inventory > div {
+  padding: 0 12px 10px;
+}
+.relic-inventory p {
+  display: flex;
+  gap: 10px;
+  margin: 8px 0;
+}
+.relic-inventory strong,
+.relic-inventory small {
+  display: block;
+}
+.relic-inventory strong {
+  color: #fff1cd;
+  font-size: 12px;
+}
+.relic-inventory small {
+  font-size: 11px;
+  line-height: 1.5;
+  margin-top: 3px;
+  color: #c0cbb0;
+}

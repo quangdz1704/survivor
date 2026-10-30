@@ -23,6 +23,7 @@ import { bridge } from "../game/bridge";
 import { Joystick } from "./Joystick";
 import { useUI } from "./store";
 import { EvolutionRecipes } from "./components/EvolutionRecipes";
+import { Treasure, RelicInventory } from "./components/Treasure";
 import { profileRepository } from "../core/profile";
 import { settleResult, HEROES } from "../core/game";
 import { audioManager } from "../audio/AudioManager";
@@ -59,7 +60,8 @@ export function App() {
     const state = useUI.getState();
     const offReady = bridge.whenReady(state.setReady),
       offStats = bridge.subscribe(state.setStats),
-      offChoices = bridge.event("choices", state.setChoices);
+      offChoices = bridge.event("choices", state.setChoices),
+      offTreasure = bridge.event("treasure", state.setRelicChoices);
     const offResult = bridge.event("result", (runResult) => {
       state.setResult(runResult);
       void profileRepository
@@ -91,6 +93,7 @@ export function App() {
       offReady();
       offStats();
       offChoices();
+      offTreasure();
       offResult();
       offUpdate();
       game.destroy(true);
@@ -332,10 +335,12 @@ export function App() {
               <button className="secondary-button" onClick={home}>
                 <ArrowLeft size={17} /> Về trại
               </button>
+              <RelicInventory />
             </section>
           </div>
         )}
         {mode === "levelup" && <LevelUp />}
+        {mode === "treasure" && <Treasure />}
         {mode === "ended" && result && (
           <div className="modal-backdrop">
             <section className="modal result-modal">
@@ -393,6 +398,7 @@ export function App() {
               >
                 Về trại
               </button>
+              <RelicInventory />
             </section>
           </div>
         )}
@@ -437,6 +443,14 @@ export function App() {
                 </p>
               </div>
               <EvolutionRecipes />
+              <div className="guide-row">
+                <span>04</span>
+                <p>
+                  <strong>Thách đấu thủ lĩnh</strong>Mini-boss xuất hiện ở phút
+                  1 và phút 3. Né vòng sáng hoặc đường lao; hạ chúng rồi nhặt
+                  rương để chọn bảo vật cho lượt chơi.
+                </p>
+              </div>
               <button className="play-button compact" onClick={start}>
                 <Swords size={20} /> ĐÃ HIỂU, ĐI THÔI! <ArrowRight size={20} />
               </button>
@@ -452,7 +466,7 @@ export function App() {
       </section>
       <footer className="desktop-footer">
         <span>
-          <span className="live-dot" /> SURVIVOR MINI 1.2
+          <span className="live-dot" /> SURVIVOR MINI 1.3
         </span>
         <span>
           WASD để di chuyển <i>·</i> ESC để tạm dừng

@@ -100,7 +100,7 @@ export class Pickups {
       .setDepth(y - 50)
       .setVisible(true);
   }
-  update(dt: number, x: number, y: number, run: RunModel) {
+  update(dt: number, x: number, y: number, run: RunModel, onHeal?: () => void) {
     this.soundCooldown = Math.max(0, this.soundCooldown - dt);
     const radius = run.stats.pickupRadius;
     for (const item of this.items) {
@@ -120,13 +120,16 @@ export class Pickups {
         item.active = false;
         item.image.setVisible(false);
         if (item.kind === "xp") run.gainXp(item.value);
-        else run.hp = Math.min(run.stats.maxHp, run.hp + item.value);
+        else {
+          run.hp = Math.min(run.stats.maxHp, run.hp + item.value);
+          onHeal?.();
+        }
         this.effects.burst(x, y, 0xa3ffe0, 3);
         if (this.soundCooldown === 0) {
           audioManager.play("xp");
           this.soundCooldown = 0.08;
         }
-        if (run.pending) break;
+        if (run.pending || run.ended) break;
       }
     }
   }

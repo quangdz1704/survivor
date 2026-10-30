@@ -2,6 +2,8 @@ import Phaser from "phaser";
 import { SlowEffect } from "./SlowEffect";
 import { ENEMIES } from "../core/game";
 import type { EnemyKind } from "../core/game";
+import { ELITES } from "../core/encounters";
+import type { EliteId } from "../core/encounters";
 const HUMANOID_PARTS = [
   "head",
   "torso",
@@ -22,6 +24,8 @@ export class EnemyActor extends Phaser.GameObjects.Container {
   knockX = 0;
   knockY = 0;
   charging = 0;
+  elite: EliteId | null = null;
+  private bodyScale = 1;
   readonly chill = new SlowEffect();
   private pose: Phaser.GameObjects.Container;
   private shadow: Phaser.GameObjects.Ellipse;
@@ -121,11 +125,13 @@ export class EnemyActor extends Phaser.GameObjects.Container {
     return this.active && this.hp > 0;
   }
   get radius() {
-    return ENEMIES[this.kind].radius;
+    return ENEMIES[this.kind].radius * this.bodyScale;
   }
   activate(x: number, y: number, hpScale = 1, speedScale = 1) {
     const base = ENEMIES[this.kind];
     this.id = nextEnemyId++;
+    this.elite = null;
+    this.bodyScale = 1;
     this.hp = this.maxHp = Math.round(base.hp * hpScale);
     this.speed = base.speed * speedScale;
     this.damage = base.damage;
@@ -145,6 +151,16 @@ export class EnemyActor extends Phaser.GameObjects.Container {
       .setVisible(true);
     this.layers.forEach((p) => p.clearTint());
   }
+  makeElite(id: EliteId) {
+    const config = ELITES[id];
+    this.elite = id;
+    this.hp = this.maxHp = config.hp;
+    this.damage = config.damage;
+    this.speed = config.speed;
+    this.xp = config.xp;
+    this.bodyScale = config.scale;
+    this.setScale(this.bodyScale);
+  }
   movementMultiplier() {
     return (
       this.chill.multiplier *
@@ -156,8 +172,8 @@ export class EnemyActor extends Phaser.GameObjects.Container {
   hit(dx: number, dy: number) {
     this.stagger = 0.11;
     const len = Math.hypot(dx, dy) || 1;
-    this.knockX = (dx / len) * (this.kind === "golem" ? 14 : 90);
-    this.knockY = (dy / len) * (this.kind === "golem" ? 14 : 90);
+    this.knockX = (dx / len) * (this.kind === "golem" || this.elite ? 14 : 90);
+    this.knockY = (dy / len) * (this.kind === "golem" || this.elite ? 14 : 90);
   }
   die() {
     this.hp = 0;
@@ -183,7 +199,7 @@ export class EnemyActor extends Phaser.GameObjects.Container {
           : (distance / (this.kind === "golem" ? 83 : 47)) * Math.PI * 2;
     const beat = Math.sin(this.phase);
     if (Math.abs(headingX) > 0.02 && this.kind !== "slime")
-      this.scaleX = headingX > 0 ? -1 : 1;
+      this.scaleX = (headingX > 0 ? -1 : 1) * this.bodyScale;
     this.pose.y =
       this.kind === "bat"
         ? -10 + Math.sin(this.phase * 0.5) * 2.3

@@ -347,7 +347,13 @@ export class CombatSystem {
           p.life = 0;
           break;
         }
-        hit(enemy, p.damage, p.vx, p.vy, p.kind);
+        const returningBonus =
+          p.kind === "leaf" &&
+          p.flight.returning &&
+          run.relics.includes("return")
+            ? 1.5
+            : 1;
+        hit(enemy, p.damage * returningBonus, p.vx, p.vy, p.kind);
         if (--p.pierce <= 0) {
           if (p.kind !== "leaf") p.life = 0;
           break;

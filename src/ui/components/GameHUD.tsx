@@ -1,7 +1,19 @@
-import { Heart, Leaf, Pause, Shield, Skull } from "lucide-react";
+import {
+  Heart,
+  Leaf,
+  Pause,
+  Shield,
+  Skull,
+  Crown,
+  ArrowRight,
+  PackageOpen,
+} from "lucide-react";
 import { useUI } from "../store";
 import { WEAPONS, UPGRADE_NAMES, evolutionFor } from "../../core/game";
 import { SkillIcon } from "./SkillIcon";
+import { ELITES } from "../../core/encounters";
+import { RELICS } from "../../core/relics";
+import { RelicIcon } from "./Treasure";
 export const formatTime = (time: number) =>
   `${Math.floor(time / 60)
     .toString()
@@ -10,6 +22,13 @@ export const formatTime = (time: number) =>
     .padStart(2, "0")}`;
 export function GameHUD({ pause }: { pause: () => void }) {
   const stats = useUI((s) => s.stats);
+  const chest = stats.chests
+    .slice()
+    .sort(
+      (a, b) =>
+        Math.hypot(a.x - stats.x, a.y - stats.y) -
+        Math.hypot(b.x - stats.x, b.y - stats.y),
+    )[0];
   return (
     <>
       <div className="hud">
@@ -70,6 +89,29 @@ export function GameHUD({ pause }: { pause: () => void }) {
             </div>
           </div>
         )}
+        {stats.elites.map((elite) => (
+          <div className="elite-health" key={elite.id}>
+            <span>
+              <Crown size={11} /> {ELITES[elite.id].name}{" "}
+              <small>MINI-BOSS</small>
+            </span>
+            <div>
+              <i style={{ width: `${(elite.hp / elite.maxHp) * 100}%` }} />
+            </div>
+          </div>
+        ))}
+        {chest && (
+          <div className="chest-guide">
+            <PackageOpen size={15} />
+            <span>Nhặt rương để chọn bảo vật</span>
+            <ArrowRight
+              size={20}
+              style={{
+                transform: `rotate(${Math.atan2(chest.y - stats.y, chest.x - stats.x)}rad)`,
+              }}
+            />
+          </div>
+        )}
       </div>
       <div className="weapon-rack">
         {WEAPONS.filter((id) => stats.weapons[id] > 0).map((id) => {
@@ -92,6 +134,19 @@ export function GameHUD({ pause }: { pause: () => void }) {
             </div>
           );
         })}
+      </div>
+      <div className="relic-rack" aria-label="Bảo vật trong lượt">
+        {stats.relics.map((id) => (
+          <span
+            key={id}
+            className={`relic-badge ${(id === "root" && stats.relicActive.root) || (id === "rage" && stats.relicActive.rage) ? "relic-active" : ""}`}
+            style={{ color: RELICS[id].color }}
+            aria-label={RELICS[id].name}
+            title={RELICS[id].description}
+          >
+            <RelicIcon id={id} size={18} />
+          </span>
+        ))}
       </div>
       {stats.time < 10 && (
         <div className="combat-tip">

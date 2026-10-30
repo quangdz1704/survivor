@@ -17,7 +17,8 @@ export type Sound =
   | "explosion"
   | "victory"
   | "defeat"
-  | "evolution";
+  | "evolution"
+  | "treasure";
 /** Original synthesized score/SFX. No audio downloads or external licenses. */
 class AudioManager {
   private context: AudioContext | null = null;
@@ -167,6 +168,7 @@ class AudioManager {
       defeat: [392, 330, 262, 196],
       boss: [110, 82, 110, 65],
       evolution: [523, 659, 784, 1047, 1568],
+      treasure: [659, 784, 1047, 1319],
     };
     if (notes[sound]) {
       notes[sound]!.forEach((freq, i) =>
@@ -184,7 +186,13 @@ class AudioManager {
     const config: Record<
       Exclude<
         Sound,
-        "level" | "victory" | "defeat" | "boss" | "explosion" | "evolution"
+        | "level"
+        | "victory"
+        | "defeat"
+        | "boss"
+        | "explosion"
+        | "evolution"
+        | "treasure"
       >,
       [number, number, number, OscillatorType, number]
     > = {

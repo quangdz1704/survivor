@@ -9,7 +9,10 @@ import type {
   EvolutionId,
 } from "../core/game";
 import { initialWeapons, initialEvolutions } from "../core/game";
-export type GameMode = "menu" | "playing" | "paused" | "levelup" | "ended";
+import type { RelicId } from "../core/relics";
+import type { EliteId } from "../core/encounters";
+export type GameMode =
+  "menu" | "playing" | "paused" | "levelup" | "treasure" | "ended";
 export interface Snapshot {
   hp: number;
   maxHp: number;
@@ -25,6 +28,10 @@ export interface Snapshot {
   weapons: Record<WeaponId, number>;
   ranks: Record<PassiveId, number>;
   evolutions: Record<EvolutionId, boolean>;
+  relics: RelicId[];
+  relicActive: { root: boolean; rage: boolean };
+  elites: { id: EliteId; hp: number; maxHp: number }[];
+  chests: { id: EliteId; x: number; y: number }[];
   boss: { hp: number; maxHp: number; warning: boolean } | null;
   wave: number;
   fps: number;
@@ -44,6 +51,10 @@ export const emptySnapshot = (): Snapshot => ({
   weapons: initialWeapons("an"),
   ranks: { damage: 0, haste: 0, speed: 0, magnet: 0, critical: 0, health: 0 },
   evolutions: initialEvolutions(),
+  relics: [],
+  relicActive: { root: false, rage: false },
+  elites: [],
+  chests: [],
   boss: null,
   wave: 1,
   fps: 60,
@@ -56,11 +67,13 @@ export interface Commands {
   quality: boolean;
   settings: Settings;
   choose: UpgradeId;
+  relic: RelicId;
 }
 interface Events {
   snapshot: Snapshot;
   ready: undefined;
   choices: UpgradeChoice[];
+  treasure: RelicId[];
   result: RunResult;
 }
 class Bridge {
