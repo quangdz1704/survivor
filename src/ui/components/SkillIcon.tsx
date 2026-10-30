@@ -10,6 +10,9 @@ import {
   TrendingUp,
   Snowflake,
   Leaf,
+  Orbit,
+  CloudSnow,
+  Tornado,
 } from "lucide-react";
 import type { UpgradeId } from "../../core/game";
 export function SkillIcon({ id, size = 24 }: { id: UpgradeId; size?: number }) {
@@ -25,6 +28,9 @@ export function SkillIcon({ id, size = 24 }: { id: UpgradeId; size?: number }) {
     speed: MoveUpRight,
     magnet: Magnet,
     critical: Target,
+    "sword-array": Orbit,
+    blizzard: CloudSnow,
+    "leaf-vortex": Tornado,
   }[id];
   return <Icon size={size} />;
 }

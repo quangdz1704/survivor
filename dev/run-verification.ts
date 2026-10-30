@@ -1,12 +1,26 @@
 import { createGame } from "../src/game/createGame";
 import { bridge } from "../src/game/bridge";
-import { newProfile, settleResult } from "../src/core/game";
+import {
+  newProfile,
+  settleResult,
+  EVOLUTION_IDS,
+  EVOLUTIONS,
+  UPGRADE_NAMES,
+} from "../src/core/game";
+import type { EvolutionId } from "../src/core/game";
 import { ProfileRepository } from "../src/core/profile";
 const game = createGame(document.getElementById("game")!);
 const log = document.getElementById("log")!;
 const hero =
   new URLSearchParams(location.search).get("hero") === "linh" ? "linh" : "an";
 const freshProfile = () => ({ ...newProfile(), hero });
+const requested = new URLSearchParams(location.search).get(
+  "evolve",
+) as EvolutionId;
+const goalEvolution = EVOLUTION_IDS.includes(requested) ? requested : undefined;
+const seenEvolutions: Partial<
+  Record<EvolutionId, { time: number; level: number }>
+> = {};
 let sawSlow = false,
   sawReturn = false;
 const seenWeapons = new Set<string>();
@@ -20,10 +34,13 @@ let testing = false,
   slowClockPassed = false,
   pauseChecked = false;
 const report = (extra = "") => {
-  log.textContent = `Nhân vật: ${hero} · Vũ khí: ${[...seenWeapons].join(", ")}\nSlow: ${sawSlow} · Lá trở về: ${sawReturn}\nĐồng hồ ở 15 FPS: ${slowClockPassed ? "ĐẠT" : "CHƯA CHẠY"}\nChế độ: ${mode}\nThời gian: ${latest?.time.toFixed(1) ?? 0}s\nHP: ${latest?.hp ?? 0} · Cấp: ${latest?.level ?? 1}\nQuái đã hạ: ${latest?.kills ?? 0}\nĐồng thời tối đa: ${maxEnemies}\nLoại quái đã gặp: ${[...seen].join(", ")}\nLần chọn nâng cấp: ${pauses}\n${extra}\nKết quả: ${JSON.stringify(results, null, 2)}`;
+  log.textContent = `Nhân vật: ${hero} · Vũ khí: ${[...seenWeapons].join(", ")}\nMục tiêu: ${goalEvolution ? UPGRADE_NAMES[goalEvolution] : "phối hợp"}\nTiến hóa đã thấy: ${JSON.stringify(seenEvolutions)}\nSlow: ${sawSlow} · Lá trở về: ${sawReturn}\nĐồng hồ ở 15 FPS: ${slowClockPassed ? "ĐẠT" : "CHƯA CHẠY"}\nChế độ: ${mode}\nThời gian: ${latest?.time.toFixed(1) ?? 0}s\nHP: ${latest?.hp ?? 0} · Cấp: ${latest?.level ?? 1}\nQuái đã hạ: ${latest?.kills ?? 0}\nĐồng thời tối đa: ${maxEnemies}\nLoại quái đã gặp: ${[...seen].join(", ")}\nLần chọn nâng cấp: ${pauses}\n${extra}\nKết quả: ${JSON.stringify(results, null, 2)}`;
 };
 bridge.subscribe((snapshot) => {
   latest = snapshot;
+  for (const id of EVOLUTION_IDS)
+    if (snapshot.evolutions[id] && !seenEvolutions[id])
+      seenEvolutions[id] = { time: snapshot.time, level: snapshot.level };
   for (const [id, rank] of Object.entries(snapshot.weapons))
     if (rank > 0) seenWeapons.add(id);
   if (testing) report();
@@ -52,7 +69,18 @@ bridge.event("choices", (choices) => {
       "magnet",
       "speed",
     ];
+    const recipe = goalEvolution ? EVOLUTIONS[goalEvolution] : undefined;
+    const focused = recipe
+      ? (choices.find((c) => c.id === goalEvolution) ??
+        (run.weapons[recipe.weapon] < recipe.weaponRank
+          ? choices.find((c) => c.id === recipe.weapon)
+          : undefined) ??
+        (run.ranks[recipe.passive] < recipe.passiveRank
+          ? choices.find((c) => c.id === recipe.passive)
+          : undefined))
+      : undefined;
     const choice =
+      focused ??
       choices.find((c) => c.current === 0 && c.weapon) ??
       (run.hp < run.stats.maxHp * 0.4
         ? choices.find((c) => c.id === "health")
@@ -95,6 +123,7 @@ bridge.whenReady(() => {
   log.textContent = "Sẵn sàng. Bấm Chạy kiểm thử.";
 });
 document.getElementById("start")!.onclick = () => {
+  for (const id of EVOLUTION_IDS) delete seenEvolutions[id];
   seen = new Set();
   seenWeapons.clear();
   sawSlow = sawReturn = false;

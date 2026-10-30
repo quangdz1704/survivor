@@ -56,6 +56,9 @@ function image() {
     setAlpha() {
       return this;
     },
+    setTint() {
+      return this;
+    },
   };
 }
 function graphics(): unknown {
@@ -88,9 +91,60 @@ function setup(weapon: WeaponId) {
     for (let i = 0; i < Math.round(seconds * 60); i++)
       combat.update(1 / 60, 0, 6, run, grid, hit);
   };
-  return { combat, step, hit, enemy, grid };
+  return { combat, step, hit, enemy, grid, run };
 }
 describe("pooled new weapons", () => {
+  it("replaces frost shots with periodic bounded area damage and excludes dead targets", () => {
+    const { step, hit, enemy, grid, run } = setup("frost");
+    run.weapons.frost = 6;
+    run.evolutions.blizzard = true;
+    enemy.x = 0;
+    const outside = { ...enemy, x: 210, id: 2 } as EnemyActor;
+    const dead = { ...enemy, id: 3, living: false } as EnemyActor;
+    grid.rebuild([enemy, outside, dead]);
+    step(1.2);
+    expect(hit).toHaveBeenCalledTimes(3);
+    expect(
+      hit.mock.calls.every((call) => call[0] === enemy && call[4] === "frost"),
+    ).toBe(true);
+    hit.mockClear();
+    enemy.x = 400;
+    grid.rebuild([enemy, outside, dead]);
+    step(0.5);
+    expect(hit).not.toHaveBeenCalled();
+  });
+  it("orbiting swords hit at their blade positions with a per-target damage cooldown", () => {
+    const { step, hit, enemy, grid, run, combat } = setup("sword");
+    run.weapons.sword = 6;
+    run.evolutions["sword-array"] = true;
+    enemy.x = 0;
+    step(0.8);
+    expect(hit).not.toHaveBeenCalled(); // A target at the orbit center is not touching a blade.
+    enemy.x = 86;
+    grid.rebuild([enemy]);
+    step(1.5);
+    expect(hit.mock.calls.length).toBeGreaterThan(0);
+    expect(hit.mock.calls.length).toBeLessThanOrEqual(6);
+    expect(hit.mock.calls.every((call) => call[4] === "sword")).toBe(true);
+    combat.reset();
+    hit.mockClear();
+    run.evolutions["sword-array"] = false;
+    run.weapons.sword = 0;
+    step(1);
+    expect(hit).not.toHaveBeenCalled();
+  });
+  it("evolved leaves follow curved paths and respect one hit per target per flight", () => {
+    const { step, hit, enemy, grid, run } = setup("leaf");
+    run.weapons.leaf = 6;
+    run.evolutions["leaf-vortex"] = true;
+    enemy.x = 80;
+    enemy.y = 25;
+    grid.rebuild([enemy]);
+    step(1.9);
+    expect(hit.mock.calls.length).toBeGreaterThan(0);
+    expect(hit.mock.calls.length).toBeLessThanOrEqual(8);
+    expect(hit.mock.calls.every((call) => call[4] === "leaf")).toBe(true);
+  });
   it("reports frost as the hit source so the scene can apply slow", () => {
     const { step, hit } = setup("frost");
     step(1.3);

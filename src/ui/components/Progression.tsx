@@ -23,9 +23,10 @@ import { profileRepository } from "../../core/profile";
 import { audioManager } from "../../audio/AudioManager";
 import { SkillIcon } from "./SkillIcon";
 import { useState } from "react";
+import { EvolutionRecipes } from "./EvolutionRecipes";
 export function LevelUp() {
   const choices = useUI((s) => s.choices),
-    level = useUI((s) => s.stats.level);
+    stats = useUI((s) => s.stats);
   return (
     <div className="modal-backdrop level-backdrop">
       <section className="modal level-modal">
@@ -33,13 +34,13 @@ export function LevelUp() {
           <Sparkles size={29} />
         </div>
         <span className="eyebrow">SỨC MẠNH ĐANG LỚN DẦN</span>
-        <h2>Lên cấp {level}!</h2>
+        <h2>Lên cấp {stats.level}!</h2>
         <p>Chọn một món quà của khu rừng.</p>
         <div className="upgrade-choices">
           {choices.map((choice) => (
             <button
               key={choice.id}
-              className={`upgrade-card ${choice.weapon ? "weapon-upgrade" : ""}`}
+              className={`upgrade-card ${choice.evolution ? "evolution-upgrade" : choice.weapon ? "weapon-upgrade" : ""}`}
               onClick={() => bridge.send("choose", choice.id)}
             >
               <span className={`skill-icon skill-${choice.id}`}>
@@ -47,11 +48,13 @@ export function LevelUp() {
               </span>
               <span className="upgrade-copy">
                 <small>
-                  {choice.current === 0
-                    ? choice.weapon
-                      ? "VŨ KHÍ MỚI"
-                      : "KỸ NĂNG MỚI"
-                    : `CẤP ${choice.current} → ${choice.next}`}
+                  {choice.evolution
+                    ? "TIẾN HÓA VŨ KHÍ"
+                    : choice.current === 0
+                      ? choice.weapon
+                        ? "VŨ KHÍ MỚI"
+                        : "KỸ NĂNG MỚI"
+                      : `CẤP ${choice.current} → ${choice.next}`}
                 </small>
                 <strong>{choice.name}</strong>
                 <span>{choice.description}</span>
@@ -60,6 +63,7 @@ export function LevelUp() {
             </button>
           ))}
         </div>
+        <EvolutionRecipes progress={stats} />
         <small className="modal-note">
           Thời gian tạm dừng để bạn lựa chọn.
         </small>

@@ -102,3 +102,23 @@ Firefox manual smoke check after replacement: selected Linh through the real cho
 `dev/golem-blast.html` uses the real ForestScene, actor, damage path and Effects. This development fixture spawns Golem immediately, removes ordinary enemies, disables player weapons and offers fixed-time poses; it is not a balanced match or production UI. Its9 checks passed in Firefox:25 damage inside the area; no damage just outside; expiry after1.15s; warning/match clock pause; blast pause; effect expiry after a result;30 replays with no additional game objects; home cleanup; and unchanged timing/damage with reduced effects. Evidence: `screenshots/golem-blast-checks.txt`.
 
 `screenshots/23-golem-blast.webp` contains38 consecutive native Firefox captures over2.866s, cropped to Golem and the attack area. The warning, fire, debris, smoke and fade were inspected in actual browser rendering. The clip has no audio track; explosion sound is implemented via local synthesis, not claimed as an audio recording. No new physical-phone FPS measurement, full-match balance run or production deployment is claimed for this change.
+
+## Version1.2 — weapon evolutions
+
+**61 tests across12 files pass**, plus ESLint, TypeScript and production build. New coverage checks recipe gating/explicit selection, legal unique cards, overflow/exhaustion/reset, UI choice/HUD, continuous attack bounds/cadence/reset, curved returning flight at30/60/120FPS, and audio voice pressure. Thirty seeds per starting hero reach evolution in8 focused choices;100 seeds unlock Leaf among other weapons and reach Lốc lá within12 choices. The latest selected weapon receives the owned-build slot so extra owned weapons do not dilute that progression.
+
+Independent read-only review found an audio saturation issue: mass area kills/pickups could consume the voice budget before the victory chord. Hit/death/XP synthesis now has a35ms per-sound throttle; the regression verifies150 simultaneous events preserve the result chord. Final review of combat, lifecycle and weapon-focus changes found no material correctness issue.
+
+`dev/evolutions.html` uses the production scene, combat and React level-up/HUD. This fixture deliberately prefills recipe ingredients, increases target HP and disables XP; it is separate from normal gameplay. Its20 checks passed in Firefox: card eligibility, attack after selection, pause, stable object pools, home cleanup and next-run reset for all3 evolutions, plus actual Blizzard slow and leaf-return phase. Screenshot24 shows the recipe/card UI;25–27 are32 consecutive native frames per evolution over approximately2.2s;28 compares actual combat frames. Clips contain no recorded audio. Reduced effects preserve functional attacks and a readable snowstorm boundary.
+
+Normal-profile bot runs use ordinary movement and card selection with no HP/XP/damage/boss-time injections. Each completed a victory followed by a separate standing defeat, all5 enemy types, level-up/manual pause, the15FPS clock/spawn/movement check, and reward/save/reload/duplicate checks.
+
+| Build | Evolution time / level | Victory time | Kills | Level |
+| --- | ---: | ---: | ---: | ---: |
+| Kang / Kiếm trận |189.37s /9 |327.88s |577 |13 |
+| Dun / Bão tuyết |263.21s /9 |348.90s |599 |15 |
+| Kang / Lốc lá |225.55s /11 |321.69s |583 |15 |
+
+An initial Leaf run won without evolving because the owned-weapon card was randomly shared among several weapons. That exposed the progression problem; the final focus correction and100-seed test address it. The Leaf row is the successful rerun after that fix. Sword/Blizzard gameplay captures precede this final offer change; their focused paths also pass the final domain regression. Evidence: screenshots29–31 and `screenshots/evolution-runs.txt`. Native AX truncates long reports and the Sword screenshot cuts off gold, so no Sword reward amount is claimed.
+
+Production PWA output precaches47 entries (~3938.86KiB), with no new external runtime assets or dependencies. The existing Phaser chunk-size warning remains. No new physical-phone FPS, audio listening, offline lifecycle or human difficulty certification is claimed. Changes are local; this agent has not committed, pushed or deployed this increment.

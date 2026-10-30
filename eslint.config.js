@@ -8,7 +8,7 @@ export default ts.config(
   ...ts.configs.recommended,
   { files: ["scripts/**/*.mjs"], languageOptions: { globals: globals.node } },
   {
-    files: ["dev/**/*.ts"],
+    files: ["dev/**/*.{ts,tsx}"],
     languageOptions: { globals: globals.browser },
     rules: { "@typescript-eslint/no-explicit-any": "off" },
   },

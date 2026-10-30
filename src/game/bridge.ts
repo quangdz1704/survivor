@@ -5,8 +5,10 @@ import type {
   UpgradeChoice,
   UpgradeId,
   WeaponId,
+  PassiveId,
+  EvolutionId,
 } from "../core/game";
-import { initialWeapons } from "../core/game";
+import { initialWeapons, initialEvolutions } from "../core/game";
 export type GameMode = "menu" | "playing" | "paused" | "levelup" | "ended";
 export interface Snapshot {
   hp: number;
@@ -21,6 +23,8 @@ export interface Snapshot {
   y: number;
   attacks: number;
   weapons: Record<WeaponId, number>;
+  ranks: Record<PassiveId, number>;
+  evolutions: Record<EvolutionId, boolean>;
   boss: { hp: number; maxHp: number; warning: boolean } | null;
   wave: number;
   fps: number;
@@ -38,6 +42,8 @@ export const emptySnapshot = (): Snapshot => ({
   y: 1200,
   attacks: 0,
   weapons: initialWeapons("an"),
+  ranks: { damage: 0, haste: 0, speed: 0, magnet: 0, critical: 0, health: 0 },
+  evolutions: initialEvolutions(),
   boss: null,
   wave: 1,
   fps: 60,

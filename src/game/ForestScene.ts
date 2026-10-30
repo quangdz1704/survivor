@@ -22,6 +22,7 @@ import {
   rolledDamage,
   waveAt,
   xpRequired,
+  isEvolution,
 } from "../core/game";
 import type {
   EnemyKind,
@@ -188,6 +189,11 @@ export class ForestScene extends Phaser.Scene {
     this.motion.reset();
     this.move = { x: 0, y: 0 };
     this.effects.ring(this.player.x, this.player.y, 65, 0xffde8d, 500);
+    if (isEvolution(id)) {
+      this.effects.burst(this.player.x, this.player.y, 0xffdb87, 24);
+      this.effects.ring(this.player.x, this.player.y, 100, 0xffdb87, 700);
+      audioManager.play("evolution");
+    }
     bridge.emit("choices", [...this.run.choices]);
     this.syncPause();
     this.publish();
@@ -484,9 +490,10 @@ export class ForestScene extends Phaser.Scene {
     enemy.hit(dx, dy);
     if (weapon === "frost" && enemy.hp > 0) {
       const rank = this.run!.weapons.frost;
+      const evolved = this.run!.evolutions.blizzard;
       enemy.chill.apply(
-        1.4 + (rank - 1) * 0.16,
-        0.3 + rank * 0.015,
+        evolved ? 1.8 : 1.4 + (rank - 1) * 0.16,
+        evolved ? 0.48 : 0.3 + rank * 0.015,
         enemy.kind === "golem",
       );
     }
@@ -547,6 +554,8 @@ export class ForestScene extends Phaser.Scene {
       y: this.player.y,
       attacks: this.combat.attacks,
       weapons: { ...run.weapons },
+      ranks: { ...run.ranks },
+      evolutions: { ...run.evolutions },
       boss: this.boss?.living
         ? { hp: this.boss.hp, maxHp: this.boss.maxHp, warning: false }
         : this.bossDelay > 0

@@ -37,3 +37,8 @@ Second playable silhouette: ivory bob, violet hood and tunic, icy-cyan scarf and
 ## Golem blast
 
 Replace the small generic burst/ring with an original procedural cartoon explosion: short cream star flash, merged orange fire lobes, expanding gold pressure wave, low dust skirt, fourteen rotating stone fragments with gravity, and warm smoke fading over1.15s. Keep the warning fixed at the actual104px hit radius for its full one-second charge. Reduced effects keeps the warning and a brief impact outline, without fire, debris, smoke or camera shake. The flash stays local to the blast rather than covering the whole screen.
+
+
+## Evolution effects
+
+Kiếm trận: four full-sized cream/gold blades, faint gold orbit trails. Bão tuyết: a translucent icy-cyan158px area, drifting ice glints and rotating wind segments; keep the hero and enemies readable. Lốc lá: eight green/gold leaves following curved outward arcs and homing back, with a small rotating leaf-wind mark around the caster. Activation uses a gold ring/chime. Evolved cards get a restrained gold background/border; HUD uses dedicated Orbit/CloudSnow/Tornado icons and a✦ badge. Reduced effects retains functional blades/leaves and a faint snowstorm range boundary while omitting decorative trails/snow. No new bitmap character art is introduced.

@@ -1,18 +1,13 @@
 import Phaser from "phaser";
-import { weaponConfig, WEAPONS } from "../core/game";
+import { weaponConfig, WEAPONS, evolutionFor } from "../core/game";
 import type { RunModel, WeaponId } from "../core/game";
 import type { EnemyActor } from "./EnemyActor";
 import { SpatialGrid } from "./SpatialGrid";
 import { Effects } from "./Effects";
 import { audioManager } from "../audio/AudioManager";
 import { ReturningFlight } from "./ReturningFlight";
-type Hit = (
-  enemy: EnemyActor,
-  damage: number,
-  dx: number,
-  dy: number,
-  weapon: WeaponId,
-) => void;
+import { EvolutionCombat } from "./EvolutionCombat";
+import type { WeaponHit as Hit } from "./EvolutionCombat";
 interface Projectile {
   image: Phaser.GameObjects.Image;
   active: boolean;
@@ -26,6 +21,7 @@ interface Projectile {
   hits: Set<number>;
   trail: number;
   flight: ReturningFlight;
+  evolved: boolean;
 }
 interface Beam {
   graphics: Phaser.GameObjects.Graphics;
@@ -44,12 +40,14 @@ export class CombatSystem {
   private targets: EnemyActor[] = [];
   private nearby: EnemyActor[] = [];
   private blast: EnemyActor[] = [];
+  private evolved: EvolutionCombat;
   attacks = 0;
   constructor(
     private scene: Phaser.Scene,
     private effects: Effects,
   ) {
     this.makeTextures();
+    this.evolved = new EvolutionCombat(scene, effects);
     for (let i = 0; i < 96; i++)
       this.projectiles.push({
         image: scene.add.image(0, 0, "blade").setVisible(false),
@@ -64,6 +62,7 @@ export class CombatSystem {
         hits: new Set(),
         trail: 0,
         flight: new ReturningFlight(),
+        evolved: false,
       });
     for (let i = 0; i < 8; i++)
       this.beams.push({
@@ -151,6 +150,7 @@ export class CombatSystem {
     g.destroy();
   }
   reset() {
+    this.evolved.reset();
     this.attacks = 0;
     this.cooldowns = { sword: 0, fireball: 0, lightning: 0, frost: 0, leaf: 0 };
     for (const p of this.projectiles) {
@@ -171,10 +171,22 @@ export class CombatSystem {
     grid: SpatialGrid<EnemyActor>,
     hit: Hit,
   ) {
+    this.attacks += this.evolved.update(dt, x, y, run, grid, hit);
+    if (run.ended) return;
     for (const weapon of WEAPONS) {
       const level = run.weapons[weapon];
       if (!level) continue;
+      const evolution = evolutionFor(weapon);
+      const evolved = evolution !== undefined && run.evolutions[evolution];
+      if (evolved && (weapon === "sword" || weapon === "frost")) continue;
       const config = weaponConfig(weapon, level, run.stats);
+      if (evolved && weapon === "leaf") {
+        config.count = 8;
+        config.speed = 420;
+        config.range = 300;
+        config.damage *= 1.35;
+        config.interval *= 0.85;
+      }
       this.cooldowns[weapon] = Math.min(
         config.interval,
         this.cooldowns[weapon] + dt,
@@ -189,7 +201,7 @@ export class CombatSystem {
       if (!this.targets.length) continue;
       this.cooldowns[weapon] = 0;
       this.attacks++;
-      audioManager.play(weapon);
+      audioManager.play(evolved && evolution ? evolution : weapon);
       if (weapon === "lightning") {
         const beam = this.beams.find((b) => b.life <= 0);
         if (beam) {
@@ -244,12 +256,16 @@ export class CombatSystem {
         for (let shot = 0; shot < config.count; shot++) {
           const target = this.targets[shot % this.targets.length];
           const angle =
-            Phaser.Math.Angle.Between(x, y, target.x, target.y) +
-            (shot >= this.targets.length ? (shot % 2 ? -0.1 : 0.1) : 0);
+            evolved && weapon === "leaf"
+              ? Phaser.Math.Angle.Between(x, y, target.x, target.y) +
+                (shot / config.count) * Math.PI * 2
+              : Phaser.Math.Angle.Between(x, y, target.x, target.y) +
+                (shot >= this.targets.length ? (shot % 2 ? -0.1 : 0.1) : 0);
           const p = this.projectiles.find((p) => !p.active);
           if (!p) break;
           p.active = true;
           p.kind = weapon;
+          p.evolved = evolved;
           p.vx = Math.cos(angle) * config.speed;
           p.vy = Math.sin(angle) * config.speed;
           p.life = weapon === "sword" ? 1.1 : weapon === "leaf" ? 2.2 : 1.5;
@@ -258,7 +274,8 @@ export class CombatSystem {
           p.pierce = config.pierce;
           p.hits.clear();
           p.trail = 0;
-          if (weapon === "leaf") p.flight.launch(x, y - 6, angle, config.speed);
+          if (weapon === "leaf")
+            p.flight.launch(x, y - 6, angle, config.speed, evolved);
           p.image
             .setTexture(weapon === "sword" ? "blade" : weapon)
             .setDisplaySize(
@@ -268,7 +285,8 @@ export class CombatSystem {
             .setPosition(x, y - 6)
             .setRotation(angle + Math.PI / 2)
             .setVisible(true)
-            .setAlpha(1);
+            .setAlpha(1)
+            .setTint(evolved ? 0xe7ff9c : 0xffffff);
         }
       }
     }
@@ -298,7 +316,7 @@ export class CombatSystem {
       }
       p.image.setDepth(p.image.y + 100);
       p.trail += dt;
-      if (p.trail > 0.065) {
+      if (p.trail > (p.evolved ? 0.1 : 0.065)) {
         p.trail = 0;
         this.effects.burst(
           p.image.x,

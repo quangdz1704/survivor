@@ -1350,6 +1350,96 @@ button:active {
 }
 .level-modal {
   padding: 21px 17px;
+  max-height: 94%;
+  overflow-y: auto;
+}
+.guide-modal {
+  max-height: 94%;
+  overflow-y: auto;
+}
+.evolution-upgrade {
+  border-color: #f9d378 !important;
+  background: linear-gradient(120deg, #765b2d99, #304e34) !important;
+  box-shadow: inset 0 0 16px #ffdd7920;
+}
+.evolution-upgrade .skill-icon {
+  color: #fff0b2;
+  border-color: #f9d378;
+  background: #6a512f;
+}
+.evolution-upgrade .upgrade-copy > small {
+  color: #ffe391;
+}
+.evolved-weapon {
+  border-color: #ffdf89 !important;
+  box-shadow: 0 0 12px #ffda6f33;
+}
+.evolved-weapon > small {
+  background: #f7d47b;
+  color: #3b422a;
+}
+.evolution-recipes {
+  margin-top: 16px;
+  text-align: left;
+  border: 1px solid #d5d49a33;
+  border-radius: 12px;
+  background: #102e2744;
+}
+.evolution-recipes summary {
+  min-height: 44px;
+  padding: 9px 10px;
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  cursor: pointer;
+  color: #e4d49d;
+  font-size: 11px;
+}
+.evolution-recipes summary > span {
+  margin-left: auto;
+  font-size: 9px;
+  color: #a9bea2;
+}
+.evolution-recipes summary:focus-visible {
+  outline: 2px solid #f9d378;
+  outline-offset: -3px;
+  border-radius: 10px;
+}
+.evolution-recipe-list {
+  padding: 0 10px 10px;
+}
+.evolution-recipe {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 0;
+  color: #a5baa4;
+  border-top: 1px solid #c1d49722;
+}
+.evolution-recipe > svg {
+  flex-shrink: 0;
+  color: #d9d097;
+}
+.evolution-recipe strong {
+  display: block;
+  font-size: 11px;
+  color: #e3dfbd;
+}
+.evolution-recipe span {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.evolution-recipe.ready strong,
+.evolution-recipe.ready > svg {
+  color: #ffe18d;
+}
+.evolution-recipe-list > p {
+  margin: 5px 0 0;
+  font-size: 10px;
+  line-height: 1.6;
+  color: #a7b99f;
 }
 .level-modal .modal-emblem {
   width: 55px;

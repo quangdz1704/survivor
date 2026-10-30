@@ -17,6 +17,7 @@ Chạm bất kỳ đâu trong vùng chơi rồi kéo để điều khiển joyst
 
 - Rừng 2400×2400 theo seed, cây mờ khi che nhân vật, camera mượt và artwork cartoon nguyên bản.
 - Chọn Kang hoặc Dun ở menu; lưu lựa chọn, chỉ số và vũ khí khởi đầu riêng. Kang dùng rig 8 lớp; Dun dùng các khung hình nguyên người để giữ tỷ lệ và tránh lộ khớp; Slime nhảy, Dơi vỗ cánh riêng, Bộ xương/Orc/Golem có rig chân tay, phản ứng trúng đòn và chết.
+- Ba tiến hóa: Kiếm trận (Kiếm phép 6 + Nhịp chiến đấu 2), Bão tuyết (Băng tinh 6 + Lời gọi tinh tú 2), Lốc lá (Lá xoáy 6 + Bước chân gió 2). Có thẻ chọn, công thức/tiến độ và huy hiệu HUD riêng; tiến hóa chỉ giữ trong lượt hiện tại.
 - Năm vũ khí: Kiếm phép, Hỏa cầu, Thiên lôi, Băng tinh làm chậm và Lá xoáy bay trở về; mỗi vũ khí 6 cấp. Sáu kỹ năng thụ động, ba lựa chọn ngẫu nhiên hợp lệ mỗi lần lên cấp.
 - Năm đợt quái tăng dần, Golem 1500 HP với vùng cảnh báo và đòn nổ gồm chớp lửa, sóng ép, bụi, đá văng cùng âm trầm; kết quả thắng/thua, chơi lại và về trại.
 - Vàng, cửa hàng nâng cấp vĩnh viễn, thành tích và cài đặt lưu bằng IndexedDB. Có chế độ lưu tạm nếu trình duyệt chặn storage.
@@ -41,6 +42,6 @@ PWA chỉ bật trong bản production/preview. Cần tải online lần đầu 
 - `/dev/run-verification.html`: bot chạy engine thật qua thắng/thua, kiểm tra pause và thưởng/lưu. Dùng IndexedDB QA riêng.
 - `/dev/load-verification.html`: cảnh nhân tạo đo tải 150 quái; không phải lượt chơi cân bằng.
 
-Các trang QA không nằm trong bản production. Xem [clip quái](docs/screenshots/07-enemy-animation.webp), [kiểm thử và giới hạn](docs/TESTING.md), [asset](docs/ASSET_MANIFEST.md) và [triển khai Vercel](docs/DEPLOYMENT.md). Người dùng đã triển khai bản main lên Vercel và phản hồi chơi trên điện thoại ổn. Bản mở rộng 1.1 nằm ở nhánh `feature/heroes-and-weapons`, chưa commit/push hay cập nhật production. Chưa đo FPS trên thiết bị iOS/Android thật; nhân vật vẫn dùng hình ba phần tư phía trước và lật ngang, chưa có artwork nhìn từ lưng.
+Các trang QA không nằm trong bản production. Xem [clip quái](docs/screenshots/07-enemy-animation.webp), [kiểm thử và giới hạn](docs/TESTING.md), [asset](docs/ASSET_MANIFEST.md) và [triển khai Vercel](docs/DEPLOYMENT.md). Người dùng đã triển khai bản main lên Vercel và phản hồi chơi trên điện thoại ổn. Bản mở rộng tiến hóa 1.2 đã hoàn thành tại local, chưa commit/push hay cập nhật production. Chưa đo FPS trên thiết bị iOS/Android thật; nhân vật vẫn dùng hình ba phần tư phía trước và lật ngang, chưa có artwork nhìn từ lưng.
 
 Bấm tên nhân vật ở menu để đổi Kang/Dun. Kang có 100 HP và Kiếm phép; Dun có 85 HP, chạy nhanh hơn 5%, hút XP xa hơn 25% và khởi đầu với Băng tinh. Tất cả nhân vật/vũ khí đều mở sẵn; vàng và nâng cấp ở trại được dùng chung. Chi tiết phiên bản mới: [nội dung và kiểm thử](docs/CONTENT_EXPANSION_PLAN.md).

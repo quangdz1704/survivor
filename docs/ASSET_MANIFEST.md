@@ -86,3 +86,8 @@ Built-in `image_gen` using the intact Linh portrait as the identity/proportion r
 ## Golem bomb-style attack
 
 Original procedural Phaser Graphics in `src/game/GolemBlast.ts`: fire/flash, pressure rings, dust, smoke and stone fragments. No downloaded or generated bitmap asset is added. Original local Web Audio explosion synthesis is in `src/audio/AudioManager.ts`; no audio sample license or runtime network dependency. Same source-code asset status as the existing procedural magic effects.
+
+
+## Weapon evolution effects
+
+Orbit blades and curved leaves reuse the project's procedural CombatSystem textures. Snowstorm ice/wind and orbit trails are original Phaser Graphics in EvolutionCombat, with no external raster assets. HUD/card icons Orbit, CloudSnow and Tornado come from the existing Lucide ISC dependency with its retained license. Evolution/attack sounds are original local Web Audio synthesis. No additional dependency or runtime network request.

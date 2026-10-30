@@ -13,6 +13,8 @@ import {
   weaponConfig,
   xpRequired,
   WEAPONS,
+  PASSIVES,
+  EVOLUTION_IDS,
 } from "./game";
 import type { UpgradeId, RunResult } from "./game";
 import { seededRandom } from "../game/rules";
@@ -92,11 +94,12 @@ describe("XP and upgrades", () => {
   });
   it("never offers max rank or duplicate cards when only two upgrades remain", () => {
     const r = run();
-    for (const id of Object.keys(UPGRADE_LIMITS) as UpgradeId[]) {
+    for (const id of [...WEAPONS, ...PASSIVES]) {
       if (id in r.weapons)
         r.weapons[id as keyof typeof r.weapons] = UPGRADE_LIMITS[id];
       else r.ranks[id as keyof typeof r.ranks] = UPGRADE_LIMITS[id];
     }
+    for (const id of EVOLUTION_IDS) r.evolutions[id] = true;
     r.ranks.health = 4;
     r.ranks.critical = 4;
     r.gainXp(20);
@@ -107,6 +110,7 @@ describe("XP and upgrades", () => {
     r.hp = 5;
     r.ranks.health = 4;
     for (const id of WEAPONS) r.weapons[id] = 6;
+    for (const id of EVOLUTION_IDS) r.evolutions[id] = true;
     for (const id of [
       "damage",
       "haste",

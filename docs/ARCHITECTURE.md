@@ -47,3 +47,12 @@ Display names are Kang (formerly An) and Dun (formerly Linh). Internal IDs stay 
 ## Golem blast rendering
 
 `GolemBlast.ts` is owned by `Effects`: two reused Graphics objects and fourteen preallocated debris descriptors, with analytic age-based drawing. No per-impact game objects or textures. `clearRun` clears the effect; active pause/level-up freezes it with simulation. After a result, only Effects continues updating so the final blast can finish behind the result panel. `GOLEM_BLAST_RADIUS` is shared by the warning, impact outline and scene damage test. `AudioManager` uses a cached half-second noise buffer, low-pass decay and two descending tones; temporary audio nodes disconnect on end.
+
+
+## Weapon evolution / 1.2
+
+`core/game.ts` owns the three recipes, eligible cards, per-run evolution flags and build-aware offer priority. Profile v1 is unchanged; old hero IDs remain compatible. `RunModel.select` rechecks eligibility and handles the evolution before the base weapon/passive branches; XP overflow keeps the next choice paused. After base ranks are capped, remaining evolutions are still offered before fallback healing.
+
+`game/EvolutionCombat.ts` owns one reused aura Graphics and four orbit sprites. CombatSystem delegates the continuous sword/blizzard paths, suppresses their base shots, and dispatches evolved leaf volleys through the existing96-slot projectile pool. ReturningFlight computes the outward curve analytically before its normal moving-caster return. Damage goes through ForestScene.hitEnemy, preserving crits, death, XP, boss finish and slow resistance. Snapshot publishes ranks/evolutions at the existing10Hz HUD rate. EvolutionRecipes, LevelUp and GameHUD render progress/cards/icons from that state; entities stay outside React.
+
+Audio attack colors and the evolution chord use existing synthesis. Hit/death/XP SFX are independently coalesced over35ms so large blizzard/pickup bursts do not consume the voice budget before boss/result cues.

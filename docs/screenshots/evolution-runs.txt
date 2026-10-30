@@ -1,0 +1,8 @@
+Actual Firefox engine bot runs; no HP, XP, damage or boss-time injection.
+Sword-array: evolved at 189.371032s / level 9. Win 327.8797487s / 577 kills / level 13. Standing defeat 200.6s / 261 kills / level 3.
+Blizzard: evolved at 263.2126613s / level 9. Win 348.895780s / 599 kills / level 15 / 1172 gold. Standing defeat 32.158488s / 20 kills / level 2.
+Leaf before focus correction: won 319.038041s / 581 kills / level 14 without evolution. This exposed upgrade dilution; not counted as evolution success.
+Leaf after focus correction: evolved at 225.552474s / level 11. Win 321.685540s / 583 kills / level 15 / 1135 gold. Standing defeat 168.846403s / 205 kills / level 4.
+All completed manual/level-up pause, 15 FPS clock/spawn/movement, result save/reload and duplicate-reward checks.
+Sword and Blizzard runs preceded the final focus correction; final seed-based domain regressions also cover their eight-choice paths.
+Screenshots are cropped native browser captures. Long AX text and sword result below viewport are truncated; unknown sword gold is intentionally omitted.

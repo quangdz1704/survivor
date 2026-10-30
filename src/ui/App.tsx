@@ -22,6 +22,7 @@ import { createGame } from "../game/createGame";
 import { bridge } from "../game/bridge";
 import { Joystick } from "./Joystick";
 import { useUI } from "./store";
+import { EvolutionRecipes } from "./components/EvolutionRecipes";
 import { profileRepository } from "../core/profile";
 import { settleResult, HEROES } from "../core/game";
 import { audioManager } from "../audio/AudioManager";
@@ -435,6 +436,7 @@ export function App() {
                   vòng nện đỏ. Dùng vàng sau mỗi lượt để nâng cấp vĩnh viễn.
                 </p>
               </div>
+              <EvolutionRecipes />
               <button className="play-button compact" onClick={start}>
                 <Swords size={20} /> ĐÃ HIỂU, ĐI THÔI! <ArrowRight size={20} />
               </button>
@@ -450,7 +452,7 @@ export function App() {
       </section>
       <footer className="desktop-footer">
         <span>
-          <span className="live-dot" /> SURVIVOR MINI 1.1
+          <span className="live-dot" /> SURVIVOR MINI 1.2
         </span>
         <span>
           WASD để di chuyển <i>·</i> ESC để tạm dừng

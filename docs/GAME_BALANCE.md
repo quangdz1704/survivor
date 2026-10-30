@@ -58,3 +58,14 @@ Kang remains unchanged. Dun: 85 HP, base damage 9, speed 189, pickup 75; starts 
 | Leaf         | 16.5 before rounding/crit |    1.45s |   210 |   350 | Outward0.48s, returning flight,5-hit budget |
 
 Frost: `1 + floor(rank/2)` shards, pierce2 at rank4, duration `1.4 + (rank−1)×0.16`, slow `0.3 + rank×0.015`. Slow does not stack; boss halves strength and shortens duration to70%. Leaf: `1 + floor(rank/3)` leaves, hit budget `4 + rank`; each target at most once per flight,2.2s maximum flight lifetime. Common damage/cooldown rank multipliers still apply to both. Five weapons can be combined; all content is open without a purchase. These values need human balance feedback.
+
+
+## Weapon evolution / 1.2
+
+| Evolution | Recipe | New behavior |
+| --- | --- | --- |
+| Kiếm trận | Sword6 + Haste2 | Four orbiting blades at86px. Contact within enemy radius+20. Damage = Sword6 damage×1.7; per-target immunity0.28s/attackSpeed. Replaces ordinary sword shots. |
+| Bão tuyết | Frost6 + Magnet2 | Following158px area. Tick0.38s/attackSpeed, damage = Frost6 damage×1.25. Slow48% for1.8s; boss receives existing half-strength/70%-duration resistance. Replaces frost projectiles. |
+| Lốc lá | Leaf6 + Speed2 | Eight leaves per volley,420px/s,300px activation range; damage = Leaf6×1.35, interval = Leaf6×0.85. Outward arc0.7s at2.8rad/s, then homes to moving caster;2.2s lifetime and ten-target pierce budget per leaf. Each target hit once per flight. |
+
+All formulas use current stats, including the companion passive. Evolving keeps the passive bonus and costs one level-up choice. Area/contact checks include enemy radius. Sword-array immunity entries expire and are removed; recycled actors get a new enemy ID. The normal96-projectile pool bounds all returning leaves, with four extra reusable sword sprites and one aura Graphics for continuous evolutions. Reduced effects changes decoration, not hit logic. These values are a first balance pass pending physical-phone play feedback.

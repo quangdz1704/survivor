@@ -1,6 +1,6 @@
 import { Heart, Leaf, Pause, Shield, Skull } from "lucide-react";
 import { useUI } from "../store";
-import { WEAPONS, UPGRADE_NAMES } from "../../core/game";
+import { WEAPONS, UPGRADE_NAMES, evolutionFor } from "../../core/game";
 import { SkillIcon } from "./SkillIcon";
 export const formatTime = (time: number) =>
   `${Math.floor(time / 60)
@@ -72,16 +72,26 @@ export function GameHUD({ pause }: { pause: () => void }) {
         )}
       </div>
       <div className="weapon-rack">
-        {WEAPONS.filter((id) => stats.weapons[id] > 0).map((id) => (
-          <div
-            key={id}
-            className={`active-weapon skill-${id}`}
-            aria-label={`${UPGRADE_NAMES[id]} cấp ${stats.weapons[id]}`}
-          >
-            <SkillIcon id={id} size={23} />
-            <small>{stats.weapons[id]}</small>
-          </div>
-        ))}
+        {WEAPONS.filter((id) => stats.weapons[id] > 0).map((id) => {
+          const evolution = evolutionFor(id);
+          const evolved =
+            evolution !== undefined && stats.evolutions[evolution];
+          const displayId = evolved && evolution ? evolution : id;
+          return (
+            <div
+              key={id}
+              className={`active-weapon skill-${id} ${evolved ? "evolved-weapon" : ""}`}
+              aria-label={
+                evolved
+                  ? `${UPGRADE_NAMES[displayId]} đã tiến hóa`
+                  : `${UPGRADE_NAMES[id]} cấp ${stats.weapons[id]}`
+              }
+            >
+              <SkillIcon id={displayId} size={23} />
+              <small>{evolved ? "✦" : stats.weapons[id]}</small>
+            </div>
+          );
+        })}
       </div>
       {stats.time < 10 && (
         <div className="combat-tip">

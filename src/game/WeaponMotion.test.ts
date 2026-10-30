@@ -25,6 +25,25 @@ describe("frost slow", () => {
   });
 });
 describe("returning leaf flight", () => {
+  it("curves evolved leaves identically at 30/60/120 FPS and still returns to a moving caster", () => {
+    const positions: { x: number; y: number }[] = [];
+    for (const fps of [30, 60, 120]) {
+      const p = new ReturningFlight();
+      p.launch(0, 0, 0, 420, true);
+      for (let i = 0; i < fps / 2; i++) p.step(1 / fps, 0, 0);
+      expect(p.y).toBeGreaterThan(100);
+      positions.push({ x: p.x, y: p.y });
+      let casterX = 0;
+      for (let i = 0; i < fps * 2 && !p.done; i++) {
+        casterX += 180 / fps;
+        p.step(1 / fps, casterX, 0);
+      }
+      expect(p.done).toBe(true);
+      expect(p.x).toBeCloseTo(casterX);
+    }
+    expect(positions[0].x).toBeCloseTo(positions[2].x, 5);
+    expect(positions[0].y).toBeCloseTo(positions[2].y, 5);
+  });
   it("travels outward for the same distance at 30, 60 and 120 FPS", () => {
     for (const fps of [30, 60, 120]) {
       const p = new ReturningFlight();

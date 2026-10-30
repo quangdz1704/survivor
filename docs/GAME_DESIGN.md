@@ -25,3 +25,10 @@ Menu, pause, cài đặt, cửa hàng, thành tích, lên cấp và kết quả 
 ## Băng tinh và Lá xoáy
 
 Băng tinh bắn thẳng, làm chậm có thời hạn và hiện màu xanh băng trên quái; nhiều lần trúng chỉ làm mới hiệu ứng, không nhân chồng. Boss chỉ nhận nửa cường độ chậm và 70% thời gian. Lá xoáy bay ra 0,48 giây rồi tìm về người chơi đang di chuyển. Mỗi mục tiêu chỉ nhận sát thương một lần trong một chuyến bay; khi hết ngân sách xuyên, lá vẫn bay về nhưng không gây thêm sát thương. Cả hai dùng pool đạn chung và dừng theo pause/chọn cấp.
+
+
+## Tiến hóa vũ khí / 1.2
+
+Kiếm phép6 + Nhịp chiến đấu2 mở Kiếm trận; Băng tinh6 + Lời gọi tinh tú2 mở Bão tuyết; Lá xoáy6 + Bước chân gió2 mở Lốc lá. Đủ nguyên liệu sẽ có ít nhất một thẻ tiến hóa trong lần lên cấp kế tiếp; người chơi phải chọn thẻ. Vũ khí và kỹ năng không bị tiêu hao, vũ khí cơ bản vẫn giữ cấp6; dạng tiến hóa thay cách tấn công. Mỗi dạng chỉ chọn một lần mỗi lượt và được xóa khi bắt đầu lượt mới, không ghi vào hồ sơ vĩnh viễn.
+
+Ba lựa chọn ưu tiên một tiến hóa hợp lệ, một vũ khí chưa có nếu còn, và một hướng build: nâng vũ khí vừa được chọn gần nhất hoặc kỹ năng còn thiếu khi vũ khí đã cấp6. Những ô còn lại bốc từ các nâng cấp hợp lệ. Người chơi chỉ tập trung vào vũ khí khởi đầu có thể tiến hóa sau8 lần chọn. Với Lá xoáy, mở vũ khí mới cho đến khi thấy Lá rồi tập trung nâng Lá sẽ đạt tiến hóa trong tối đa12 lần chọn. Công thức/tiến độ nằm trong phần mở rộng ở màn lên cấp; cẩm nang tại trại có công thức tĩnh. HUD đổi biểu tượng và gắn dấu✦ khi tiến hóa.

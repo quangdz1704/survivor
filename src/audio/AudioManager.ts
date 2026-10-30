@@ -1,6 +1,7 @@
-import type { Settings } from "../core/game";
+import type { Settings, EvolutionId } from "../core/game";
 import { DEFAULT_SETTINGS } from "../core/game";
 export type Sound =
+  | EvolutionId
   | "click"
   | "sword"
   | "fireball"
@@ -15,7 +16,8 @@ export type Sound =
   | "boss"
   | "explosion"
   | "victory"
-  | "defeat";
+  | "defeat"
+  | "evolution";
 /** Original synthesized score/SFX. No audio downloads or external licenses. */
 class AudioManager {
   private context: AudioContext | null = null;
@@ -26,6 +28,7 @@ class AudioManager {
   private note = 0;
   private activeVoices = 0;
   private blastNoise: AudioBuffer | null = null;
+  private nextTransient: Partial<Record<Sound, number>> = {};
   private settings: Settings = { ...DEFAULT_SETTINGS };
   private scene: "menu" | "game" | "paused" = "menu";
   unlock() {
@@ -148,6 +151,12 @@ class AudioManager {
     if (!this.context || !this.fxGain || this.settings.sound === 0) return;
     const t = this.context.currentTime,
       b = this.fxGain;
+    // Area damage/pickups may emit hundreds of events in one tick. Coalesce
+    // those small sounds so boss/result/evolution cues retain voice headroom.
+    if (sound === "hit" || sound === "death" || sound === "xp") {
+      if (t < (this.nextTransient[sound] ?? -Infinity)) return;
+      this.nextTransient[sound] = t + 0.035;
+    }
     if (sound === "explosion") {
       this.explosion(t, b);
       return;
@@ -157,6 +166,7 @@ class AudioManager {
       victory: [523, 659, 784, 1047, 1319],
       defeat: [392, 330, 262, 196],
       boss: [110, 82, 110, 65],
+      evolution: [523, 659, 784, 1047, 1568],
     };
     if (notes[sound]) {
       notes[sound]!.forEach((freq, i) =>
@@ -172,7 +182,10 @@ class AudioManager {
       return;
     }
     const config: Record<
-      Exclude<Sound, "level" | "victory" | "defeat" | "boss" | "explosion">,
+      Exclude<
+        Sound,
+        "level" | "victory" | "defeat" | "boss" | "explosion" | "evolution"
+      >,
       [number, number, number, OscillatorType, number]
     > = {
       click: [620, 0.07, 0.25, "sine", 420],
@@ -185,6 +198,9 @@ class AudioManager {
       death: [240, 0.12, 0.2, "sine", 60],
       xp: [900, 0.08, 0.12, "sine", 1500],
       damage: [125, 0.17, 0.6, "triangle", 55],
+      "sword-array": [1200, 0.14, 0.16, "triangle", 600],
+      blizzard: [900, 0.22, 0.14, "sine", 1600],
+      "leaf-vortex": [620, 0.24, 0.2, "triangle", 1350],
     };
     const [freq, duration, gain, type, slide] =
       config[sound as keyof typeof config];
@@ -240,6 +256,7 @@ class AudioManager {
     void this.context?.close();
     this.context = null;
     this.blastNoise = null;
+    this.nextTransient = {};
   }
 }
 export const audioManager = new AudioManager();

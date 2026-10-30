@@ -40,7 +40,59 @@ export const HEROES: Record<
 };
 export type PassiveId =
   "damage" | "haste" | "speed" | "magnet" | "critical" | "health";
-export type UpgradeId = WeaponId | PassiveId;
+export type EvolutionId = "sword-array" | "blizzard" | "leaf-vortex";
+export type UpgradeId = WeaponId | PassiveId | EvolutionId;
+export const EVOLUTION_IDS: EvolutionId[] = [
+  "sword-array",
+  "blizzard",
+  "leaf-vortex",
+];
+export const EVOLUTIONS: Record<
+  EvolutionId,
+  {
+    weapon: WeaponId;
+    passive: PassiveId;
+    weaponRank: number;
+    passiveRank: number;
+    description: string;
+  }
+> = {
+  "sword-array": {
+    weapon: "sword",
+    passive: "haste",
+    weaponRank: 6,
+    passiveRank: 2,
+    description:
+      "Bốn thanh kiếm xoay quanh bạn, chém xuyên các quái chạm vào trận kiếm.",
+  },
+  blizzard: {
+    weapon: "frost",
+    passive: "magnet",
+    weaponRank: 6,
+    passiveRank: 2,
+    description:
+      "Bão tuyết theo bước chân, gây sát thương liên tục và làm chậm cả vùng.",
+  },
+  "leaf-vortex": {
+    weapon: "leaf",
+    passive: "speed",
+    weaponRank: 6,
+    passiveRank: 2,
+    description:
+      "Tám lá sắc bung theo đường xoáy, xuyên quái rồi trở về bên bạn.",
+  },
+};
+export const initialEvolutions = (): Record<EvolutionId, boolean> => ({
+  "sword-array": false,
+  blizzard: false,
+  "leaf-vortex": false,
+});
+export function isEvolution(id: UpgradeId): id is EvolutionId {
+  return EVOLUTION_IDS.includes(id as EvolutionId);
+}
+export function evolutionFor(weapon: WeaponId): EvolutionId | undefined {
+  return EVOLUTION_IDS.find((id) => EVOLUTIONS[id].weapon === weapon);
+}
 export type EnemyKind = "slime" | "bat" | "skeleton" | "orc" | "golem";
 export type PermanentId = "health" | "damage" | "speed";
 export interface Settings {
@@ -87,6 +139,7 @@ export interface UpgradeChoice {
   current: number;
   next: number;
   weapon: boolean;
+  evolution?: boolean;
 }
 export const WEAPONS: WeaponId[] = [
   "sword",
@@ -156,6 +209,9 @@ export const UPGRADE_NAMES: Record<UpgradeId, string> = {
   magnet: "Lời gọi tinh tú",
   critical: "Mắt diều hâu",
   health: "Trái tim cổ thụ",
+  "sword-array": "Kiếm trận",
+  blizzard: "Bão tuyết",
+  "leaf-vortex": "Lốc lá",
 };
 export const UPGRADE_LIMITS: Record<UpgradeId, number> = {
   sword: 6,
@@ -169,6 +225,9 @@ export const UPGRADE_LIMITS: Record<UpgradeId, number> = {
   magnet: 4,
   critical: 5,
   health: 5,
+  "sword-array": 1,
+  blizzard: 1,
+  "leaf-vortex": 1,
 };
 export function xpRequired(level: number) {
   return Math.floor(20 * Math.pow(Math.max(1, level), 1.35));
@@ -318,6 +377,7 @@ export function weaponConfig(id: WeaponId, level: number, stats: PlayerStats) {
   };
 }
 export function upgradeDescription(id: UpgradeId, next: number) {
+  if (isEvolution(id)) return EVOLUTIONS[id].description;
   if (id === "frost")
     return next === 1
       ? "Bắn tinh thể băng, làm chậm quái trong 1,4 giây."
@@ -365,6 +425,7 @@ export class RunModel {
   time = 0;
   kills = 0;
   weapons: Record<WeaponId, number>;
+  evolutions = initialEvolutions();
   ranks: Record<PassiveId, number> = {
     damage: 0,
     haste: 0,
@@ -377,6 +438,7 @@ export class RunModel {
   ended = false;
   bossSpawned = false;
   victory = false;
+  private focusedWeapon: WeaponId;
   constructor(
     readonly profile: Profile,
     private random = Math.random,
@@ -384,6 +446,7 @@ export class RunModel {
   ) {
     this.id = id;
     this.weapons = initialWeapons(profile.hero);
+    this.focusedWeapon = HEROES[profile.hero].weapon;
     this.hp = this.stats.maxHp;
   }
   get stats() {
@@ -393,23 +456,67 @@ export class RunModel {
     return this.choices.length > 0;
   }
   rank(id: UpgradeId) {
+    if (isEvolution(id)) return Number(this.evolutions[id]);
     return WEAPONS.includes(id as WeaponId)
       ? this.weapons[id as WeaponId]
       : this.ranks[id as PassiveId];
   }
   validUpgrades() {
-    return [...WEAPONS, ...PASSIVES].filter(
+    const regular: UpgradeId[] = [...WEAPONS, ...PASSIVES].filter(
       (id) => this.rank(id) < UPGRADE_LIMITS[id],
     );
+    return [
+      ...regular,
+      ...EVOLUTION_IDS.filter((id) => {
+        const recipe = EVOLUTIONS[id];
+        return (
+          !this.evolutions[id] &&
+          this.weapons[recipe.weapon] >= recipe.weaponRank &&
+          this.ranks[recipe.passive] >= recipe.passiveRank
+        );
+      }),
+    ];
   }
   private offer() {
     const pool = this.validUpgrades();
     const selected: UpgradeId[] = [];
+    const ready = pool.filter(isEvolution);
+    if (ready.length)
+      selected.push(
+        ready[
+          Math.min(ready.length - 1, Math.floor(this.random() * ready.length))
+        ],
+      );
     const locked = WEAPONS.filter((id) => !this.weapons[id]);
     if (locked.length)
       selected.push(
         locked[
           Math.min(locked.length - 1, Math.floor(this.random() * locked.length))
+        ],
+      );
+    // A focused build must be attainable within a five-minute run. Offer an
+    // recently selected weapon, or a missing companion once a weapon is maxed.
+    const companions = EVOLUTION_IDS.filter((id) => {
+      const recipe = EVOLUTIONS[id];
+      return (
+        !this.evolutions[id] &&
+        this.weapons[recipe.weapon] >= recipe.weaponRank &&
+        this.ranks[recipe.passive] < recipe.passiveRank
+      );
+    }).map((id) => EVOLUTIONS[id].passive);
+    const owned = WEAPONS.filter(
+      (id) => this.weapons[id] > 0 && this.weapons[id] < UPGRADE_LIMITS[id],
+    );
+    const focused = owned.includes(this.focusedWeapon)
+      ? [this.focusedWeapon]
+      : owned;
+    const build = (companions.length ? companions : focused).filter(
+      (id) => !selected.includes(id),
+    );
+    if (selected.length < 3 && build.length)
+      selected.push(
+        build[
+          Math.min(build.length - 1, Math.floor(this.random() * build.length))
         ],
       );
     while (selected.length < 3 && pool.some((id) => !selected.includes(id))) {
@@ -430,6 +537,7 @@ export class RunModel {
       current: this.rank(id),
       next: this.rank(id) + 1,
       weapon: WEAPONS.includes(id as WeaponId),
+      evolution: isEvolution(id),
     }));
   }
   gainXp(amount: number) {
@@ -446,9 +554,17 @@ export class RunModel {
     }
   }
   select(id: UpgradeId) {
-    if (!this.choices.some((choice) => choice.id === id) || this.ended)
+    if (
+      !this.choices.some((choice) => choice.id === id) ||
+      this.ended ||
+      !this.validUpgrades().includes(id)
+    )
       return false;
-    if (WEAPONS.includes(id as WeaponId)) this.weapons[id as WeaponId]++;
+    if (isEvolution(id)) this.evolutions[id] = true;
+    else if (WEAPONS.includes(id as WeaponId)) {
+      this.focusedWeapon = id as WeaponId;
+      this.weapons[this.focusedWeapon]++;
+    }
     else this.ranks[id as PassiveId]++;
     if (id === "health") this.hp = Math.min(this.stats.maxHp, this.hp + 20);
     this.choices = [];

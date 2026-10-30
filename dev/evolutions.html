@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Survivor Mini — tiến hóa vũ khí</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 28px;
+        background: #112c27;
+        color: #fff3cb;
+        font: 14px Arial;
+      }
+      #stage.game-shell {
+        width: 390px;
+        height: 844px;
+        flex-shrink: 0;
+      }
+      #qa-ui {
+        position: absolute;
+        inset: 0;
+      }
+      aside {
+        width: 350px;
+      }
+      aside h1 {
+        font: 700 28px Georgia;
+      }
+      aside p,
+      aside pre {
+        line-height: 1.65;
+        white-space: pre-wrap;
+      }
+      aside button {
+        padding: 12px;
+        margin: 4px;
+        border: 1px solid #d5b96b;
+        border-radius: 10px;
+        background: #f2c779;
+        color: #17382d;
+        cursor: pointer;
+      }
+      aside button:disabled {
+        opacity: 0.4;
+      }
+      #verify-log {
+        color: #d8efb7;
+      }
+      @media (max-width: 760px) {
+        body {
+          flex-direction: column;
+          align-items: center;
+        }
+        #stage.game-shell {
+          width: min(390px, 94vw);
+          height: 780px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" class="game-shell">
+      <div id="game" class="game-canvas"></div>
+      <div id="qa-ui"></div>
+    </div>
+    <aside>
+      <h1>Tiến hóa · Thử vũ khí</h1>
+      <p>
+        Cảnh QA đặt sẵn cấp vũ khí/kỹ năng và quái bền hơn để quan sát. Bấm thẻ
+        tiến hóa trong màn lên cấp thật. Sát thương, làm chậm và chuyển động
+        dùng engine production. Không ghi hồ sơ cá nhân.
+      </p>
+      <button id="sword-array" disabled>Kiếm trận</button
+      ><button id="blizzard" disabled>Bão tuyết</button
+      ><button id="leaf-vortex" disabled>Lốc lá</button
+      ><button id="all" disabled>Cả ba</button
+      ><button id="quality" disabled>Giảm hiệu ứng: TẮT</button
+      ><button id="verify" disabled>Kiểm tra vòng đời</button>
+      <pre id="log">Đang tải…</pre>
+      <pre id="verify-log"></pre>
+    </aside>
+    <script type="module" src="/dev/evolutions.tsx"></script>
+  </body>
+</html>
