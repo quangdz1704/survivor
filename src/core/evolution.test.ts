@@ -1,3 +1,4 @@
+import { MASTERY_IDS, MASTERY } from "./mastery";
 import { describe, expect, it } from "vitest";
 import {
   EVOLUTION_IDS,
@@ -120,7 +121,11 @@ describe("weapon evolution progression", () => {
       expect(run.select(id)).toBe(true);
       run.gainXp(xpRequired(run.level));
     }
-    expect(run.pending).toBe(false);
+    expect(run.pending).toBe(true); // Evolutions now have continued XP progression.
+    for (const id of WEAPONS) run.weapons[id] = run.weaponLimit(id);
+    for (const id of MASTERY_IDS) run.masteries[id] = MASTERY[id].limit;
+    run.choices = [];
+    expect(run.validUpgrades()).toEqual([]);
     run.hp = 1;
     run.gainXp(xpRequired(run.level));
     expect(run.hp).toBe(21);

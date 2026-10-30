@@ -13,8 +13,11 @@ import {
   Orbit,
   Tornado,
 } from "lucide-react";
+import { isMastery, MASTERY } from "../../core/mastery";
 import type { UpgradeId } from "../../core/game";
 export function SkillIcon({ id, size = 24 }: { id: UpgradeId; size?: number }) {
+  if (isMastery(id))
+    return <SkillIcon id={MASTERY[id].evolution} size={size} />;
   if (id === "blizzard")
     return (
       <svg

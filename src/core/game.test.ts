@@ -1,3 +1,4 @@
+import { MASTERY_IDS, MASTERY } from "./mastery";
 import { describe, expect, it } from "vitest";
 import {
   RunModel,
@@ -100,6 +101,8 @@ describe("XP and upgrades", () => {
       else r.ranks[id as keyof typeof r.ranks] = UPGRADE_LIMITS[id];
     }
     for (const id of EVOLUTION_IDS) r.evolutions[id] = true;
+    for (const id of WEAPONS) r.weapons[id] = r.weaponLimit(id);
+    for (const id of MASTERY_IDS) r.masteries[id] = MASTERY[id].limit;
     r.ranks.health = 4;
     r.ranks.critical = 4;
     r.gainXp(20);
@@ -111,6 +114,8 @@ describe("XP and upgrades", () => {
     r.ranks.health = 4;
     for (const id of WEAPONS) r.weapons[id] = 6;
     for (const id of EVOLUTION_IDS) r.evolutions[id] = true;
+    for (const id of WEAPONS) r.weapons[id] = r.weaponLimit(id);
+    for (const id of MASTERY_IDS) r.masteries[id] = MASTERY[id].limit;
     for (const id of [
       "damage",
       "haste",

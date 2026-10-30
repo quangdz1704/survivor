@@ -1,5 +1,22 @@
 import { DEFAULT_SETTINGS, MAX_PERMANENT_LEVEL, newProfile } from "./game";
 import type { Profile, Settings } from "./game";
+import {
+  GEAR,
+  GEAR_IDS,
+  GEAR_SLOTS,
+  MAX_GEAR_LEVEL,
+  MAX_PET_LEVEL,
+  PET_IDS,
+  initialLoadout,
+} from "./equipment";
+import {
+  MAP_IDS,
+  DIFFICULTY_IDS,
+  mapUnlocked,
+  difficultyUnlocked,
+  initialCampaign,
+} from "./campaign";
+import type { GearId, Loadout, PetId } from "./equipment";
 const finite = (value: unknown, fallback: number, min: number, max: number) =>
   typeof value === "number" && Number.isFinite(value)
     ? Math.max(min, Math.min(max, value))
@@ -11,7 +28,7 @@ export function sanitizeProfile(value: unknown): Profile {
   if (data.version !== 1) return defaults;
   const upgrades = data.upgrades ?? defaults.upgrades,
     settings = data.settings ?? DEFAULT_SETTINGS;
-  return {
+  const profile: Profile = {
     version: 1,
     hero: data.hero === "linh" ? "linh" : "an",
     gold: Math.floor(finite(data.gold, 0, 0, 1e9)),
@@ -25,6 +42,8 @@ export function sanitizeProfile(value: unknown): Profile {
     bestKills: Math.floor(finite(data.bestKills, 0, 0, 1e7)),
     totalRuns: Math.floor(finite(data.totalRuns, 0, 0, 1e7)),
     wins: Math.floor(finite(data.wins, 0, 0, 1e7)),
+    loadout: sanitizeLoadout(data.loadout),
+    campaign: initialCampaign(),
     settledRuns: Array.isArray(data.settledRuns)
       ? data.settledRuns
           .filter(
@@ -32,6 +51,71 @@ export function sanitizeProfile(value: unknown): Profile {
           )
           .slice(-64)
       : [],
+  };
+  const raw = data.campaign;
+  profile.campaign.completed = Array.isArray(raw?.completed)
+    ? [
+        ...new Set(
+          raw.completed.filter(
+            (id) =>
+              typeof id === "string" &&
+              MAP_IDS.some((map) =>
+                DIFFICULTY_IDS.some(
+                  (difficulty) => id === `${map}:${difficulty}`,
+                ),
+              ),
+          ),
+        ),
+      ].slice(0, 9)
+    : profile.wins > 0
+      ? ["forest:normal"]
+      : [];
+  const map = raw && MAP_IDS.includes(raw.map) ? raw.map : "forest";
+  if (mapUnlocked(profile, map)) profile.campaign.map = map;
+  const difficulty =
+    raw && DIFFICULTY_IDS.includes(raw.difficulty) ? raw.difficulty : "normal";
+  if (difficultyUnlocked(profile, profile.campaign.map, difficulty))
+    profile.campaign.difficulty = difficulty;
+  return profile;
+}
+function sanitizeLoadout(value: unknown): Loadout {
+  const defaults = initialLoadout();
+  if (!value || typeof value !== "object") return defaults;
+  const data = value as Partial<Loadout>;
+  const inventory = Object.fromEntries(
+    GEAR_IDS.map((id) => [
+      id,
+      Math.floor(
+        finite(data.inventory?.[id], defaults.inventory[id], 0, MAX_GEAR_LEVEL),
+      ),
+    ]),
+  ) as Record<GearId, number>;
+  const pets = Object.fromEntries(
+    PET_IDS.map((id) => [
+      id,
+      Math.floor(finite(data.pets?.[id], defaults.pets[id], 0, MAX_PET_LEVEL)),
+    ]),
+  ) as Record<PetId, number>;
+  const equipped: Loadout["equipped"] = {};
+  for (const slot of GEAR_SLOTS) {
+    const id = data.equipped?.[slot];
+    if (
+      id &&
+      GEAR_IDS.includes(id) &&
+      GEAR[id].slot === slot &&
+      inventory[id] > 0
+    )
+      equipped[slot] = id;
+  }
+  return {
+    inventory,
+    pets,
+    equipped,
+    pet:
+      data.pet && PET_IDS.includes(data.pet) && pets[data.pet] > 0
+        ? data.pet
+        : null,
+    essence: Math.floor(finite(data.essence, 0, 0, 1e8)),
   };
 }
 export function sanitizeSettings(settings: Partial<Settings>): Settings {

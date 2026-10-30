@@ -1,7 +1,13 @@
+import { MASTERY, MASTERY_IDS, initialMasteries, isMastery } from "./mastery";
+import type { MasteryId } from "./mastery";
 import { ELITE_IDS, ELITES, initialElites } from "./encounters";
 import type { EliteId } from "./encounters";
 import { RELIC_IDS, RELICS } from "./relics";
 import type { RelicId } from "./relics";
+import { gearBonuses, initialLoadout, GEAR_IDS } from "./equipment";
+import type { Loadout, GearId } from "./equipment";
+import { DIFFICULTIES, initialCampaign } from "./campaign";
+import type { Campaign, MapId, DifficultyId } from "./campaign";
 export type WeaponId = "sword" | "fireball" | "lightning" | "frost" | "leaf";
 export type HeroId = "an" | "linh";
 export const HEROES: Record<
@@ -45,7 +51,7 @@ export const HEROES: Record<
 export type PassiveId =
   "damage" | "haste" | "speed" | "magnet" | "critical" | "health";
 export type EvolutionId = "sword-array" | "blizzard" | "leaf-vortex";
-export type UpgradeId = WeaponId | PassiveId | EvolutionId;
+export type UpgradeId = WeaponId | PassiveId | EvolutionId | MasteryId;
 export const EVOLUTION_IDS: EvolutionId[] = [
   "sword-array",
   "blizzard",
@@ -97,7 +103,18 @@ export function isEvolution(id: UpgradeId): id is EvolutionId {
 export function evolutionFor(weapon: WeaponId): EvolutionId | undefined {
   return EVOLUTION_IDS.find((id) => EVOLUTIONS[id].weapon === weapon);
 }
-export type EnemyKind = "slime" | "bat" | "skeleton" | "orc" | "golem";
+export type EnemyKind =
+  | "slime"
+  | "bat"
+  | "skeleton"
+  | "orc"
+  | "golem"
+  | "ash-imp"
+  | "ember-beetle"
+  | "frost-wolf"
+  | "ice-wisp"
+  | "ember-drake"
+  | "frost-warden";
 export type PermanentId = "health" | "damage" | "speed";
 export interface Settings {
   music: number;
@@ -117,6 +134,8 @@ export interface Profile {
   totalRuns: number;
   wins: number;
   settledRuns: string[];
+  loadout: Loadout;
+  campaign: Campaign;
 }
 export interface PlayerStats {
   maxHp: number;
@@ -135,6 +154,10 @@ export interface RunResult {
   kills: number;
   level: number;
   gold: number;
+  map?: MapId;
+  difficulty?: DifficultyId;
+  essence?: number;
+  gearDrop?: GearId;
 }
 export interface UpgradeChoice {
   id: UpgradeId;
@@ -189,6 +212,8 @@ export function newProfile(): Profile {
     totalRuns: 0,
     wins: 0,
     settledRuns: [],
+    loadout: initialLoadout(),
+    campaign: initialCampaign(),
   };
 }
 export const ENEMIES: Record<
@@ -200,6 +225,12 @@ export const ENEMIES: Record<
   skeleton: { hp: 40, damage: 8, speed: 56, xp: 8, radius: 19 },
   orc: { hp: 100, damage: 15, speed: 34, xp: 18, radius: 25 },
   golem: { hp: 1500, damage: 25, speed: 40, xp: 100, radius: 43 },
+  "ash-imp": { hp: 28, damage: 9, speed: 62, xp: 7, radius: 16 },
+  "ember-beetle": { hp: 145, damage: 20, speed: 30, xp: 20, radius: 25 },
+  "frost-wolf": { hp: 60, damage: 12, speed: 78, xp: 12, radius: 22 },
+  "ice-wisp": { hp: 32, damage: 10, speed: 48, xp: 7, radius: 16 },
+  "ember-drake": { hp: 2300, damage: 34, speed: 44, xp: 180, radius: 49 },
+  "frost-warden": { hp: 2900, damage: 38, speed: 36, xp: 220, radius: 48 },
 };
 export const UPGRADE_NAMES: Record<UpgradeId, string> = {
   sword: "Kiếm phép",
@@ -216,6 +247,12 @@ export const UPGRADE_NAMES: Record<UpgradeId, string> = {
   "sword-array": "Kiếm trận",
   blizzard: "Bão tuyết",
   "leaf-vortex": "Lốc lá",
+  "sword-power": MASTERY["sword-power"].name,
+  "sword-area": MASTERY["sword-area"].name,
+  "frost-power": MASTERY["frost-power"].name,
+  "frost-area": MASTERY["frost-area"].name,
+  "leaf-power": MASTERY["leaf-power"].name,
+  "leaf-area": MASTERY["leaf-area"].name,
 };
 export const UPGRADE_LIMITS: Record<UpgradeId, number> = {
   sword: 6,
@@ -232,6 +269,12 @@ export const UPGRADE_LIMITS: Record<UpgradeId, number> = {
   "sword-array": 1,
   blizzard: 1,
   "leaf-vortex": 1,
+  "sword-power": MASTERY["sword-power"].limit,
+  "sword-area": MASTERY["sword-area"].limit,
+  "frost-power": MASTERY["frost-power"].limit,
+  "frost-area": MASTERY["frost-area"].limit,
+  "leaf-power": MASTERY["leaf-power"].limit,
+  "leaf-area": MASTERY["leaf-area"].limit,
 };
 export function xpRequired(level: number) {
   return Math.floor(20 * Math.pow(Math.max(1, level), 1.35));
@@ -241,17 +284,39 @@ export function statsFor(
   ranks: Record<PassiveId, number>,
 ): PlayerStats {
   const hero = HEROES[profile.hero];
+  const gear = gearBonuses(profile.loadout);
+  const pet = profile.loadout.pet,
+    petLevel = pet ? profile.loadout.pets[pet] : 0;
   return {
-    maxHp: hero.hp + profile.upgrades.health * 15 + ranks.health * 20,
+    maxHp: Math.round(
+      hero.hp +
+        profile.upgrades.health * 15 +
+        ranks.health * 20 +
+        gear.hp +
+        (pet === "sprout" ? petLevel * 5 : 0),
+    ),
     damage:
-      (hero.damage + profile.upgrades.damage * 2) * (1 + ranks.damage * 0.1),
+      (hero.damage + profile.upgrades.damage * 2 + gear.damage) *
+      (1 + ranks.damage * 0.1),
     movementSpeed:
-      hero.speed * (1 + profile.upgrades.speed * 0.035 + ranks.speed * 0.1),
-    attackSpeed: 1 + ranks.haste * 0.15,
-    criticalChance: 0.05 + ranks.critical * 0.05,
+      hero.speed *
+      (1 + profile.upgrades.speed * 0.035 + ranks.speed * 0.1 + gear.speed),
+    attackSpeed: 1 + ranks.haste * 0.15 + gear.haste,
+    criticalChance: Math.min(
+      0.8,
+      0.05 +
+        ranks.critical * 0.05 +
+        gear.crit +
+        (pet === "fox" ? petLevel * 0.02 : 0),
+    ),
     criticalMultiplier: 1.5,
-    pickupRadius: hero.pickup * (1 + ranks.magnet * 0.2),
-    armor: 0,
+    pickupRadius:
+      hero.pickup *
+      (1 +
+        ranks.magnet * 0.2 +
+        gear.pickup +
+        (pet === "owl" ? petLevel * 0.08 : 0)),
+    armor: gear.armor,
   };
 }
 export function rolledDamage(
@@ -296,9 +361,44 @@ export function buyPermanent(profile: Profile, id: PermanentId): Profile {
 }
 export function settleResult(profile: Profile, result: RunResult): Profile {
   if (profile.settledRuns.includes(result.id)) return profile;
+  const map = result.map ?? "forest",
+    difficulty = result.difficulty ?? "normal";
+  const completed = `${map}:${difficulty}`;
+  const essence =
+    result.essence ??
+    Math.floor(
+      result.time / 20 + result.kills / 30 + (result.victory ? 10 : 0),
+    );
+  const drop =
+    result.gearDrop && GEAR_IDS.includes(result.gearDrop)
+      ? result.gearDrop
+      : undefined;
+  const duplicateDrop = drop && profile.loadout.inventory[drop] > 0;
   return {
     ...profile,
-    gold: profile.gold + rewardFor(result.time, result.kills, result.victory),
+    gold:
+      profile.gold +
+      Math.floor(
+        rewardFor(result.time, result.kills, result.victory) *
+          DIFFICULTIES[difficulty].reward,
+      ),
+    campaign: {
+      ...profile.campaign,
+      completed:
+        result.victory && !profile.campaign.completed.includes(completed)
+          ? [...profile.campaign.completed, completed]
+          : profile.campaign.completed,
+    },
+    loadout: {
+      ...profile.loadout,
+      essence: profile.loadout.essence + essence + (duplicateDrop ? 5 : 0),
+      inventory: drop
+        ? {
+            ...profile.loadout.inventory,
+            [drop]: Math.max(1, profile.loadout.inventory[drop]),
+          }
+        : profile.loadout.inventory,
+    },
     bestTime: Math.max(profile.bestTime, result.time),
     bestKills: Math.max(profile.bestKills, result.kills),
     totalRuns: profile.totalRuns + 1,
@@ -382,6 +482,11 @@ export function weaponConfig(id: WeaponId, level: number, stats: PlayerStats) {
 }
 export function upgradeDescription(id: UpgradeId, next: number) {
   if (isEvolution(id)) return EVOLUTIONS[id].description;
+  if (isMastery(id)) return MASTERY[id].description;
+  if (next > 6 && WEAPONS.includes(id as WeaponId))
+    return id === "leaf"
+      ? "Thêm một lá xoáy mỗi đợt, giữ nguyên tiến hóa."
+      : "Thêm một đạn hỗ trợ mỗi đợt, giữ nguyên tiến hóa.";
   if (id === "frost")
     return next === 1
       ? "Bắn tinh thể băng, làm chậm quái trong 1,4 giây."
@@ -430,6 +535,10 @@ export class RunModel {
   kills = 0;
   weapons: Record<WeaponId, number>;
   evolutions = initialEvolutions();
+  masteries = initialMasteries();
+  mana = 0;
+  rageRemaining = 0;
+  rageWeapon: WeaponId;
   elites = initialElites();
   relics: RelicId[] = [];
   relicChoices: RelicId[] = [];
@@ -455,6 +564,7 @@ export class RunModel {
     this.id = id;
     this.weapons = initialWeapons(profile.hero);
     this.focusedWeapon = HEROES[profile.hero].weapon;
+    this.rageWeapon = this.focusedWeapon;
     this.hp = this.stats.maxHp;
   }
   get stats() {
@@ -463,7 +573,43 @@ export class RunModel {
       stats.damage *= 1.35;
     if (this.relics.includes("rage") && this.hp <= stats.maxHp * 0.4)
       stats.attackSpeed *= 1.3;
+    if (this.rageRemaining > 0) {
+      stats.damage *= 1.5;
+      stats.attackSpeed *= 1.35;
+    }
     return stats;
+  }
+  gainMana(amount: number) {
+    if (
+      !this.ended &&
+      !this.pending &&
+      this.rageRemaining <= 0 &&
+      Number.isFinite(amount)
+    )
+      this.mana = Math.min(100, Math.max(0, this.mana + amount));
+  }
+  selectRage(weapon: WeaponId) {
+    if (!this.ended && this.rageRemaining <= 0 && this.weapons[weapon] > 0)
+      this.rageWeapon = weapon;
+  }
+  activateRage() {
+    if (this.ended || this.pending || this.mana < 100 || this.rageRemaining > 0)
+      return false;
+    this.mana = 0;
+    this.rageRemaining = 6;
+    return true;
+  }
+  weaponLimit(weapon: WeaponId) {
+    const evolution = evolutionFor(weapon);
+    return evolution && this.evolutions[evolution]
+      ? 11
+      : UPGRADE_LIMITS[weapon];
+  }
+  mastery(weapon: WeaponId, kind: "power" | "area") {
+    const id = `${weapon}-${kind}`;
+    return isMastery(id)
+      ? 1 + this.masteries[id] * (kind === "power" ? 0.15 : 0.08)
+      : 1;
   }
   get pending() {
     return this.choices.length > 0 || this.relicChoices.length > 0;
@@ -511,16 +657,26 @@ export class RunModel {
   }
   rank(id: UpgradeId) {
     if (isEvolution(id)) return Number(this.evolutions[id]);
+    if (isMastery(id)) return this.masteries[id];
     return WEAPONS.includes(id as WeaponId)
       ? this.weapons[id as WeaponId]
       : this.ranks[id as PassiveId];
   }
   validUpgrades() {
     const regular: UpgradeId[] = [...WEAPONS, ...PASSIVES].filter(
-      (id) => this.rank(id) < UPGRADE_LIMITS[id],
+      (id) =>
+        this.rank(id) <
+        (WEAPONS.includes(id as WeaponId)
+          ? this.weaponLimit(id as WeaponId)
+          : UPGRADE_LIMITS[id]),
     );
     return [
       ...regular,
+      ...MASTERY_IDS.filter(
+        (id) =>
+          this.evolutions[MASTERY[id].evolution] &&
+          this.masteries[id] < MASTERY[id].limit,
+      ),
       ...EVOLUTION_IDS.filter((id) => {
         const recipe = EVOLUTIONS[id];
         return (
@@ -559,14 +715,19 @@ export class RunModel {
       );
     }).map((id) => EVOLUTIONS[id].passive);
     const owned = WEAPONS.filter(
-      (id) => this.weapons[id] > 0 && this.weapons[id] < UPGRADE_LIMITS[id],
+      (id) => this.weapons[id] > 0 && this.weapons[id] < this.weaponLimit(id),
     );
     const focused = owned.includes(this.focusedWeapon)
       ? [this.focusedWeapon]
       : owned;
-    const build = (companions.length ? companions : focused).filter(
-      (id) => !selected.includes(id),
+    const development = pool.filter(
+      (id) =>
+        isMastery(id) &&
+        MASTERY[id].evolution === evolutionFor(this.focusedWeapon),
     );
+    const build = (
+      companions.length ? companions : [...focused, ...development]
+    ).filter((id) => !selected.includes(id));
     if (selected.length < 3 && build.length)
       selected.push(
         build[
@@ -615,6 +776,7 @@ export class RunModel {
     )
       return false;
     if (isEvolution(id)) this.evolutions[id] = true;
+    else if (isMastery(id)) this.masteries[id]++;
     else if (WEAPONS.includes(id as WeaponId)) {
       this.focusedWeapon = id as WeaponId;
       this.weapons[this.focusedWeapon]++;
@@ -625,7 +787,12 @@ export class RunModel {
     return true;
   }
   tick(dt: number, paused: boolean) {
-    if (!paused && !this.pending && !this.ended) this.time += Math.max(0, dt);
+    if (!paused && !this.pending && !this.ended) {
+      const elapsed = Math.max(0, dt);
+      this.time += elapsed;
+      this.rageRemaining = Math.max(0, this.rageRemaining - elapsed);
+      this.gainMana(elapsed * 0.4);
+    }
   }
   hurt(damage: number) {
     if (this.ended) return;
@@ -641,7 +808,25 @@ export class RunModel {
       time: this.time,
       kills: this.kills,
       level: this.level,
-      gold: rewardFor(this.time, this.kills, victory),
+      gold: Math.floor(
+        rewardFor(this.time, this.kills, victory) *
+          DIFFICULTIES[this.profile.campaign.difficulty].reward,
+      ),
+      map: this.profile.campaign.map,
+      difficulty: this.profile.campaign.difficulty,
+      essence: Math.floor(
+        (this.time / 20 + this.kills / 30 + (victory ? 10 : 0)) *
+          DIFFICULTIES[this.profile.campaign.difficulty].reward,
+      ),
+      gearDrop:
+        this.time >= 60 || victory
+          ? GEAR_IDS[
+              Array.from(this.id).reduce(
+                (sum, char) => sum + char.charCodeAt(0),
+                0,
+              ) % GEAR_IDS.length
+            ]
+          : undefined,
     };
   }
 }
