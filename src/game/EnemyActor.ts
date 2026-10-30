@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { SlowEffect } from "./SlowEffect";
+import { isBoss } from "../core/campaign";
 import { ENEMIES } from "../core/game";
 import type { EnemyKind } from "../core/game";
 import { ELITES } from "../core/encounters";
@@ -24,6 +25,7 @@ export class EnemyActor extends Phaser.GameObjects.Container {
   knockX = 0;
   knockY = 0;
   charging = 0;
+  attackClock = 1.5;
   elite: EliteId | null = null;
   private bodyScale = 1;
   readonly chill = new SlowEffect();
@@ -35,12 +37,22 @@ export class EnemyActor extends Phaser.GameObjects.Container {
   private armRight?: Phaser.GameObjects.Image;
   private legLeft?: Phaser.GameObjects.Image;
   private legRight?: Phaser.GameObjects.Image;
+  private whole?: Phaser.GameObjects.Image;
   private slime?: Phaser.GameObjects.Image;
   private wingLeft?: Phaser.GameObjects.Image;
   private wingRight?: Phaser.GameObjects.Image;
   private phase = 0;
   private deathTime = 0;
   static preload(scene: Phaser.Scene) {
+    for (const kind of [
+      "ash-imp",
+      "ember-beetle",
+      "frost-wolf",
+      "ice-wisp",
+      "ember-drake",
+      "frost-warden",
+    ])
+      scene.load.image(kind, `/assets/expansion/${kind}.webp`);
     for (const kind of ["skeleton", "orc", "golem"])
       for (const part of HUMANOID_PARTS)
         scene.load.image(
@@ -85,6 +97,21 @@ export class EnemyActor extends Phaser.GameObjects.Container {
         .setPosition(8, -1);
       const body = part("body", 29).setPosition(0, -4);
       this.pose.add([this.wingLeft, this.wingRight, body]);
+    } else if (!["skeleton", "orc", "golem"].includes(kind)) {
+      const size = isBoss(kind)
+        ? 145
+        : kind === "ember-beetle"
+          ? 66
+          : kind === "frost-wolf"
+            ? 74
+            : 53;
+      this.whole = scene.add
+        .image(0, 17, kind)
+        .setOrigin(0.5, 0.76)
+        .setDisplaySize(size, size);
+      this.layers.push(this.whole);
+      this.pose.add(this.whole);
+      this.shadow.setSize(isBoss(kind) ? 82 : 34, isBoss(kind) ? 24 : 11);
     } else {
       const boss = kind === "golem",
         orc = kind === "orc";
@@ -141,6 +168,7 @@ export class EnemyActor extends Phaser.GameObjects.Container {
     this.stagger = 0;
     this.chill.clear();
     this.charging = 0;
+    this.attackClock = 1.5;
     this.knockX = this.knockY = 0;
     this.pose.setPosition(0, 0).setScale(1).setAngle(0);
     this.setPosition(x, y)
@@ -172,15 +200,15 @@ export class EnemyActor extends Phaser.GameObjects.Container {
   hit(dx: number, dy: number) {
     this.stagger = 0.11;
     const len = Math.hypot(dx, dy) || 1;
-    this.knockX = (dx / len) * (this.kind === "golem" || this.elite ? 14 : 90);
-    this.knockY = (dy / len) * (this.kind === "golem" || this.elite ? 14 : 90);
+    this.knockX = (dx / len) * (isBoss(this.kind) || this.elite ? 14 : 90);
+    this.knockY = (dy / len) * (isBoss(this.kind) || this.elite ? 14 : 90);
   }
   die() {
     this.hp = 0;
     this.deathTime = 0.27;
     this.charging = 0;
   }
-  animate(dt: number, distance: number, headingX: number) {
+  animate(dt: number, distance: number, headingX: number, render = true) {
     if (!this.active) return;
     this.chill.step(dt);
     if (this.hp <= 0) {
@@ -197,6 +225,14 @@ export class EnemyActor extends Phaser.GameObjects.Container {
         : this.kind === "bat"
           ? dt * 19
           : (distance / (this.kind === "golem" ? 83 : 47)) * Math.PI * 2;
+    if (this.whole && (this.kind === "ice-wisp" || isBoss(this.kind)))
+      this.phase += dt * 2;
+    if (!render) {
+      this.stagger = Math.max(0, this.stagger - dt);
+      this.setVisible(false);
+      return;
+    }
+    this.setVisible(true);
     const beat = Math.sin(this.phase);
     if (Math.abs(headingX) > 0.02 && this.kind !== "slime")
       this.scaleX = (headingX > 0 ? -1 : 1) * this.bodyScale;
@@ -206,6 +242,17 @@ export class EnemyActor extends Phaser.GameObjects.Container {
         : this.kind === "slime"
           ? -Math.pow(Math.max(0, beat), 1.2) * 7
           : -Math.abs(beat) * (this.kind === "golem" ? 2.3 : 1.2);
+    if (this.whole) {
+      this.pose.y =
+        this.kind === "ice-wisp"
+          ? -8 + Math.sin(this.phase) * 4
+          : -Math.abs(beat) * (isBoss(this.kind) ? 2 : 3);
+      this.pose.angle =
+        this.charging > 0
+          ? -4
+          : Math.sin(this.phase) * (isBoss(this.kind) ? 0.6 : 1.7);
+      this.pose.setScale(1 + Math.sin(this.phase * 0.5) * 0.008);
+    }
     if (this.slime) {
       const squash = 1 + Math.cos(this.phase) * 0.065;
       this.slime.setScale((49 / 512) * squash, 49 / 512 / squash);

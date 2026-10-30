@@ -106,3 +106,13 @@ describe("elite attack and treasure runtime", () => {
     expect(encounters.chests()).toHaveLength(0);
   });
 });
+
+it("does not redraw elite markers when a lethal attack resets encounters in the callback", () => {
+  const { encounters, step, enemy } = setup("slime-king");
+  step(3.5);
+  const hurt = vi.fn(() => encounters.reset());
+  expect(() => encounters.update(0.5, 1000, 1000, hurt)).not.toThrow();
+  expect(hurt).toHaveBeenCalledTimes(1);
+  expect(encounters.snapshot()).toEqual([]);
+  expect(enemy.charging).toBe(0);
+});

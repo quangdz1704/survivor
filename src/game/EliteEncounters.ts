@@ -43,6 +43,7 @@ export class EliteEncounters {
   private ground: Phaser.GameObjects.Graphics;
   private markers: Phaser.GameObjects.Graphics;
   private time = 0;
+  private generation = 0;
   private slots: Slot[] = ELITE_IDS.map((id) => ({
     id,
     enemy: null,
@@ -63,6 +64,7 @@ export class EliteEncounters {
     this.markers = scene.add.graphics().setDepth(4500);
   }
   reset() {
+    this.generation++;
     this.time = 0;
     for (const slot of this.slots) {
       if (slot.enemy) slot.enemy.charging = 0;
@@ -115,6 +117,7 @@ export class EliteEncounters {
     );
   }
   update(dt: number, px: number, py: number, hurt: (damage: number) => void) {
+    const generation = this.generation;
     this.time += dt;
     this.ground.clear();
     this.markers.clear();
@@ -169,6 +172,7 @@ export class EliteEncounters {
               audioManager.play("fireball");
               if (Math.hypot(px - slot.x, py - slot.y) <= ELITE_PULSE_RADIUS)
                 hurt(12);
+              if (this.generation !== generation) return;
               this.endAttack(slot);
             } else {
               slot.phase = "dash";
@@ -194,6 +198,7 @@ export class EliteEncounters {
             nearSegment(px, py, oldX, oldY, enemy.x, enemy.y, enemy.radius + 13)
           )
             hurt(18);
+          if (this.generation !== generation) return;
           this.ground
             .lineStyle(7, color, 0.35)
             .lineBetween(oldX, oldY, enemy.x, enemy.y);

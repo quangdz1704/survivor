@@ -178,18 +178,26 @@ export class CombatSystem {
     this.attacks += this.evolved.update(dt, x, y, run, grid, hit);
     if (run.ended) return;
     for (const weapon of WEAPONS) {
+      if (run.ended) return;
       const level = run.weapons[weapon];
       if (!level) continue;
       const evolution = evolutionFor(weapon);
       const evolved = evolution !== undefined && run.evolutions[evolution];
-      if (evolved && (weapon === "sword" || weapon === "frost")) continue;
+      if (evolved && (weapon === "sword" || weapon === "frost") && level <= 6)
+        continue;
       const config = weaponConfig(weapon, level, run.stats);
       if (evolved && weapon === "leaf") {
-        config.count = 8;
+        config.count = 8 + Math.max(0, level - 6);
         config.speed = 420;
         config.range = 300;
         config.damage *= 1.35;
         config.interval *= 0.85;
+      }
+      if (evolved) {
+        config.damage *= run.mastery(weapon, "power");
+        config.range *= run.mastery(weapon, "area");
+        if (weapon === "leaf") config.speed *= run.mastery(weapon, "area");
+        else config.count = level - 6;
       }
       this.cooldowns[weapon] = Math.min(
         config.interval,
@@ -216,6 +224,7 @@ export class CombatSystem {
           fromY = y;
         const struck = new Set<number>();
         for (let i = 0; i < config.count; i++) {
+          if (run.ended) return;
           const target = this.targets.find(
             (e) =>
               e.living &&
@@ -301,6 +310,7 @@ export class CombatSystem {
         if (beam.life <= 0) beam.graphics.setVisible(false);
       }
     for (const p of this.projectiles) {
+      if (run.ended) return;
       if (!p.active) continue;
       p.life -= dt;
       if (p.kind === "leaf") {
@@ -348,6 +358,7 @@ export class CombatSystem {
         p.hits.add(enemy.id);
         if (p.kind === "fireball") {
           this.explode(p, grid, hit);
+          if (run.ended) return;
           p.life = 0;
           break;
         }
@@ -358,6 +369,7 @@ export class CombatSystem {
             ? 1.5
             : 1;
         hit(enemy, p.damage * returningBonus, p.vx, p.vy, p.kind);
+        if (run.ended) return;
         if (--p.pierce <= 0) {
           if (p.kind !== "leaf") p.life = 0;
           break;
@@ -375,7 +387,7 @@ export class CombatSystem {
     const { x, y } = p.image;
     this.effects.burst(x, y, 0xffcb73, 15);
     this.effects.ring(x, y, p.radius, 0xffa459, 240);
-    grid.query(x, y, p.radius + 43, this.blast);
+    grid.query(x, y, p.radius + 60, this.blast);
     for (const enemy of this.blast)
       if (
         enemy.living &&

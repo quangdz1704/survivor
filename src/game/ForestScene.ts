@@ -11,17 +11,17 @@ import { ELITES } from "../core/encounters";
 import { relicHitMultiplier } from "../core/relics";
 import type { RelicId } from "../core/relics";
 import { SpatialGrid } from "./SpatialGrid";
-import { drawForestMap } from "./ForestMap";
+import { CampaignWorld } from "./CampaignWorld";
+import { HostileAttacks } from "./HostileAttacks";
+import { RageCombat } from "./RageCombat";
+import { PetActor, preloadPets } from "./PetActor";
+import { DIFFICULTIES, MAPS, isBoss } from "../core/campaign";
 import { renderScale } from "./renderQuality";
 import { bridge } from "./bridge";
-import {
-  MAX_ENEMIES,
-  WORLD_SIZE,
-  normalizeMovement,
-  seededRandom,
-} from "./rules";
+import { WORLD_SIZE, normalizeMovement, seededRandom } from "./rules";
 import {
   MATCH_DURATION,
+  ENEMIES,
   RunModel,
   rolledDamage,
   waveAt,
@@ -50,6 +50,11 @@ export class ForestScene extends Phaser.Scene {
   private aura!: Phaser.GameObjects.Arc;
   private effects!: Effects;
   private combat!: CombatSystem;
+  private world!: CampaignWorld;
+  private hostile!: HostileAttacks;
+  private rage!: RageCombat;
+  private pet!: PetActor;
+  private bossPattern = 0;
   private encounters!: EliteEncounters;
   private relicTargets: EnemyActor[] = [];
   private pickups!: Pickups;
@@ -77,15 +82,22 @@ export class ForestScene extends Phaser.Scene {
   preload() {
     PlayerActor.preload(this);
     EnemyActor.preload(this);
+    preloadPets(this);
+    for (const id of ["ashlands", "glacier"])
+      this.load.image(`ground-${id}`, `/assets/expansion/${id}.webp`);
     this.load.spritesheet("atlas", "/assets/forest-atlas.webp", {
       frameWidth: 512,
       frameHeight: 512,
     });
   }
   create() {
-    this.trees = drawForestMap(this);
+    this.world = new CampaignWorld(this);
+    this.trees = this.world.trees;
     this.effects = new Effects(this);
     this.combat = new CombatSystem(this, this.effects);
+    this.hostile = new HostileAttacks(this);
+    this.rage = new RageCombat(this, this.effects);
+    this.pet = new PetActor(this, this.effects);
     this.encounters = new EliteEncounters(this, this.effects);
     this.pickups = new Pickups(this, this.effects);
     this.shadow = this.add
@@ -103,7 +115,7 @@ export class ForestScene extends Phaser.Scene {
       .setBounds(0, 0, WORLD_SIZE, WORLD_SIZE)
       .startFollow(this.player, true, 0.09, 0.09);
     this.keys = this.input.keyboard!.addKeys(
-      "W,A,S,D,UP,DOWN,LEFT,RIGHT",
+      "W,A,S,D,UP,DOWN,LEFT,RIGHT,SPACE",
     ) as Record<string, Phaser.Input.Keyboard.Key>;
     this.input.keyboard!.addCapture(["UP", "DOWN", "LEFT", "RIGHT", "SPACE"]);
     this.removers = [
@@ -120,6 +132,11 @@ export class ForestScene extends Phaser.Scene {
       }),
       bridge.on("choose", (id) => this.choose(id)),
       bridge.on("relic", (id) => this.chooseRelic(id)),
+      bridge.on("rage", () => this.activateRage()),
+      bridge.on("rageWeapon", (id) => {
+        this.run?.selectRage(id);
+        this.publish();
+      }),
       bridge.on("quality", (value) => {
         this.effectsEnabled = value;
         this.effects.enabled = value;
@@ -146,6 +163,8 @@ export class ForestScene extends Phaser.Scene {
   private begin(profile: Profile) {
     this.clearRun();
     this.run = new RunModel(profile, this.random);
+    this.world.show(profile.campaign.map);
+    this.bossPattern = 0;
     this.activeRun = true;
     this.manualPaused = false;
     this.configure(profile.settings);
@@ -164,7 +183,8 @@ export class ForestScene extends Phaser.Scene {
       .startFollow(this.player, true, 0.09, 0.09)
       .centerOn(1200, 1200);
     this.cameras.main.preRender();
-    for (let i = 0; i < 4; i++) this.spawn("slime", i);
+    for (let i = 0; i < 4; i++)
+      this.spawn(MAPS[profile.campaign.map].enemies[0], i);
     this.syncPause();
     this.publish();
   }
@@ -174,6 +194,9 @@ export class ForestScene extends Phaser.Scene {
     this.tweens.resumeAll();
     for (const enemy of this.enemies) enemy.setActive(false).setVisible(false);
     this.combat.reset();
+    this.hostile.reset();
+    this.rage.reset();
+    this.pet.reset();
     this.encounters.reset();
     this.pickups.clear();
     this.effects.clear();
@@ -185,6 +208,7 @@ export class ForestScene extends Phaser.Scene {
   }
   private home() {
     this.clearRun();
+    this.world.show("forest");
     this.activeRun = false;
     this.run = null;
     this.move = { x: 0, y: 0 };
@@ -236,11 +260,13 @@ export class ForestScene extends Phaser.Scene {
   }
   private spawn(kind: EnemyKind, sideIndex?: number, priority = false) {
     const active = this.enemies.filter((e) => e.active);
-    if (active.length >= MAX_ENEMIES) {
-      if (kind !== "golem" && !priority) return null;
+    if (
+      active.length >= DIFFICULTIES[this.run!.profile.campaign.difficulty].cap
+    ) {
+      if (!isBoss(kind) && !priority) return null;
       // Make room for the boss within the total entity budget.
       const farthest = active
-        .filter((e) => e.kind !== "golem" && !e.elite)
+        .filter((e) => !isBoss(e.kind) && !e.elite)
         .sort(
           (a, b) =>
             Math.hypot(b.x - this.player.x, b.y - this.player.y) -
@@ -296,10 +322,26 @@ export class ForestScene extends Phaser.Scene {
     enemy.activate(
       x,
       y,
-      kind === "golem" ? 1 : wave.hpScale,
-      kind === "golem" ? 1 : wave.speedScale,
+      (isBoss(kind) ? 1 : wave.hpScale) *
+        DIFFICULTIES[this.run!.profile.campaign.difficulty].hp *
+        (this.run!.profile.campaign.map === "forest"
+          ? 1
+          : this.run!.profile.campaign.map === "ashlands"
+            ? 1.15
+            : 1.3),
+      (isBoss(kind) ? 1 : wave.speedScale) *
+        DIFFICULTIES[this.run!.profile.campaign.difficulty].speed,
     );
+    enemy.damage *= DIFFICULTIES[this.run!.profile.campaign.difficulty].damage;
     return enemy;
+  }
+  private activateRage() {
+    if (!this.activeRun || this.manualPaused || !this.run?.activateRage())
+      return;
+    this.invincible = Math.max(this.invincible, 0.3);
+    this.effects.ring(this.player.x, this.player.y, 180, 0xffdc87, 500);
+    audioManager.play("evolution");
+    this.publish();
   }
   update(_time: number, delta: number) {
     // Consume elapsed play time in small collision-safe slices. This keeps XP,
@@ -329,6 +371,7 @@ export class ForestScene extends Phaser.Scene {
       run.ended
     )
       return;
+    if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) this.activateRage();
     run.tick(dt, false);
     this.invincible = Math.max(0, this.invincible - dt);
     let x = this.move.x,
@@ -372,7 +415,9 @@ export class ForestScene extends Phaser.Scene {
     this.aura
       .setPosition(this.player.x, this.player.y + 22)
       .setDepth(this.player.y - 2);
-    for (const tree of this.trees) {
+    for (const tree of run.profile.campaign.map === "forest"
+      ? this.trees
+      : []) {
       const near =
         Math.abs(tree.x - this.player.x) < tree.displayWidth * 0.5 + 20 &&
         this.player.y > tree.y - tree.displayHeight * 0.9 - 25 &&
@@ -382,7 +427,9 @@ export class ForestScene extends Phaser.Scene {
     this.directWaves(dt);
     this.encounters.update(dt, this.player.x, this.player.y, (damage) => {
       if (this.invincible > 0 || run.ended) return;
-      this.hurtPlayer(damage);
+      this.hurtPlayer(
+        damage * DIFFICULTIES[run.profile.campaign.difficulty].damage,
+      );
       if (run.hp <= 0) this.finish(false);
     });
     if (run.ended) return;
@@ -395,14 +442,45 @@ export class ForestScene extends Phaser.Scene {
       const dx = this.player.x - enemy.x,
         dy = this.player.y - enemy.y,
         d = Math.hypot(dx, dy) || 1;
+      enemy.attackClock -= dt;
+      const sprint =
+        (enemy.kind === "frost-wolf" || enemy.kind === "ember-beetle") &&
+        Math.sin(run.time * 1.7 + enemy.id) > 0.8
+          ? 1.7
+          : 1;
+      if (
+        (enemy.kind === "ash-imp" || enemy.kind === "ice-wisp") &&
+        enemy.attackClock <= 0 &&
+        d < 520
+      ) {
+        enemy.attackClock = enemy.kind === "ash-imp" ? 3.3 : 4;
+        const angle = Math.atan2(dy, dx);
+        this.hostile.zone(
+          enemy.x,
+          enemy.y,
+          20,
+          0,
+          enemy.kind === "ice-wisp",
+          0.65,
+        );
+        this.hostile.fan(
+          enemy.x,
+          enemy.y,
+          angle,
+          enemy.kind === "ice-wisp" ? 3 : 1,
+          0.5,
+          ENEMIES[enemy.kind].damage * 0.8,
+          enemy.kind === "ice-wisp",
+          130,
+        );
+      }
       const speed =
         enemy.charging > 0
           ? 0
           : enemy.speed *
+            sprint *
             enemy.movementMultiplier() *
-            (enemy.kind === "golem" && enemy.hp < enemy.maxHp * 0.35
-              ? 1.25
-              : 1);
+            (isBoss(enemy.kind) && enemy.hp < enemy.maxHp * 0.35 ? 1.25 : 1);
       const stepX =
           (dx / d) * speed * dt + (enemy.charging > 0 ? 0 : enemy.knockX * dt),
         stepY =
@@ -411,7 +489,16 @@ export class ForestScene extends Phaser.Scene {
       enemy.knockY *= Math.exp(-16 * dt);
       enemy.x = Phaser.Math.Clamp(enemy.x + stepX, 15, WORLD_SIZE - 15);
       enemy.y = Phaser.Math.Clamp(enemy.y + stepY, 15, WORLD_SIZE - 15);
-      enemy.animate(dt, Math.hypot(stepX, stepY), dx / d);
+      const view = this.cameras.main.worldView;
+      enemy.animate(
+        dt,
+        Math.hypot(stepX, stepY),
+        dx / d,
+        enemy.x > view.left - 120 &&
+          enemy.x < view.right + 120 &&
+          enemy.y > view.top - 160 &&
+          enemy.y < view.bottom + 160,
+      );
       if (d < enemy.radius + 13 && this.invincible === 0) {
         this.hurtPlayer(enemy.damage);
         if (run.hp <= 0) {
@@ -431,7 +518,33 @@ export class ForestScene extends Phaser.Scene {
         this.hitEnemy(enemy, damage, dx, dy, weapon),
     );
     if (run.ended) return;
+    this.rage.update(
+      dt,
+      this.player.x,
+      this.player.y,
+      run,
+      this.grid,
+      (enemy, damage, dx, dy, weapon) =>
+        this.hitEnemy(enemy, damage, dx, dy, weapon),
+    );
+    if (run.ended) return;
+    this.pet.update(
+      dt,
+      this.player.x,
+      this.player.y,
+      run,
+      this.grid,
+      (enemy, damage, dx, dy) => this.hitEnemy(enemy, damage, dx, dy, "pet"),
+    );
+    if (run.ended) return;
     this.updateBoss(dt);
+    this.hostile.update(dt, this.player.x, this.player.y, (damage) => {
+      if (this.invincible > 0 || run.ended || damage <= 0) return;
+      this.hurtPlayer(
+        damage * DIFFICULTIES[run.profile.campaign.difficulty].damage,
+      );
+      if (run.hp <= 0) this.finish(false);
+    });
     if (run.ended) return;
     this.pickups.update(dt, this.player.x, this.player.y, run, () =>
       this.heartBlast(),
@@ -460,17 +573,28 @@ export class ForestScene extends Phaser.Scene {
     const run = this.run!;
     const wave = waveAt(run.time);
     this.spawnClock += dt;
-    const interval = run.bossSpawned ? 1.4 : wave.interval;
+    const difficulty = DIFFICULTIES[run.profile.campaign.difficulty];
+    const interval =
+      (run.bossSpawned ? 1.4 : wave.interval) * difficulty.interval;
     if (this.spawnClock >= interval) {
       this.spawnClock -= interval;
-      this.spawn(
-        wave.composition[Math.floor(this.random() * wave.composition.length)],
-      );
+      const composition =
+        run.profile.campaign.map === "forest"
+          ? wave.composition
+          : MAPS[run.profile.campaign.map].enemies.slice(
+              0,
+              Math.min(4, 1 + wave.phase),
+            );
+      for (let i = 0; i < difficulty.group; i++)
+        this.spawn(composition[Math.floor(this.random() * composition.length)]);
     }
     for (const id of run.dueElites()) {
       const enemy = this.spawn(ELITES[id].kind, undefined, true);
       if (enemy) {
         enemy.makeElite(id);
+        enemy.hp = enemy.maxHp = enemy.maxHp * difficulty.hp;
+        enemy.damage *= difficulty.damage;
+        enemy.speed *= difficulty.speed;
         run.elites[id] = "active";
         this.encounters.register(id, enemy);
         audioManager.play("boss");
@@ -486,7 +610,7 @@ export class ForestScene extends Phaser.Scene {
     if (this.bossDelay > 0) {
       this.bossDelay -= dt;
       if (this.bossDelay <= 0) {
-        this.boss = this.spawn("golem");
+        this.boss = this.spawn(MAPS[run.profile.campaign.map].boss);
         if (!this.boss) this.bossDelay = 0.25;
       }
     }
@@ -494,6 +618,10 @@ export class ForestScene extends Phaser.Scene {
   private updateBoss(dt: number) {
     const boss = this.boss;
     if (!boss?.living) return;
+    if (boss.kind !== "golem") {
+      this.updateCampaignBoss(dt, boss);
+      return;
+    }
     if (this.stomp) {
       this.stomp.remaining -= dt;
       boss.charging = 1 - Math.max(0, this.stomp.remaining);
@@ -511,7 +639,9 @@ export class ForestScene extends Phaser.Scene {
             GOLEM_BLAST_RADIUS &&
           this.invincible === 0
         ) {
-          this.hurtPlayer(25);
+          this.hurtPlayer(
+            25 * DIFFICULTIES[this.run!.profile.campaign.difficulty].damage,
+          );
           if (this.run!.hp <= 0) this.finish(false);
         }
       }
@@ -519,6 +649,35 @@ export class ForestScene extends Phaser.Scene {
       this.bossCooldown -= dt;
       if (this.bossCooldown <= 0) {
         this.bossCooldown = boss.hp < boss.maxHp * 0.35 ? 2.7 : 4.5;
+        this.bossPattern++;
+        if (this.bossPattern % 3 !== 1) {
+          const angle = Math.atan2(
+            this.player.y - boss.y,
+            this.player.x - boss.x,
+          );
+          if (this.bossPattern % 3 === 2)
+            this.hostile.fan(
+              boss.x,
+              boss.y,
+              angle,
+              9,
+              Math.PI * 1.5,
+              24,
+              false,
+              155,
+            );
+          else
+            for (let i = 0; i < 5; i++)
+              this.hostile.zone(
+                this.player.x + Math.cos(i * 1.256) * 95,
+                this.player.y + Math.sin(i * 1.256) * 95,
+                58,
+                30,
+                false,
+                0.9,
+              );
+          return;
+        }
         const x = this.player.x,
           y = this.player.y;
         const circle = this.add
@@ -529,6 +688,63 @@ export class ForestScene extends Phaser.Scene {
         boss.charging = 0.01;
       }
     }
+  }
+  private updateCampaignBoss(dt: number, boss: EnemyActor) {
+    this.bossCooldown -= dt;
+    if (this.bossCooldown > 0) return;
+    const enraged = boss.hp < boss.maxHp * 0.4,
+      ice = boss.kind === "frost-warden";
+    this.bossCooldown = enraged ? 1.65 : 3;
+    const x = this.player.x,
+      y = this.player.y,
+      angle = Math.atan2(y - boss.y, x - boss.x),
+      pattern = this.bossPattern++ % 3;
+    if (pattern === 0) {
+      const count = enraged ? 7 : 4;
+      for (let i = 0; i < count; i++) {
+        const a = (i * Math.PI * 2) / count,
+          r = i === 0 ? 0 : 110;
+        this.hostile.zone(
+          x + Math.cos(a) * r,
+          y + Math.sin(a) * r,
+          ice ? 62 : 72,
+          ice ? 34 : 32,
+          ice,
+          0.95 + i * 0.1,
+        );
+      }
+    } else if (pattern === 1) {
+      // A readable fan leaves lateral escape routes; the second phase adds rays.
+      this.hostile.zone(boss.x, boss.y, 35, 0, ice, 0.7);
+      this.hostile.fan(
+        boss.x,
+        boss.y,
+        angle,
+        enraged ? 13 : 9,
+        ice ? Math.PI * 2 : Math.PI * 0.9,
+        ice ? 27 : 29,
+        ice,
+        ice ? 175 : 155,
+      );
+    } else {
+      const length = 400,
+        dx = Math.cos(angle) * length,
+        dy = Math.sin(angle) * length;
+      this.hostile.zone(
+        boss.x,
+        boss.y,
+        ice ? 30 : 40,
+        ice ? 38 : 40,
+        ice,
+        1.1,
+        boss.x + dx,
+        boss.y + dy,
+      );
+      if (enraged)
+        this.hostile.zone(x - 130, y + 80, 50, 32, ice, 1.25, x + 130, y - 80);
+    }
+    this.effects.ring(boss.x, boss.y, 45, ice ? 0xb4edff : 0xffbe7b, 300);
+    audioManager.play(ice ? "frost" : "fireball");
   }
   private hurtPlayer(damage: number) {
     const run = this.run!;
@@ -545,13 +761,13 @@ export class ForestScene extends Phaser.Scene {
     baseDamage: number,
     dx: number,
     dy: number,
-    weapon: WeaponId | "relic",
+    weapon: WeaponId | "relic" | "pet",
   ) {
     if (!enemy.living || this.run!.ended) return;
     const multiplier = relicHitMultiplier(
       this.run!.relics,
       enemy.chill.remaining > 0,
-      !!enemy.elite || enemy.kind === "golem",
+      !!enemy.elite || isBoss(enemy.kind),
     );
     const hit = rolledDamage(
       baseDamage * multiplier,
@@ -566,7 +782,7 @@ export class ForestScene extends Phaser.Scene {
       enemy.chill.apply(
         evolved ? 1.8 : 1.4 + (rank - 1) * 0.16,
         evolved ? 0.48 : 0.3 + rank * 0.015,
-        enemy.kind === "golem" || !!enemy.elite,
+        isBoss(enemy.kind) || !!enemy.elite,
       );
     }
     this.effects.number(enemy.x, enemy.y, hit.damage, hit.critical);
@@ -579,10 +795,11 @@ export class ForestScene extends Phaser.Scene {
     audioManager.play("hit");
     if (enemy.hp === 0) {
       this.run!.kills++;
+      this.run!.gainMana(enemy.elite || isBoss(enemy.kind) ? 10 : 2);
       enemy.die();
       this.encounters.defeat(enemy, this.run!);
       this.pickups.spawn(enemy.x, enemy.y, enemy.xp);
-      if (enemy.kind !== "golem" && this.random() < 0.045)
+      if (!isBoss(enemy.kind) && this.random() < 0.045)
         this.pickups.spawn(enemy.x + 10, enemy.y, 8, "heal");
       this.effects.burst(
         enemy.x,
@@ -591,7 +808,7 @@ export class ForestScene extends Phaser.Scene {
         9,
       );
       audioManager.play("death");
-      if (enemy.kind === "golem") this.finish(true);
+      if (enemy === this.boss) this.finish(true);
     }
   }
   private heartBlast() {
@@ -616,6 +833,10 @@ export class ForestScene extends Phaser.Scene {
     if (!result) return;
     this.activeRun = false;
     this.combat.stop();
+    this.encounters.reset();
+    this.rage.reset();
+    this.pet.reset();
+    this.hostile.reset();
     this.motion.reset();
     this.move = { x: 0, y: 0 };
     this.stomp?.circle.destroy();
@@ -634,6 +855,11 @@ export class ForestScene extends Phaser.Scene {
     if (!run) return;
     bridge.snapshot({
       hp: run.hp,
+      mana: run.mana,
+      rageRemaining: run.rageRemaining,
+      rageWeapon: run.rageWeapon,
+      map: run.profile.campaign.map,
+      difficulty: run.profile.campaign.difficulty,
       maxHp: run.stats.maxHp,
       level: run.level,
       xp: run.xp,

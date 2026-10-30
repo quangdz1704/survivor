@@ -233,3 +233,41 @@ describe("pooled new weapons", () => {
     expect(combat.attacks).toBe(0);
   });
 });
+
+describe("continued evolution effects", () => {
+  it("adds one firing sword at rank seven without removing the sword array", () => {
+    const { run, enemy, grid, step, hit, sprites } = setup("sword");
+    run.evolutions["sword-array"] = true;
+    run.weapons.sword = 7;
+    enemy.x = 200;
+    grid.rebuild([enemy]);
+    step(0.85);
+    expect(hit.mock.calls.length).toBeGreaterThan(0);
+    expect(sprites.filter((s) => s.visible).length).toBeGreaterThanOrEqual(4);
+  });
+  it("blizzard area reaches a formerly excluded target and power changes actual damage", () => {
+    const { run, enemy, grid, step, hit } = setup("frost");
+    run.evolutions.blizzard = true;
+    run.weapons.frost = 6;
+    enemy.x = 200;
+    grid.rebuild([enemy]);
+    step(0.4);
+    expect(hit).not.toHaveBeenCalled();
+    run.masteries["frost-area"] = 5;
+    run.masteries["frost-power"] = 2;
+    step(0.4);
+    expect(hit).toHaveBeenCalledTimes(1);
+    expect(hit.mock.calls[0][1]).toBeCloseTo(10 * 1.15 * 2.4 * 1.25 * 1.3);
+  });
+});
+
+it("does not fire another owned weapon after a lightning hit ends the run reentrantly", () => {
+  const { combat, run, grid, sprites } = setup("lightning");
+  run.weapons.frost = 6;
+  combat.update(3, 0, 6, run, grid, () => {
+    run.finish(true);
+    combat.stop();
+  });
+  expect(run.ended).toBe(true);
+  expect(sprites.every((s) => !s.visible)).toBe(true);
+});

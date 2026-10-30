@@ -67,8 +67,8 @@ export class BlizzardVisual {
     }
     if (fullEffects) {
       for (let i = 0; i < 4; i++) {
-        this.ribbon(i, 11, 0.055 * fade);
-        this.ribbon(i, 3.2, 0.38 * fade);
+        this.ribbon(i, 11, 0.055 * fade, radius / 158);
+        this.ribbon(i, 3.2, 0.38 * fade, radius / 158);
       }
     }
     const count = fullEffects ? 32 : 9;
@@ -91,8 +91,8 @@ export class BlizzardVisual {
       }
     }
   }
-  private ribbon(index: number, width: number, alpha: number) {
-    const radius = 61 + index * 27;
+  private ribbon(index: number, width: number, alpha: number, scale = 1) {
+    const radius = (61 + index * 27) * scale;
     const phase = this.age * (1.1 + index * 0.09) + index * 2.39996;
     const g = this.snow
       .fillStyle(index % 2 ? 0xdafaff : 0xa3e5f5, alpha)

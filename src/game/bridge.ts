@@ -1,3 +1,4 @@
+import type { MapId, DifficultyId } from "../core/campaign";
 import type {
   Profile,
   RunResult,
@@ -15,6 +16,11 @@ export type GameMode =
   "menu" | "playing" | "paused" | "levelup" | "treasure" | "ended";
 export interface Snapshot {
   hp: number;
+  mana: number;
+  rageRemaining: number;
+  rageWeapon: WeaponId;
+  map: MapId;
+  difficulty: DifficultyId;
   maxHp: number;
   level: number;
   xp: number;
@@ -38,6 +44,11 @@ export interface Snapshot {
 }
 export const emptySnapshot = (): Snapshot => ({
   hp: 100,
+  mana: 0,
+  rageRemaining: 0,
+  rageWeapon: "sword",
+  map: "forest",
+  difficulty: "normal",
   maxHp: 100,
   level: 1,
   xp: 0,
@@ -68,6 +79,8 @@ export interface Commands {
   settings: Settings;
   choose: UpgradeId;
   relic: RelicId;
+  rage: undefined;
+  rageWeapon: WeaponId;
 }
 interface Events {
   snapshot: Snapshot;

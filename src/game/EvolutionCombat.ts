@@ -67,7 +67,7 @@ export class EvolutionCombat {
     let attacks = 0;
     const stats = run.stats;
     if (run.evolutions["sword-array"] && run.weapons.sword > 0) {
-      const r = SWORD_ARRAY_RADIUS,
+      const r = SWORD_ARRAY_RADIUS * run.mastery("sword", "area"),
         phase = this.time * 3.4 * stats.attackSpeed;
       const config = weaponConfig("sword", run.weapons.sword, stats);
       if (this.effects.enabled) {
@@ -81,7 +81,7 @@ export class EvolutionCombat {
             .strokePath();
         }
       }
-      grid.query(x, y, r + 65, this.targets);
+      grid.query(x, y, r + 80, this.targets);
       let struck = false;
       this.swords.forEach((sword, i) => {
         if (run.ended) return;
@@ -102,7 +102,13 @@ export class EvolutionCombat {
           )
             continue;
           this.swordHits.set(enemy.id, this.time + 0.28 / stats.attackSpeed);
-          hit(enemy, config.damage * 1.7, enemy.x - x, enemy.y - y, "sword");
+          hit(
+            enemy,
+            config.damage * 1.7 * run.mastery("sword", "power"),
+            enemy.x - x,
+            enemy.y - y,
+            "sword",
+          );
           struck = true;
         }
       });
@@ -114,16 +120,18 @@ export class EvolutionCombat {
     } else this.swords.forEach((sword) => sword.setVisible(false));
     if (run.ended) return attacks;
     if (run.evolutions.blizzard && run.weapons.frost > 0) {
-      const r = BLIZZARD_RADIUS;
+      const r = BLIZZARD_RADIUS * run.mastery("frost", "area");
       this.blizzard.update(dt, x, y, r, this.effects.enabled);
       const interval = 0.38 / stats.attackSpeed;
       this.frostClock = Math.min(interval, this.frostClock + dt);
       if (this.frostClock >= interval) {
         this.frostClock = 0;
-        grid.query(x, y, r + 43, this.targets);
+        grid.query(x, y, r + 60, this.targets);
         let struck = false;
         const damage =
-          weaponConfig("frost", run.weapons.frost, stats).damage * 1.25;
+          weaponConfig("frost", run.weapons.frost, stats).damage *
+          1.25 *
+          run.mastery("frost", "power");
         for (const enemy of this.targets) {
           if (
             run.ended ||
