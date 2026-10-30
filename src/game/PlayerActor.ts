@@ -13,7 +13,7 @@ const PARTS = [
   "scarf-collar",
 ] as const;
 
-/** An uses his approved cutout rig; Linh uses intact, painted animation frames. */
+/** Kang uses his approved cutout rig; Dun uses intact, painted animation frames. */
 export class PlayerActor extends Phaser.GameObjects.Container {
   private torsoGroup: Phaser.GameObjects.Container;
   private head: Phaser.GameObjects.Image;

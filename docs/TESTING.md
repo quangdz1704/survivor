@@ -64,7 +64,7 @@ Independent code review identified corpse targeting, shop-close/save race and ma
 
 ## Version1.1 — new heroes and weapons
 
-The user reports the original release plays well on a phone and has deployed main to Vercel. This content increment remains local/uncommitted on `feature/heroes-and-weapons`.
+The user reports the original release plays well on a phone and has deployed main to Vercel. This increment was verified locally on `feature/heroes-and-weapons`. During the animation repair, an external Git operation placed the current implementation on main at977c7ac; this agent did not perform that commit/push.
 
 - **45 tests across9 files pass**, plus lint, TypeScript and production build. Added backward-compatible hero-save validation and concurrent purchase/selection tests, hero starting stats/loadout tests, timed non-stacking slow and boss resistance, returning flight at30/60/120FPS, real CombatSystem dispatch/collision/dedup/reset using stubbed rendering primitives, and React chooser lock-until-save coverage. Only renderer primitives are stubbed in the CombatSystem tests, not the production weapon loop.
 - Independent read-only review found no Critical/Important issues in current hero selection, persistence, weapons, pooling or status integration. React state remains aggregate-only; no new frame-by-frame React updates.
@@ -89,4 +89,7 @@ Replaced the separated Linh rig with the original whole-body idle portrait and f
 
 Actual Chrome renderer comparison:20-linh-body-comparison.jpg, with original portrait/idle/slow/full-speed at one ground line.21-linh-body-animation.webp contains30 native browser captures over3.022s. Captures were cropped to the gallery; they show connected whole bodies and alternating leading legs. The four-pose cycle is intentionally compact; this visual review does not certify high-frame-count animation or a new phone performance measurement. Tests cover game logic, not aesthetic approval. User acceptance of this replacement is still pending.
 
-45 existing tests, ESLint and TypeScript/production build pass after the actor replacement. Independent read-only review checked hero switching, facing, hit/death/reset and reproduced the strip byte for byte from the extractor; no material correctness issue found. Final PWA asset count is recorded after removing the unused cutout layers.
+45 existing tests, ESLint and TypeScript/production build pass after the actor replacement. Independent read-only review checked hero switching, facing, hit/death/reset and reproduced the strip byte for byte from the extractor; no material correctness issue found. Final build precaches47 entries (~3925.55KiB), including the intact idle portrait and new walk strip; generated SW contains no rejected Linh cutout paths.
+
+
+Firefox manual smoke check after replacement: selected Linh through the real chooser, started at85/85HP with Frost1, moved right/left with keyboard, stopped into the intact idle pose, took enemy contact damage (70/85 at level2) and resumed after choosing an upgrade.22-linh-body-gameplay.jpg is a real combat screenshot at00:22,11 kills,68/85HP (idle pose during combat, not claimed movement footage). An also started with100/100HP and Sword1 with his existing rig. Code review covers death/reset; no new full victory/defeat bot run was necessary for this render-only repair. No new physical-device, offline or production deployment test is claimed for this repair.

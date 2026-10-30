@@ -131,7 +131,7 @@ describe("XP and upgrades", () => {
   });
 });
 describe("playable heroes", () => {
-  it("keeps An unchanged and gives Linh a distinct starting weapon and stats", () => {
+  it("keeps Kang unchanged and gives Dun a distinct starting weapon and stats", () => {
     const an = run(),
       linh = new RunModel({ ...newProfile(), hero: "linh" }, () => 0.5, "linh");
     expect(an.weapons.sword).toBe(1);

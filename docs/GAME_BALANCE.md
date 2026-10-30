@@ -50,9 +50,9 @@ The QA bot starts without permanent upgrades and can defeat the boss through ord
 
 ## Version 1.1 content
 
-An remains unchanged. Linh: 85 HP, base damage 9, speed 189, pickup 75; starts Frost rank1. Shared permanent bonuses apply to both heroes.
+Kang remains unchanged. Dun: 85 HP, base damage 9, speed 189, pickup 75; starts Frost rank1. Shared permanent bonuses apply to both heroes.
 
-| Weapon rank1 |         Base damage on An | Interval | Range | Speed | Special                                     |
+| Weapon rank1 |         Base damage on Kang | Interval | Range | Speed | Special                                     |
 | ------------ | ------------------------: | -------: | ----: | ----: | ------------------------------------------- |
 | Frost        | 11.5 before rounding/crit |    0.95s |   310 |   390 | 31.5% slow for1.4s                          |
 | Leaf         | 16.5 before rounding/crit |    1.45s |   210 |   350 | Outward0.48s, returning flight,5-hit budget |

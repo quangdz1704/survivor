@@ -15,7 +15,7 @@ export const HEROES: Record<
   }
 > = {
   an: {
-    name: "An",
+    name: "Kang",
     title: "Người giữ rừng",
     description: "Bền bỉ và cân bằng. Khởi đầu với Kiếm phép.",
     portrait: "/assets/adventurer.webp",
@@ -26,7 +26,7 @@ export const HEROES: Record<
     pickup: 60,
   },
   linh: {
-    name: "Linh",
+    name: "Dun",
     title: "Pháp sư sương",
     description:
       "Linh hoạt, hút XP xa hơn nhưng ít máu. Khởi đầu với Băng tinh.",
