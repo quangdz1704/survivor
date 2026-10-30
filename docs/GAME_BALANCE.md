@@ -69,3 +69,17 @@ Frost: `1 + floor(rank/2)` shards, pierce2 at rank4, duration `1.4 + (rank−1)�
 | Lốc lá | Leaf6 + Speed2 | Eight leaves per volley,420px/s,300px activation range; damage = Leaf6×1.35, interval = Leaf6×0.85. Outward arc0.7s at2.8rad/s, then homes to moving caster;2.2s lifetime and ten-target pierce budget per leaf. Each target hit once per flight. |
 
 All formulas use current stats, including the companion passive. Evolving keeps the passive bonus and costs one level-up choice. Area/contact checks include enemy radius. Sword-array immunity entries expire and are removed; recycled actors get a new enemy ID. The normal96-projectile pool bounds all returning leaves, with four extra reusable sword sprites and one aura Graphics for continuous evolutions. Reduced effects changes decoration, not hit logic. These values are a first balance pass pending physical-phone play feedback.
+
+
+## Mid-run elites and relics /1.3
+
+| Elite | Spawn | HP | Contact | Speed | XP | Special |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Slime vương |60s |340 |10 |48 |40 |90px fixed pulse,0.85s warning,12 damage;3s initial/4s subsequent cooldown |
+| Đội trưởng Orc |180s |850 |18 |47 |80 |210px dash over0.5s,0.75s locked warning,18 damage;3s initial/4.5s subsequent cooldown |
+
+Orc dash collision is a swept capsule with radius32.5+13=45.5px; warning uses the same91px width and circular caps. Attacks start only within290px. Contact and special damage share the player's existing0.8s immunity. Elites receive half-strength/70%-duration slow and light knockback. Their HP/speed are fixed, not wave-scaled. They share the150-enemy cap, with priority spawn reserving space by retiring a normal actor; elites/Golem cannot be evicted.
+
+Relics are unique, chosen from three compatible unowned options, maximum2 per run. Root multiplies current damage by1.35 after1s without displacement; moving clears it. Rage multiplies attackSpeed by1.3 at<=40% maximum HP. Heart uses current damage×3 in a140px area (includes enemy radius); each collected heal pickup triggers once, even at full HP. Selecting Heart drops three8HP hearts80px around the player. Rime multiplies damage against an already-chilled target by1.25; Fang multiplies elite/Golem damage by1.4; these combine before critical rounding. Return multiplies only returning-leaf hits by1.5, keeping one-hit-per-target-per-flight immunity. Projectile damage otherwise retains its normal launch-time stats; continuous attacks use current stats.
+
+These are initial tuning values. Three default-profile accelerated bot wins establish attainable builds and reward flow, not human difficulty or phone performance certification.

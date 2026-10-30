@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Survivor Mini — thủ lĩnh và bảo vật</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 28px;
+        background: #112c27;
+        color: #fff3cb;
+        font: 14px Arial;
+      }
+      #stage.game-shell {
+        width: 390px;
+        height: 844px;
+        flex-shrink: 0;
+      }
+      #qa-ui {
+        position: absolute;
+        inset: 0;
+      }
+      aside {
+        width: 350px;
+      }
+      aside h1 {
+        font: 700 28px Georgia;
+      }
+      aside p,
+      aside pre {
+        line-height: 1.65;
+        white-space: pre-wrap;
+      }
+      aside button {
+        padding: 12px;
+        margin: 4px;
+        border: 1px solid #d5b96b;
+        border-radius: 10px;
+        background: #f2c779;
+        color: #17382d;
+        cursor: pointer;
+      }
+      aside button:disabled {
+        opacity: 0.4;
+      }
+      #verify-log {
+        color: #d8efb7;
+      }
+      @media (max-width: 760px) {
+        body {
+          flex-direction: column;
+          align-items: center;
+        }
+        #stage.game-shell {
+          width: min(390px, 94vw);
+          height: 780px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" class="game-shell">
+      <div id="game" class="game-canvas"></div>
+      <div id="qa-ui"></div>
+    </div>
+    <aside>
+      <h1>Thủ lĩnh · Bảo vật</h1>
+      <p>
+        Cảnh QA dùng engine và giao diện production. Đặt sẵn thời gian, sinh lực
+        và vũ khí để xem đòn đánh/rương. Không ghi hồ sơ cá nhân; lượt chơi
+        thường được thử riêng.
+      </p>
+      <button id="slime-king" disabled>Slime vương</button>
+      <button id="orc-captain" disabled>Đội trưởng Orc</button>
+      <button id="chest" disabled>Hạ thủ lĩnh / nhặt rương</button>
+      <button id="quality" disabled>Giảm hiệu ứng: TẮT</button>
+      <button id="verify" disabled>Kiểm tra tích hợp</button>
+      <pre id="log">Đang tải…</pre>
+      <pre id="verify-log"></pre>
+    </aside>
+    <script type="module" src="/dev/treasure.tsx"></script>
+  </body>
+</html>

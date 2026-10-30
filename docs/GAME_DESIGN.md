@@ -32,3 +32,12 @@ Băng tinh bắn thẳng, làm chậm có thời hạn và hiện màu xanh băn
 Kiếm phép6 + Nhịp chiến đấu2 mở Kiếm trận; Băng tinh6 + Lời gọi tinh tú2 mở Bão tuyết; Lá xoáy6 + Bước chân gió2 mở Lốc lá. Đủ nguyên liệu sẽ có ít nhất một thẻ tiến hóa trong lần lên cấp kế tiếp; người chơi phải chọn thẻ. Vũ khí và kỹ năng không bị tiêu hao, vũ khí cơ bản vẫn giữ cấp6; dạng tiến hóa thay cách tấn công. Mỗi dạng chỉ chọn một lần mỗi lượt và được xóa khi bắt đầu lượt mới, không ghi vào hồ sơ vĩnh viễn.
 
 Ba lựa chọn ưu tiên một tiến hóa hợp lệ, một vũ khí chưa có nếu còn, và một hướng build: nâng vũ khí vừa được chọn gần nhất hoặc kỹ năng còn thiếu khi vũ khí đã cấp6. Những ô còn lại bốc từ các nâng cấp hợp lệ. Người chơi chỉ tập trung vào vũ khí khởi đầu có thể tiến hóa sau8 lần chọn. Với Lá xoáy, mở vũ khí mới cho đến khi thấy Lá rồi tập trung nâng Lá sẽ đạt tiến hóa trong tối đa12 lần chọn. Công thức/tiến độ nằm trong phần mở rộng ở màn lên cấp; cẩm nang tại trại có công thức tĩnh. HUD đổi biểu tượng và gắn dấu✦ khi tiến hóa.
+
+
+## Mini-boss và bảo vật /1.3
+
+Slime vương xuất hiện ở60s, Đội trưởng Orc ở180s; mỗi con chỉ xuất hiện một lần. Chúng dùng hình quái hiện có với tỷ lệ toàn thân, vương miện và thanh HP riêng. Slime dừng lại rồi nổ vòng sau0,85s; Orc báo trước0,75s theo hướng đã khóa rồi lao210px trong0,5s. Vùng báo đòn phải bao phủ vùng trúng đòn. Chúng có kháng chậm như Golem, vẫn nhận sát thương và đẩy lùi nhẹ; hạ mini-boss không kết thúc trận.
+
+Rương rơi tại chỗ thủ lĩnh chết, không biến mất theo xác; HUD chỉ hướng tới rương gần nhất. Đi tới trong38px sẽ mở ba thẻ bảo vật độc nhất, không đưa món đã sở hữu. Ấn sương giá/Hạt hồi phong chỉ xuất hiện khi đã có Băng tinh/Lá xoáy. Chọn một món; mỗi lượt có tối đa hai bảo vật. Rương chờ nếu đang chọn cấp, không mất XP hay phần thưởng. Đồng hồ, chuyển động và chiến đấu dừng trong lúc chọn.
+
+Sáu món: Rễ cổ thụ (+35% sát thương sau1s đứng yên); Huyết thạch (+30% tốc đánh khi HP<=40%); Tim cộng hưởng (nhặt tim tạo sóng nổ, nhận sẵn3 tim quanh mình khi chọn); Ấn sương giá (+25% sát thương lên quái đang bị băng làm chậm); Hạt hồi phong (+50% sát thương lá trên đường về); Nanh thủ lĩnh (+40% sát thương lên mini-boss/Golem). Các món dùng chung với tiến hóa. HUD hiện biểu tượng và sáng lên khi Rễ/Huyết thạch kích hoạt. Màn tạm dừng/kết quả cho xem lại mô tả. Tất cả bị xóa khi bắt đầu lượt mới, không đổi cấu trúc save.

@@ -42,3 +42,8 @@ Replace the small generic burst/ring with an original procedural cartoon explosi
 ## Evolution effects
 
 Kiếm trận: four full-sized cream/gold blades, faint gold orbit trails. Bão tuyết: a translucent icy-cyan158px area, drifting ice glints and rotating wind segments; keep the hero and enemies readable. Lốc lá: eight green/gold leaves following curved outward arcs and homing back, with a small rotating leaf-wind mark around the caster. Activation uses a gold ring/chime. Evolved cards get a restrained gold background/border; HUD uses dedicated Orbit/CloudSnow/Tornado icons and a✦ badge. Reduced effects retains functional blades/leaves and a faint snowstorm range boundary while omitting decorative trails/snow. No new bitmap character art is introduced.
+
+
+## Elite treasure /1.3
+
+Reuse Slime/Orc artwork with uniform1.5/1.3 body scaling, a small procedural gold crown and warm HP bar. Do not change individual joint proportions. Fixed pale-gold/orange pulse and full-width capsule warnings remain visible with reduced effects. Chests use warm wood, a gold lid/clasp and restrained sparkle; the HUD gold arrow remains readable when loot is offscreen. Three treasure cards follow the existing green/gold forest panels, readable effect descriptions and smaller synergy hints. Relic icons use pale green, red, pink, ice blue and gold; conditional effects light their HUD border. Native browser evidence is retained, not generated previews.

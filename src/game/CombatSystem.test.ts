@@ -94,6 +94,26 @@ function setup(weapon: WeaponId) {
   return { combat, step, hit, enemy, grid, run };
 }
 describe("pooled new weapons", () => {
+  it("boosts returning leaves without changing outward damage or per-flight hit immunity", () => {
+    const { step, hit, enemy, grid, run } = setup("leaf");
+    run.relics = ["return"];
+    enemy.x = 205;
+    grid.rebuild([enemy]);
+    step(2);
+    expect(hit).not.toHaveBeenCalled();
+    enemy.x = 90;
+    grid.rebuild([enemy]);
+    step(0.4);
+    expect(hit).toHaveBeenCalledTimes(1);
+    expect(hit.mock.calls[0][1]).toBeCloseTo(run.stats.damage * 1.65 * 1.5);
+    const outward = setup("leaf");
+    outward.run.relics = ["return"];
+    outward.step(2.7);
+    expect(outward.hit).toHaveBeenCalledTimes(1);
+    expect(outward.hit.mock.calls[0][1]).toBeCloseTo(
+      outward.run.stats.damage * 1.65,
+    );
+  });
   it("replaces frost shots with periodic bounded area damage and excludes dead targets", () => {
     const { step, hit, enemy, grid, run } = setup("frost");
     run.weapons.frost = 6;

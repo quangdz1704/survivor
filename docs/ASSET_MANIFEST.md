@@ -91,3 +91,8 @@ Original procedural Phaser Graphics in `src/game/GolemBlast.ts`: fire/flash, pre
 ## Weapon evolution effects
 
 Orbit blades and curved leaves reuse the project's procedural CombatSystem textures. Snowstorm ice/wind and orbit trails are original Phaser Graphics in EvolutionCombat, with no external raster assets. HUD/card icons Orbit, CloudSnow and Tornado come from the existing Lucide ISC dependency with its retained license. Evolution/attack sounds are original local Web Audio synthesis. No additional dependency or runtime network request.
+
+
+## Elite treasure /1.3
+
+Slime vương and Orc captain reuse local enemy textures with whole-body scaling; crowns, warning regions, chest shapes and sparkle are original procedural Graphics in EliteEncounters.ts. Relic/treasure icons use the existing Lucide ISC dependency (TreePine, Gem, HeartPulse, Snowflake, Wind, Skull, PackageOpen, Crown). Treasure chime uses original local Web Audio synthesis. No new external image/audio file, dependency or runtime download.

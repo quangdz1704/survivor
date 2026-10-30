@@ -1,0 +1,7 @@
+Default-profile real engine bot; ordinary bridge movement/selection; no HP/XP/damage/boss-time injection.
+Kang: win354.597015s,607 kills,level15,1187gold. Both elite chests claimed. Separate standing defeat~138.4s,155kills,level4. Three chest choices total across win+defeat; winning relic names were not retained in this first report.
+Dun: win309.92s,575kills,level15,1117gold; rime+fang. Separate standing defeat77.85s,73kills,level3,148gold.
+Dun focused Blizzard: evolved188.223715s/level9; win319.64s,582kills,level15,1132gold; fang+heart. Separate standing defeat34.83s,26kills,level3,56gold.
+All completed pause,15FPS clock/spawn/movement and reward/save/reload/duplicate-settlement checks.
+Fixture:22/22 with full effects,22/22 with reduced effects.72 native frames per clip; Slime5.217s, Orc6.134s; actual corrected warning.
+Captures are cropped native browser images, no recorded audio. AX truncates long text; screenshots retain more detail.

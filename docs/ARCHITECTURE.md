@@ -56,3 +56,12 @@ Display names are Kang (formerly An) and Dun (formerly Linh). Internal IDs stay 
 `game/EvolutionCombat.ts` owns one reused aura Graphics and four orbit sprites. CombatSystem delegates the continuous sword/blizzard paths, suppresses their base shots, and dispatches evolved leaf volleys through the existing96-slot projectile pool. ReturningFlight computes the outward curve analytically before its normal moving-caster return. Damage goes through ForestScene.hitEnemy, preserving crits, death, XP, boss finish and slow resistance. Snapshot publishes ranks/evolutions at the existing10Hz HUD rate. EvolutionRecipes, LevelUp and GameHUD render progress/cards/icons from that state; entities stay outside React.
 
 Audio attack colors and the evolution chord use existing synthesis. Hit/death/XP SFX are independently coalesced over35ms so large blizzard/pickup bursts do not consume the voice budget before boss/result cues.
+
+
+## Mid-run encounters and rewards /1.3
+
+`core/encounters.ts` defines the60/180s schedule and elite configuration. RunModel owns the waiting/active/defeated/claimed ledger, relic inventory, compatible three-card offers and stationary/low-HP stats. `pending` includes relic choices, so XP overflow and chest collection serialize with ordinary level-up. No new profile fields or IDB migration.
+
+`EliteEncounters` owns two fixed slots, one ground Graphics and one crown/chest Graphics; its simulation timer drives warnings/dash and chest decoration. EnemyActor scales complete bodies uniformly and resets elite metadata on reuse. ForestScene protects active elites when reserving pool capacity, sends actual damage through shared immunity/hit/death paths, and drops one chest without finishing the run. Segment collision prevents dash tunneling. The pickup callback dispatches Heart area hits; ReturningFlight's phase controls the leaf bonus without resetting hit IDs.
+
+Bridge publishes at the existing10Hz rate; only two elite/chest records and two relic IDs cross into React. `treasure` event/`relic` command wire the modal, store and validated model selection. HUD points to the nearest chest; pause/result show relic descriptions. Begin/home clear both pending event channels, preventing stale cards across runs. Effects now reuses eight rings with simulation-time expiry and reset cleanup instead of allocating a new tween/circle for each burst.

@@ -24,6 +24,8 @@ const seenEvolutions: Partial<
 let sawSlow = false,
   sawReturn = false;
 const seenWeapons = new Set<string>();
+const eliteLog: Record<string, string> = {};
+let rewardChoices = 0;
 let testing = false,
   mode = "victory",
   seen = new Set<string>(),
@@ -34,7 +36,7 @@ let testing = false,
   slowClockPassed = false,
   pauseChecked = false;
 const report = (extra = "") => {
-  log.textContent = `Nhân vật: ${hero} · Vũ khí: ${[...seenWeapons].join(", ")}\nMục tiêu: ${goalEvolution ? UPGRADE_NAMES[goalEvolution] : "phối hợp"}\nTiến hóa đã thấy: ${JSON.stringify(seenEvolutions)}\nSlow: ${sawSlow} · Lá trở về: ${sawReturn}\nĐồng hồ ở 15 FPS: ${slowClockPassed ? "ĐẠT" : "CHƯA CHẠY"}\nChế độ: ${mode}\nThời gian: ${latest?.time.toFixed(1) ?? 0}s\nHP: ${latest?.hp ?? 0} · Cấp: ${latest?.level ?? 1}\nQuái đã hạ: ${latest?.kills ?? 0}\nĐồng thời tối đa: ${maxEnemies}\nLoại quái đã gặp: ${[...seen].join(", ")}\nLần chọn nâng cấp: ${pauses}\n${extra}\nKết quả: ${JSON.stringify(results, null, 2)}`;
+  log.textContent = `Lượt đã xong: ${results.map((r) => `${r.victory ? "Thắng" : "Thua"} ${r.time.toFixed(2)}s, ${r.kills} quái, cấp${r.level}, ${r.gold} vàng, bảo vật ${r.relics?.join("+") || "không"}`).join("; ")}\nMini-boss: ${JSON.stringify(eliteLog)}\nRương đã chọn: ${rewardChoices}\nBảo vật: ${latest?.relics.join(", ") || "chưa có"}\nNhân vật: ${hero} · Vũ khí: ${[...seenWeapons].join(", ")}\nMục tiêu: ${goalEvolution ? UPGRADE_NAMES[goalEvolution] : "phối hợp"}\nTiến hóa đã thấy: ${JSON.stringify(seenEvolutions)}\nSlow: ${sawSlow} · Lá trở về: ${sawReturn}\nĐồng hồ ở 15 FPS: ${slowClockPassed ? "ĐẠT" : "CHƯA CHẠY"}\nChế độ: ${mode}\nThời gian: ${latest?.time.toFixed(1) ?? 0}s\nHP: ${latest?.hp ?? 0} · Cấp: ${latest?.level ?? 1}\nQuái đã hạ: ${latest?.kills ?? 0}\nĐồng thời tối đa: ${maxEnemies}\nLoại quái đã gặp: ${[...seen].join(", ")}\nLần chọn nâng cấp: ${pauses}\n${extra}\nKết quả: ${JSON.stringify(results, null, 2)}`;
 };
 bridge.subscribe((snapshot) => {
   latest = snapshot;
@@ -91,9 +93,30 @@ bridge.event("choices", (choices) => {
     bridge.send("choose", choice.id);
   }, 50);
 });
+bridge.event("treasure", (choices) => {
+  if (!testing || !choices.length) return;
+  const scene: any = game.scene.getScene("forest");
+  const time = scene.run.time;
+  setTimeout(() => {
+    if (!testing) return;
+    if (scene.run.time !== time)
+      throw new Error("Treasure did not pause clock");
+    const order = ["fang", "rime", "return", "heart", "rage", "root"];
+    const id = choices
+      .slice()
+      .sort((a, b) => order.indexOf(a) - order.indexOf(b))[0];
+    bridge.send("relic", id);
+    rewardChoices++;
+  }, 80);
+});
 bridge.event("result", async (result) => {
   if (!testing) return;
-  results.push(result);
+  const scene: any = game.scene.getScene("forest");
+  results.push({
+    ...result,
+    relics: [...scene.run.relics],
+    elites: { ...scene.run.elites },
+  });
   testing = false;
   report("Đang kiểm tra phần thưởng/lưu lại…");
   const repo = new ProfileRepository(indexedDB, "survivor-mini-verification");
@@ -126,6 +149,8 @@ document.getElementById("start")!.onclick = () => {
   for (const id of EVOLUTION_IDS) delete seenEvolutions[id];
   seen = new Set();
   seenWeapons.clear();
+  for (const id of Object.keys(eliteLog)) delete eliteLog[id];
+  rewardChoices = 0;
   sawSlow = sawReturn = false;
   maxEnemies = 0;
   pauses = 0;
@@ -172,6 +197,9 @@ function drive(scene: any) {
     }, 90);
     return;
   }
+  for (const [id, state] of Object.entries(run.elites)) {
+    if (state !== "waiting") eliteLog[id] = String(state);
+  }
   const enemies = scene.enemies.filter((e: any) => e.living);
   sawSlow ||= enemies.some((e: any) => e.chill.remaining > 0);
   sawReturn ||= scene.combat.projectiles.some(
@@ -191,6 +219,17 @@ function drive(scene: any) {
   if (orbs[0] && Math.hypot(orbs[0].x - player.x, orbs[0].y - player.y) < 320) {
     tx = orbs[0].x;
     ty = orbs[0].y;
+  }
+  const chest = scene.encounters
+    .chests()
+    .sort(
+      (a: any, b: any) =>
+        Math.hypot(a.x - player.x, a.y - player.y) -
+        Math.hypot(b.x - player.x, b.y - player.y),
+    )[0];
+  if (chest) {
+    tx = chest.x;
+    ty = chest.y;
   }
   let vx = tx - player.x,
     vy = ty - player.y;
