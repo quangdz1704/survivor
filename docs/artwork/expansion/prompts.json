@@ -1,0 +1,238 @@
+{
+  "generator": "Built-in image_gen tool",
+  "created": "2026-10-30",
+  "notes": "Original project-bound AI-generated artwork; no third-party stock or downloaded art. Gameplay sources retained. Full transparent sprites generated individually; no segmented anatomy rig. Attribution: generated with OpenAI image_gen. No claim of exclusive copyright.",
+  "assets": [
+    {
+      "id": "ashlands",
+      "kind": "texture",
+      "description": "A seamless square top-down tileable game ground texture: volcanic ashland terrain, warm charcoal cracked soil and small worn basalt stones, very sparse tiny dim orange ember cracks, low contrast, flat even lighting, no horizon, no objects, no central focal point. Edges must repeat continuously. Ground must remain dark and subtle behind colorful monsters.",
+      "prompt": "Use case: stylized-concept\nAsset type: seamless top-down game ground tile\nOriginal polished hand-painted 2D cartoon fantasy mobile survival game art, appealing compact chibi proportions, dark soft outlines, dimensional painted highlights, detailed but readable at tiny gameplay size. Elevated three-quarter view showing top and front, orthographic no perspective scene. One complete intact subject, no disassembled body parts, no text, no watermark.\nPrimary request: A seamless square top-down tileable game ground texture: volcanic ashland terrain, warm charcoal cracked soil and small worn basalt stones, very sparse tiny dim orange ember cracks, low contrast, flat even lighting, no horizon, no objects, no central focal point. Edges must repeat continuously. Ground must remain dark and subtle behind colorful monsters.\nSquare canvas. Opaque seamless edge-to-edge painted texture.",
+      "source": "/Users/nguyenthequang/.codex/generated_images/01a18c42-2bfd-7cb1-941d-8e52c2581e70/exec-41bf3e46-acb8-4e06-b840-455a82ad8d9d.png",
+      "processing": {
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "outputWidth": 512,
+        "outputHeight": 512,
+        "hasAlpha": false,
+        "method": "Uniform downsample to 512 square",
+        "webpQuality": 90,
+        "alphaQuality": 100
+      },
+      "retainedSource": "docs/artwork/expansion/sources/ashlands.png",
+      "runtimeAsset": "public/assets/expansion/ashlands.webp",
+      "runtimeBytes": 69572,
+      "inspection": "Viewed generated full-resolution output and downsampled contact sheet; full silhouette intact. Reviewed 2x2 repeated tile preview; low-contrast ground, no obvious straight boundary seam."
+    },
+    {
+      "id": "glacier",
+      "kind": "texture",
+      "description": "A seamless square top-down tileable game ground texture: glacier terrain, pale desaturated teal snow and frosted blue-gray stone, fine irregular packed snow surface and shallow ice cracks, low contrast, flat even lighting, no horizon, no objects, no central focal point. Edges must repeat continuously. Ground must remain subtle behind colorful monsters.",
+      "prompt": "Use case: stylized-concept\nAsset type: seamless top-down game ground tile\nOriginal polished hand-painted 2D cartoon fantasy mobile survival game art, appealing compact chibi proportions, dark soft outlines, dimensional painted highlights, detailed but readable at tiny gameplay size. Elevated three-quarter view showing top and front, orthographic no perspective scene. One complete intact subject, no disassembled body parts, no text, no watermark.\nPrimary request: A seamless square top-down tileable game ground texture: glacier terrain, pale desaturated teal snow and frosted blue-gray stone, fine irregular packed snow surface and shallow ice cracks, low contrast, flat even lighting, no horizon, no objects, no central focal point. Edges must repeat continuously. Ground must remain subtle behind colorful monsters.\nSquare canvas. Opaque seamless edge-to-edge painted texture.",
+      "source": "/Users/nguyenthequang/.codex/generated_images/01a18c42-2bfd-7cb1-941d-8e52c2581e70/exec-9c9d2757-b08e-498c-a985-c03909feb2c7.png",
+      "processing": {
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "outputWidth": 512,
+        "outputHeight": 512,
+        "hasAlpha": false,
+        "method": "Uniform downsample to 512 square",
+        "webpQuality": 90,
+        "alphaQuality": 100
+      },
+      "retainedSource": "docs/artwork/expansion/sources/glacier.png",
+      "runtimeAsset": "public/assets/expansion/glacier.webp",
+      "runtimeBytes": 56264,
+      "inspection": "Viewed generated full-resolution output and downsampled contact sheet; full silhouette intact. Reviewed 2x2 repeated tile preview; low-contrast ground, no obvious straight boundary seam."
+    },
+    {
+      "id": "ash-imp",
+      "kind": "enemy",
+      "description": "One little hostile volcanic ash imp, complete body, hunched stocky charcoal-gray creature, oversized head, two short curved basalt horns, glowing amber eyes, chunky clawed feet and fists, a few restrained ember cracks through its stone skin. Mischievous threatening face. Neutral ready pose facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.",
+      "prompt": "Use case: stylized-concept\nAsset type: transparent full-body game sprite\nOriginal polished hand-painted 2D cartoon fantasy mobile survival game art, appealing compact chibi proportions, dark soft outlines, dimensional painted highlights, detailed but readable at tiny gameplay size. Elevated three-quarter view showing top and front, orthographic no perspective scene. One complete intact subject, no disassembled body parts, no text, no watermark.\nPrimary request: One little hostile volcanic ash imp, complete body, hunched stocky charcoal-gray creature, oversized head, two short curved basalt horns, glowing amber eyes, chunky clawed feet and fists, a few restrained ember cracks through its stone skin. Mischievous threatening face. Neutral ready pose facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.\nSquare canvas. One subject only, full body visible and structurally correct.",
+      "source": "/Users/nguyenthequang/.codex/generated_images/01a18c42-2bfd-7cb1-941d-8e52c2581e70/exec-1246220a-ced3-4188-b4be-83fb7e7dab53.png",
+      "processing": {
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "outputWidth": 256,
+        "outputHeight": 256,
+        "hasAlpha": true,
+        "method": "Alpha trim threshold 8, aspect-preserving resize with 12px transparent padding on every side, centered square output",
+        "webpQuality": 90,
+        "alphaQuality": 100
+      },
+      "retainedSource": "docs/artwork/expansion/sources/ash-imp.png",
+      "runtimeAsset": "public/assets/expansion/ash-imp.webp",
+      "runtimeBytes": 21356,
+      "inspection": "Viewed generated full-resolution output and downsampled contact sheet; full silhouette intact. Validated non-opaque alpha; no merged floor or background shadow."
+    },
+    {
+      "id": "ember-beetle",
+      "kind": "enemy",
+      "description": "One hostile ember beetle, complete compact stout body, six short articulated legs, dark burnt-red shell split by two subtle orange glowing seams, small thick mandibles, amber eyes. Clear readable round shell silhouette with warm bronze highlights. Ready pose facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.",
+      "prompt": "Use case: stylized-concept\nAsset type: transparent full-body game sprite\nOriginal polished hand-painted 2D cartoon fantasy mobile survival game art, appealing compact chibi proportions, dark soft outlines, dimensional painted highlights, detailed but readable at tiny gameplay size. Elevated three-quarter view showing top and front, orthographic no perspective scene. One complete intact subject, no disassembled body parts, no text, no watermark.\nPrimary request: One hostile ember beetle, complete compact stout body, six short articulated legs, dark burnt-red shell split by two subtle orange glowing seams, small thick mandibles, amber eyes. Clear readable round shell silhouette with warm bronze highlights. Ready pose facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.\nSquare canvas. One subject only, full body visible and structurally correct.",
+      "source": "/Users/nguyenthequang/.codex/generated_images/01a18c42-2bfd-7cb1-941d-8e52c2581e70/exec-ffffd5d2-ae9a-4a3e-9e96-77e81b017f8c.png",
+      "processing": {
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "outputWidth": 256,
+        "outputHeight": 256,
+        "hasAlpha": true,
+        "method": "Alpha trim threshold 8, aspect-preserving resize with 12px transparent padding on every side, centered square output",
+        "webpQuality": 90,
+        "alphaQuality": 100
+      },
+      "retainedSource": "docs/artwork/expansion/sources/ember-beetle.png",
+      "runtimeAsset": "public/assets/expansion/ember-beetle.webp",
+      "runtimeBytes": 20056,
+      "inspection": "Viewed generated full-resolution output and downsampled contact sheet; full silhouette intact. Validated non-opaque alpha; no merged floor or background shadow."
+    },
+    {
+      "id": "frost-wolf",
+      "kind": "enemy",
+      "description": "One hostile frost wolf, complete quadruped body with all four feet intact, stocky arctic white fur shaded pale icy blue, pointed ears, short spiky frozen fur crest, turquoise eyes, blue-gray muzzle and paws, snarl exposing two small fangs. Readable compact silhouette. Ready pose facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.",
+      "prompt": "Use case: stylized-concept\nAsset type: transparent full-body game sprite\nOriginal polished hand-painted 2D cartoon fantasy mobile survival game art, appealing compact chibi proportions, dark soft outlines, dimensional painted highlights, detailed but readable at tiny gameplay size. Elevated three-quarter view showing top and front, orthographic no perspective scene. One complete intact subject, no disassembled body parts, no text, no watermark.\nPrimary request: One hostile frost wolf, complete quadruped body with all four feet intact, stocky arctic white fur shaded pale icy blue, pointed ears, short spiky frozen fur crest, turquoise eyes, blue-gray muzzle and paws, snarl exposing two small fangs. Readable compact silhouette. Ready pose facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.\nSquare canvas. One subject only, full body visible and structurally correct.",
+      "source": "/Users/nguyenthequang/.codex/generated_images/01a18c42-2bfd-7cb1-941d-8e52c2581e70/exec-da2554a5-d8dd-47bf-9c3f-81e8799d69af.png",
+      "processing": {
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "outputWidth": 256,
+        "outputHeight": 256,
+        "hasAlpha": true,
+        "method": "Alpha trim threshold 8, aspect-preserving resize with 12px transparent padding on every side, centered square output",
+        "webpQuality": 90,
+        "alphaQuality": 100
+      },
+      "retainedSource": "docs/artwork/expansion/sources/frost-wolf.png",
+      "runtimeAsset": "public/assets/expansion/frost-wolf.webp",
+      "runtimeBytes": 22724,
+      "inspection": "Viewed generated full-resolution output and downsampled contact sheet; full silhouette intact. Validated non-opaque alpha; no merged floor or background shadow."
+    },
+    {
+      "id": "ice-wisp",
+      "kind": "enemy",
+      "description": "One hostile ice wisp spirit, complete compact floating pear-shaped body of pale cyan translucent icy magic, two narrow indigo eyes, a small faceted ice-crystal crown, two short tapering icy arms and one gently curled ghost tail. Polished painted solid readable silhouette, contained subtle cyan glow very close to body. Facing slightly to viewer's right. Centered on true transparent background, generous margin, no floor or cast shadow.",
+      "prompt": "Use case: stylized-concept\nAsset type: transparent full-body game sprite\nOriginal polished hand-painted 2D cartoon fantasy mobile survival game art, appealing compact chibi proportions, dark soft outlines, dimensional painted highlights, detailed but readable at tiny gameplay size. Elevated three-quarter view showing top and front, orthographic no perspective scene. One complete intact subject, no disassembled body parts, no text, no watermark.\nPrimary request: One hostile ice wisp spirit, complete compact floating pear-shaped body of pale cyan translucent icy magic, two narrow indigo eyes, a small faceted ice-crystal crown, two short tapering icy arms and one gently curled ghost tail. Polished painted solid readable silhouette, contained subtle cyan glow very close to body. Facing slightly to viewer's right. Centered on true transparent background, generous margin, no floor or cast shadow.\nSquare canvas. One subject only, full body visible and structurally correct.",
+      "source": "/Users/nguyenthequang/.codex/generated_images/01a18c42-2bfd-7cb1-941d-8e52c2581e70/exec-1782341f-e133-415a-93d4-48ff7254111d.png",
+      "processing": {
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "outputWidth": 256,
+        "outputHeight": 256,
+        "hasAlpha": true,
+        "method": "Alpha trim threshold 8, aspect-preserving resize with 12px transparent padding on every side, centered square output",
+        "webpQuality": 90,
+        "alphaQuality": 100
+      },
+      "retainedSource": "docs/artwork/expansion/sources/ice-wisp.png",
+      "runtimeAsset": "public/assets/expansion/ice-wisp.webp",
+      "runtimeBytes": 24462,
+      "inspection": "Viewed generated full-resolution output and downsampled contact sheet; full silhouette intact. Validated non-opaque alpha; no merged floor or background shadow."
+    },
+    {
+      "id": "ember-drake",
+      "kind": "boss",
+      "description": "One mighty hostile ember drake boss, complete intact stocky small winged lava dragon, four thick clawed legs planted, two small powerful raised batlike wings, charcoal-red rocky scales, bright burnt-orange belly plates and ember horns, thick curled tail with glowing tip, large angular head and amber eyes with fierce snarl. A compact imposing boss silhouette. Facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow, no fire covering anatomy.",
+      "prompt": "Use case: stylized-concept\nAsset type: transparent full-body game sprite\nOriginal polished hand-painted 2D cartoon fantasy mobile survival game art, appealing compact chibi proportions, dark soft outlines, dimensional painted highlights, detailed but readable at tiny gameplay size. Elevated three-quarter view showing top and front, orthographic no perspective scene. One complete intact subject, no disassembled body parts, no text, no watermark.\nPrimary request: One mighty hostile ember drake boss, complete intact stocky small winged lava dragon, four thick clawed legs planted, two small powerful raised batlike wings, charcoal-red rocky scales, bright burnt-orange belly plates and ember horns, thick curled tail with glowing tip, large angular head and amber eyes with fierce snarl. A compact imposing boss silhouette. Facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow, no fire covering anatomy.\nSquare canvas. One subject only, full body visible and structurally correct.",
+      "source": "/Users/nguyenthequang/.codex/generated_images/01a18c42-2bfd-7cb1-941d-8e52c2581e70/exec-493ef853-7254-43b1-ae95-ac8a961d4dcd.png",
+      "processing": {
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "outputWidth": 384,
+        "outputHeight": 384,
+        "hasAlpha": true,
+        "method": "Alpha trim threshold 8, aspect-preserving resize with 12px transparent padding on every side, centered square output",
+        "webpQuality": 90,
+        "alphaQuality": 100
+      },
+      "retainedSource": "docs/artwork/expansion/sources/ember-drake.png",
+      "runtimeAsset": "public/assets/expansion/ember-drake.webp",
+      "runtimeBytes": 61548,
+      "inspection": "Viewed generated full-resolution output and downsampled contact sheet; full silhouette intact. Validated non-opaque alpha; no merged floor or background shadow."
+    },
+    {
+      "id": "frost-warden",
+      "kind": "boss",
+      "description": "One mighty hostile frost warden boss, complete intact stout armored guardian, massive shoulders and broad chest, two heavy arms and two short planted legs, dark slate blue ancient armor edged with faceted pale cyan ice, horned closed helmet with glowing teal eye slit, chunky icy gauntlets, icicle shoulder spikes. No weapon needed, intimidating compact boss silhouette. Facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.",
+      "prompt": "Use case: stylized-concept\nAsset type: transparent full-body game sprite\nOriginal polished hand-painted 2D cartoon fantasy mobile survival game art, appealing compact chibi proportions, dark soft outlines, dimensional painted highlights, detailed but readable at tiny gameplay size. Elevated three-quarter view showing top and front, orthographic no perspective scene. One complete intact subject, no disassembled body parts, no text, no watermark.\nPrimary request: One mighty hostile frost warden boss, complete intact stout armored guardian, massive shoulders and broad chest, two heavy arms and two short planted legs, dark slate blue ancient armor edged with faceted pale cyan ice, horned closed helmet with glowing teal eye slit, chunky icy gauntlets, icicle shoulder spikes. No weapon needed, intimidating compact boss silhouette. Facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.\nSquare canvas. One subject only, full body visible and structurally correct.",
+      "source": "/Users/nguyenthequang/.codex/generated_images/01a18c42-2bfd-7cb1-941d-8e52c2581e70/exec-5d254633-81ef-4bcc-9035-a567e2e89383.png",
+      "processing": {
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "outputWidth": 384,
+        "outputHeight": 384,
+        "hasAlpha": true,
+        "method": "Alpha trim threshold 8, aspect-preserving resize with 12px transparent padding on every side, centered square output",
+        "webpQuality": 90,
+        "alphaQuality": 100
+      },
+      "retainedSource": "docs/artwork/expansion/sources/frost-warden.png",
+      "runtimeAsset": "public/assets/expansion/frost-warden.webp",
+      "runtimeBytes": 61026,
+      "inspection": "Viewed generated full-resolution output and downsampled contact sheet; full silhouette intact. Validated non-opaque alpha; no merged floor or background shadow."
+    },
+    {
+      "id": "fox",
+      "kind": "pet",
+      "description": "One friendly tiny amber spark fox companion, complete intact quadruped body, big cream-tipped ears, warm orange golden fur and cream chest, huge fluffy cream-tipped tail curled upwards behind it, bright friendly brown eyes, tiny paws, one tiny ember-like tuft on tail tip. Cute and brave. Facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.",
+      "prompt": "Use case: stylized-concept\nAsset type: transparent full-body game sprite\nOriginal polished hand-painted 2D cartoon fantasy mobile survival game art, appealing compact chibi proportions, dark soft outlines, dimensional painted highlights, detailed but readable at tiny gameplay size. Elevated three-quarter view showing top and front, orthographic no perspective scene. One complete intact subject, no disassembled body parts, no text, no watermark.\nPrimary request: One friendly tiny amber spark fox companion, complete intact quadruped body, big cream-tipped ears, warm orange golden fur and cream chest, huge fluffy cream-tipped tail curled upwards behind it, bright friendly brown eyes, tiny paws, one tiny ember-like tuft on tail tip. Cute and brave. Facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.\nSquare canvas. One subject only, full body visible and structurally correct.",
+      "source": "/Users/nguyenthequang/.codex/generated_images/01a18c42-2bfd-7cb1-941d-8e52c2581e70/exec-6f8ca1b8-68b9-491b-b20b-b874c52b0ef4.png",
+      "processing": {
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "outputWidth": 256,
+        "outputHeight": 256,
+        "hasAlpha": true,
+        "method": "Alpha trim threshold 8, aspect-preserving resize with 12px transparent padding on every side, centered square output",
+        "webpQuality": 90,
+        "alphaQuality": 100
+      },
+      "retainedSource": "docs/artwork/expansion/sources/fox.png",
+      "runtimeAsset": "public/assets/expansion/fox.webp",
+      "runtimeBytes": 25014,
+      "inspection": "Viewed generated full-resolution output and downsampled contact sheet; full silhouette intact. Validated non-opaque alpha; no merged floor or background shadow."
+    },
+    {
+      "id": "owl",
+      "kind": "pet",
+      "description": "One friendly tiny magic owl companion, complete intact round body, soft cream belly and face disc, cyan blue wings and head feathers, little navy ear tufts, enormous warm amber eyes, tiny feet tucked under body, wings slightly outstretched in neutral hover. Cute intelligent readable silhouette. Facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.",
+      "prompt": "Use case: stylized-concept\nAsset type: transparent full-body game sprite\nOriginal polished hand-painted 2D cartoon fantasy mobile survival game art, appealing compact chibi proportions, dark soft outlines, dimensional painted highlights, detailed but readable at tiny gameplay size. Elevated three-quarter view showing top and front, orthographic no perspective scene. One complete intact subject, no disassembled body parts, no text, no watermark.\nPrimary request: One friendly tiny magic owl companion, complete intact round body, soft cream belly and face disc, cyan blue wings and head feathers, little navy ear tufts, enormous warm amber eyes, tiny feet tucked under body, wings slightly outstretched in neutral hover. Cute intelligent readable silhouette. Facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.\nSquare canvas. One subject only, full body visible and structurally correct.",
+      "source": "/Users/nguyenthequang/.codex/generated_images/01a18c42-2bfd-7cb1-941d-8e52c2581e70/exec-1f3d6f03-d01f-426f-80ed-d99093c64e8a.png",
+      "processing": {
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "outputWidth": 256,
+        "outputHeight": 256,
+        "hasAlpha": true,
+        "method": "Alpha trim threshold 8, aspect-preserving resize with 12px transparent padding on every side, centered square output",
+        "webpQuality": 90,
+        "alphaQuality": 100
+      },
+      "retainedSource": "docs/artwork/expansion/sources/owl.png",
+      "runtimeAsset": "public/assets/expansion/owl.webp",
+      "runtimeBytes": 19528,
+      "inspection": "Viewed generated full-resolution output and downsampled contact sheet; full silhouette intact. Validated non-opaque alpha; no merged floor or background shadow."
+    },
+    {
+      "id": "sprout",
+      "kind": "pet",
+      "description": "One friendly tiny seedling spirit companion, complete intact pear-shaped pale mint green body, round dark green eyes and tiny smiling mouth, two little stubby arms and two planted feet, two lush bright green leaves sprouting from head and one yellow flower bud, soft warm painted highlights. Cute and gentle compact silhouette. Facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.",
+      "prompt": "Use case: stylized-concept\nAsset type: transparent full-body game sprite\nOriginal polished hand-painted 2D cartoon fantasy mobile survival game art, appealing compact chibi proportions, dark soft outlines, dimensional painted highlights, detailed but readable at tiny gameplay size. Elevated three-quarter view showing top and front, orthographic no perspective scene. One complete intact subject, no disassembled body parts, no text, no watermark.\nPrimary request: One friendly tiny seedling spirit companion, complete intact pear-shaped pale mint green body, round dark green eyes and tiny smiling mouth, two little stubby arms and two planted feet, two lush bright green leaves sprouting from head and one yellow flower bud, soft warm painted highlights. Cute and gentle compact silhouette. Facing slightly to viewer's right. Centered entire silhouette on true transparent background, generous margin, no cast shadow.\nSquare canvas. One subject only, full body visible and structurally correct.",
+      "source": "/Users/nguyenthequang/.codex/generated_images/01a18c42-2bfd-7cb1-941d-8e52c2581e70/exec-7b106d99-2ea1-47ff-bfca-be551cb399e0.png",
+      "processing": {
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "outputWidth": 256,
+        "outputHeight": 256,
+        "hasAlpha": true,
+        "method": "Alpha trim threshold 8, aspect-preserving resize with 12px transparent padding on every side, centered square output",
+        "webpQuality": 90,
+        "alphaQuality": 100
+      },
+      "retainedSource": "docs/artwork/expansion/sources/sprout.png",
+      "runtimeAsset": "public/assets/expansion/sprout.webp",
+      "runtimeBytes": 17552,
+      "inspection": "Viewed generated full-resolution output and downsampled contact sheet; full silhouette intact. Validated non-opaque alpha; no merged floor or background shadow."
+    }
+  ]
+}
