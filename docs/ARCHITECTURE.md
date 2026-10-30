@@ -42,3 +42,8 @@ No backend, analytics, secrets or runtime CDN dependencies. All runtime artwork 
 ## Backward-compatible hero selection
 
 Display names are Kang (formerly An) and Dun (formerly Linh). Internal IDs stay `"an"`/`"linh"` so existing selected heroes, saved progress and asset paths keep working. Profile v1 includes `hero: "an" | "linh"`. Validation defaults missing/unknown values to Kang while preserving old gold/settings/upgrades/records; no destructive IDB version reset. The chooser writes only hero inside the same queued transaction mechanism and blocks its close/confirm/cards until save returns. RunModel chooses initialWeapons and base stats from HEROES; temporary ranks never leak across runs. PlayerActor retains Kang’s approved rig. Dun uses the original whole-body idle portrait and a four-pose painted walk strip, with uniform scale, shared sole baseline and distance-driven frame advancement; her artwork faces right before mirroring. No Dun limb is scaled independently.
+
+
+## Golem blast rendering
+
+`GolemBlast.ts` is owned by `Effects`: two reused Graphics objects and fourteen preallocated debris descriptors, with analytic age-based drawing. No per-impact game objects or textures. `clearRun` clears the effect; active pause/level-up freezes it with simulation. After a result, only Effects continues updating so the final blast can finish behind the result panel. `GOLEM_BLAST_RADIUS` is shared by the warning, impact outline and scene damage test. `AudioManager` uses a cached half-second noise buffer, low-pass decay and two descending tones; temporary audio nodes disconnect on end.

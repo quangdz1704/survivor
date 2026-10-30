@@ -93,3 +93,12 @@ Actual Chrome renderer comparison:20-linh-body-comparison.jpg, with original por
 
 
 Firefox manual smoke check after replacement: selected Linh through the real chooser, started at85/85HP with Frost1, moved right/left with keyboard, stopped into the intact idle pose, took enemy contact damage (70/85 at level2) and resumed after choosing an upgrade.22-linh-body-gameplay.jpg is a real combat screenshot at00:22,11 kills,68/85HP (idle pose during combat, not claimed movement footage). An also started with100/100HP and Sword1 with his existing rig. Code review covers death/reset; no new full victory/defeat bot run was necessary for this render-only repair. No new physical-device, offline or production deployment test is claimed for this repair.
+
+
+## Golem explosion upgrade
+
+45 tests across9 files, ESLint, TypeScript and production build pass. PWA output remains47 precached entries (~3929.68KiB); no new runtime image/audio downloads. Independent read-only review found no material lifecycle, resource cleanup or damage-radius issue.
+
+`dev/golem-blast.html` uses the real ForestScene, actor, damage path and Effects. This development fixture spawns Golem immediately, removes ordinary enemies, disables player weapons and offers fixed-time poses; it is not a balanced match or production UI. Its9 checks passed in Firefox:25 damage inside the area; no damage just outside; expiry after1.15s; warning/match clock pause; blast pause; effect expiry after a result;30 replays with no additional game objects; home cleanup; and unchanged timing/damage with reduced effects. Evidence: `screenshots/golem-blast-checks.txt`.
+
+`screenshots/23-golem-blast.webp` contains38 consecutive native Firefox captures over2.866s, cropped to Golem and the attack area. The warning, fire, debris, smoke and fade were inspected in actual browser rendering. The clip has no audio track; explosion sound is implemented via local synthesis, not claimed as an audio recording. No new physical-phone FPS measurement, full-match balance run or production deployment is claimed for this change.

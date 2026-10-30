@@ -5,6 +5,7 @@ import { EnemyActor } from "./EnemyActor";
 import { CombatSystem } from "./CombatSystem";
 import { Pickups } from "./Pickups";
 import { Effects } from "./Effects";
+import { GOLEM_BLAST_RADIUS } from "./GolemBlast";
 import { SpatialGrid } from "./SpatialGrid";
 import { drawForestMap } from "./ForestMap";
 import { renderScale } from "./renderQuality";
@@ -263,6 +264,12 @@ export class ForestScene extends Phaser.Scene {
     // spawn/attack cadence and the match clock aligned on slower displays.
     const elapsed = Math.min(Math.max(delta, 0), 250) / 1000;
     this.cameras.main.setLerp(1 - Math.exp(-9 * elapsed));
+    // Let the last impact settle behind the result panel; pause/level-up still
+    // stop active-run effects alongside combat and the match clock.
+    if (!this.activeRun) {
+      this.effects.update(elapsed);
+      return;
+    }
     let remaining = elapsed;
     while (remaining > 0.000001) {
       const dt = Math.min(remaining, 1 / 30);
@@ -421,21 +428,18 @@ export class ForestScene extends Phaser.Scene {
     if (this.stomp) {
       this.stomp.remaining -= dt;
       boss.charging = 1 - Math.max(0, this.stomp.remaining);
-      this.stomp.circle
-        .setAlpha(0.25 + boss.charging * 0.35)
-        .setScale(0.8 + boss.charging * 0.2);
+      this.stomp.circle.setFillStyle(0xe66c54, 0.18 + boss.charging * 0.24);
       if (this.stomp.remaining <= 0) {
         const { x, y, circle } = this.stomp;
         circle.destroy();
         this.stomp = null;
         boss.charging = 0;
-        this.effects.burst(x, y, 0xf4c783, 20);
-        this.effects.ring(x, y, 95, 0xfad39d, 450);
-        if (this.effectsEnabled) this.cameras.main.shake(180, 0.005);
-        audioManager.play("fireball");
+        this.effects.golemBlast(x, y);
+        if (this.effectsEnabled) this.cameras.main.shake(220, 0.006);
+        audioManager.play("explosion");
         if (
           Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y) <
-            104 &&
+            GOLEM_BLAST_RADIUS &&
           this.invincible === 0
         ) {
           this.hurtPlayer(25);
@@ -449,7 +453,7 @@ export class ForestScene extends Phaser.Scene {
         const x = this.player.x,
           y = this.player.y;
         const circle = this.add
-          .circle(x, y, 95, 0xe66c54, 0.2)
+          .circle(x, y, GOLEM_BLAST_RADIUS, 0xe66c54, 0.2)
           .setStrokeStyle(3, 0xffe2a3, 0.9)
           .setDepth(y - 1);
         this.stomp = { x, y, remaining: 1, circle };

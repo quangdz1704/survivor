@@ -81,3 +81,8 @@ Băng tinh and Lá xoáy projectile silhouettes are original Phaser Graphics cod
 Built-in `image_gen` using the intact Linh portrait as the identity/proportion reference. Selected transparent sheet: `docs/artwork/linh-walk-source-v2.png`; exact prompt, selection and method: `docs/artwork/linh-animation-prompt-v2.txt`. The first and third generated drafts were rejected for repeating the same leading leg. From the selected six-pose sheet, only the first four complementary contact/passing poses are used. The last two repeat a leading leg and are excluded.
 
 `node scripts/prepare-linh-animation.mjs` extracts complete cells, aligns boot soles through translation, and downsamples each entire frame uniformly to256×256. No limb edits, independent resizing or joint compositing. Runtime strip: `public/assets/player/linh-walk.webp`; slicing/baseline record: `docs/LINH_ANIMATION_REGIONS.json`. Idle uses the unchanged original `public/assets/linh.webp`. Same generated-art status/provider terms as the original; not claimed CC0 or exclusive copyright. Four poses are a compact stylized cycle, not a claim of eight-direction or high-frame-count animation.
+
+
+## Golem bomb-style attack
+
+Original procedural Phaser Graphics in `src/game/GolemBlast.ts`: fire/flash, pressure rings, dust, smoke and stone fragments. No downloaded or generated bitmap asset is added. Original local Web Audio explosion synthesis is in `src/audio/AudioManager.ts`; no audio sample license or runtime network dependency. Same source-code asset status as the existing procedural magic effects.

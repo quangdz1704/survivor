@@ -30,7 +30,7 @@ Source of truth: `src/core/game.ts`, `game/rules.ts`, `game/ForestScene.ts`. The
 | 4–5         | Slime, Bat, Skeleton, Orc weighted 1:1:1:2 |         0.31 s |
 | Boss active | Same last composition                      |          1.4 s |
 
-Ordinary HP scales by `1 + max(0,time−60)/600`; speed by `1 + min(0.18,time/1800)`. Boss stays at base stats and gains 25% movement below 35% HP. A one-second fixed-location stomp telegraph precedes a 25 damage area hit, about radius 104; it respects contact invulnerability.
+Ordinary HP scales by `1 + max(0,time−60)/600`; speed by `1 + min(0.18,time/1800)`. Boss stays at base stats and gains 25% movement below 35% HP. A one-second fixed-location stomp telegraph precedes a 25 damage area hit, radius104, now shared by the fixed-size warning boundary and damage check; it respects contact invulnerability. The bomb-style visual does not change damage or cooldown.
 
 ## Weapons and upgrades
 

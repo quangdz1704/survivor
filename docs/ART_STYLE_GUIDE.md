@@ -32,3 +32,8 @@ Following user feedback, use a floating joystick at the initial touch location a
 ## Dun / version1.1
 
 Second playable silhouette: ivory bob, violet hood and tunic, icy-cyan scarf and compact crystal wand. The first cutout assembly was rejected by the user: head too large, legs too short, and visible neck/shoulder joints. Dun now uses the exact intact portrait at rest and four whole-body painted contact/passing poses while moving. Both legs alternate; only uniform whole-frame scaling and baseline translation are allowed. Do not reuse Kang’s joint measurements for Dun. Kang retains his approved artwork. Frost uses cool cyan faceted shards, chilled enemies get a light blue tint. Leaf uses a green/gold organic projectile spinning out and home. Both remain readable against forest grass and reuse the bounded effects budget. Hero chooser uses illustrated portraits and gold selected borders, with no additional map or art style introduced.
+
+
+## Golem blast
+
+Replace the small generic burst/ring with an original procedural cartoon explosion: short cream star flash, merged orange fire lobes, expanding gold pressure wave, low dust skirt, fourteen rotating stone fragments with gravity, and warm smoke fading over1.15s. Keep the warning fixed at the actual104px hit radius for its full one-second charge. Reduced effects keeps the warning and a brief impact outline, without fire, debris, smoke or camera shake. The flash stays local to the blast rather than covering the whole screen.

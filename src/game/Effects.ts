@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { GolemBlast } from "./GolemBlast";
 interface Particle {
   image: Phaser.GameObjects.Arc;
   vx: number;
@@ -14,7 +15,9 @@ export class Effects {
   enabled = true;
   private particles: Particle[] = [];
   private numbers: NumberEffect[] = [];
+  private blast: GolemBlast;
   constructor(private scene: Phaser.Scene) {
+    this.blast = new GolemBlast(scene);
     for (let i = 0; i < 130; i++)
       this.particles.push({
         image: scene.add
@@ -90,6 +93,7 @@ export class Effects {
     });
   }
   update(dt: number) {
+    this.blast.update(dt, this.enabled);
     for (const p of this.particles)
       if (p.life > 0) {
         p.life -= dt;
@@ -107,6 +111,7 @@ export class Effects {
       }
   }
   clear() {
+    this.blast.clear();
     for (const p of this.particles) {
       p.life = 0;
       p.image.setVisible(false);
@@ -115,5 +120,8 @@ export class Effects {
       n.life = 0;
       n.text.setVisible(false);
     }
+  }
+  golemBlast(x: number, y: number) {
+    this.blast.play(x, y, this.enabled);
   }
 }

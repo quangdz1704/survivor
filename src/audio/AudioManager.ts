@@ -13,6 +13,7 @@ export type Sound =
   | "level"
   | "damage"
   | "boss"
+  | "explosion"
   | "victory"
   | "defeat";
 /** Original synthesized score/SFX. No audio downloads or external licenses. */
@@ -24,6 +25,7 @@ class AudioManager {
   private nextNote = 0;
   private note = 0;
   private activeVoices = 0;
+  private blastNoise: AudioBuffer | null = null;
   private settings: Settings = { ...DEFAULT_SETTINGS };
   private scene: "menu" | "game" | "paused" = "menu";
   unlock() {
@@ -146,6 +148,10 @@ class AudioManager {
     if (!this.context || !this.fxGain || this.settings.sound === 0) return;
     const t = this.context.currentTime,
       b = this.fxGain;
+    if (sound === "explosion") {
+      this.explosion(t, b);
+      return;
+    }
     const notes: Partial<Record<Sound, number[]>> = {
       level: [523, 659, 784, 1047],
       victory: [523, 659, 784, 1047, 1319],
@@ -166,7 +172,7 @@ class AudioManager {
       return;
     }
     const config: Record<
-      Exclude<Sound, "level" | "victory" | "defeat" | "boss">,
+      Exclude<Sound, "level" | "victory" | "defeat" | "boss" | "explosion">,
       [number, number, number, OscillatorType, number]
     > = {
       click: [620, 0.07, 0.25, "sine", 420],
@@ -184,6 +190,44 @@ class AudioManager {
       config[sound as keyof typeof config];
     this.tone(freq, t, duration, gain, type, b, slide);
   }
+  private explosion(start: number, bus: GainNode) {
+    if (!this.context || this.activeVoices > 37) return;
+    const context = this.context;
+    // A short filtered crack over a descending low boom, generated locally.
+    if (!this.blastNoise) {
+      this.blastNoise = context.createBuffer(
+        1,
+        Math.ceil(context.sampleRate * 0.5),
+        context.sampleRate,
+      );
+      const samples = this.blastNoise.getChannelData(0);
+      for (let i = 0; i < samples.length; i++)
+        samples[i] = Math.random() * 2 - 1;
+    }
+    this.tone(145, start, 0.46, 0.6, "triangle", bus, 38);
+    this.tone(72, start, 0.55, 0.4, "sine", bus, 32);
+    const source = context.createBufferSource(),
+      filter = context.createBiquadFilter(),
+      gain = context.createGain();
+    source.buffer = this.blastNoise;
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(2400, start);
+    filter.frequency.exponentialRampToValueAtTime(140, start + 0.45);
+    gain.gain.setValueAtTime(0.55, start);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.48);
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(bus);
+    this.activeVoices++;
+    source.onended = () => {
+      source.disconnect();
+      filter.disconnect();
+      gain.disconnect();
+      this.activeVoices--;
+    };
+    source.start(start);
+    source.stop(start + 0.5);
+  }
   vibrate(ms: number) {
     if (this.settings.vibration && navigator.vibrate) navigator.vibrate(ms);
   }
@@ -195,6 +239,7 @@ class AudioManager {
     this.timer = null;
     void this.context?.close();
     this.context = null;
+    this.blastNoise = null;
   }
 }
 export const audioManager = new AudioManager();

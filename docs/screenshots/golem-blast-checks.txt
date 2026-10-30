@@ -1,0 +1,9 @@
+ĐẠT · Trong vùng: đúng 25 sát thương, kết thúc cảnh báo
+ĐẠT · Vụ nổ tự thu hồi sau 1,15s
+ĐẠT · Ngoài vùng: không trúng đòn
+ĐẠT · Tạm dừng: cảnh báo và đồng hồ đứng yên
+ĐẠT · Tạm dừng: vụ nổ đứng yên
+ĐẠT · Kết thúc ván: khói vẫn tan hết
+ĐẠT · 30 vụ nổ liên tiếp: không thêm game object
+ĐẠT · Về trại: xóa sạch vụ nổ
+ĐẠT · Giảm hiệu ứng: giữ nguyên sát thương/thời điểm

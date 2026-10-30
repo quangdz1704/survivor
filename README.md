@@ -18,7 +18,7 @@ Chạm bất kỳ đâu trong vùng chơi rồi kéo để điều khiển joyst
 - Rừng 2400×2400 theo seed, cây mờ khi che nhân vật, camera mượt và artwork cartoon nguyên bản.
 - Chọn Kang hoặc Dun ở menu; lưu lựa chọn, chỉ số và vũ khí khởi đầu riêng. Kang dùng rig 8 lớp; Dun dùng các khung hình nguyên người để giữ tỷ lệ và tránh lộ khớp; Slime nhảy, Dơi vỗ cánh riêng, Bộ xương/Orc/Golem có rig chân tay, phản ứng trúng đòn và chết.
 - Năm vũ khí: Kiếm phép, Hỏa cầu, Thiên lôi, Băng tinh làm chậm và Lá xoáy bay trở về; mỗi vũ khí 6 cấp. Sáu kỹ năng thụ động, ba lựa chọn ngẫu nhiên hợp lệ mỗi lần lên cấp.
-- Năm đợt quái tăng dần, Golem 1500 HP với vùng cảnh báo nện đất; kết quả thắng/thua, chơi lại và về trại.
+- Năm đợt quái tăng dần, Golem 1500 HP với vùng cảnh báo và đòn nổ gồm chớp lửa, sóng ép, bụi, đá văng cùng âm trầm; kết quả thắng/thua, chơi lại và về trại.
 - Vàng, cửa hàng nâng cấp vĩnh viễn, thành tích và cài đặt lưu bằng IndexedDB. Có chế độ lưu tạm nếu trình duyệt chặn storage.
 - Nhạc menu/game và SFX tổng hợp tại máy sau thao tác người chơi; chỉnh âm lượng, hiệu ứng, độ nhạy và rung.
 - PWA với icon, service worker, cache offline và đề nghị cập nhật ở menu; không tự tải lại giữa trận.
