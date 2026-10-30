@@ -1,6 +1,9 @@
 import sharp from "sharp";
 import { mkdir, writeFile } from "node:fs/promises";
-const { data, info } = await sharp("docs/artwork/adventurer-rig-source.png")
+const linh = process.argv[2] === "linh";
+const { data, info } = await sharp(
+  `docs/artwork/${linh ? "linh" : "adventurer"}-rig-source.png`,
+)
   .ensureAlpha()
   .raw()
   .toBuffer({ resolveWithObject: true });
@@ -48,9 +51,9 @@ for (let start = 0; start < width * height; start++) {
     });
 }
 components.sort((a, b) => b.area - a.area);
-if (components.length !== 8)
+if (components.length !== (linh ? 9 : 8))
   throw new Error(
-    "Expected eight isolated rig parts, found " + components.length,
+    "Unexpected number of isolated rig parts: " + components.length,
   );
 const top = components
   .filter((c) => c.top < 570)
@@ -59,6 +62,7 @@ const bottom = components
   .filter((c) => c.top >= 570)
   .sort((a, b) => a.left - b.left);
 const names = [
+  ...(linh ? ["portrait"] : []),
   "head",
   "torso",
   "sword-arm",
@@ -68,29 +72,52 @@ const names = [
   "scarf-tail",
   "scarf-collar",
 ];
-await mkdir("public/assets/player", { recursive: true });
+const ordered = linh
+  ? components.sort((a, b) => {
+      const rowA = Math.floor((a.top + a.height / 2) / (height / 3));
+      const rowB = Math.floor((b.top + b.height / 2) / (height / 3));
+      return rowA - rowB || a.left - b.left;
+    })
+  : [...top, ...bottom];
+const directory = linh ? "public/assets/player/linh" : "public/assets/player";
+await mkdir(directory, { recursive: true });
 const regions = {};
-for (const [i, c] of [...top, ...bottom].entries()) {
-  const pixels = Buffer.alloc(c.width * c.height * 4);
-  for (const p of c.pixels) {
-    const x = (p % width) - c.left,
-      y = Math.floor(p / width) - c.top;
-    data.copy(pixels, (y * c.width + x) * 4, p * 4, p * 4 + 4);
-  }
-  await sharp(pixels, {
-    raw: { width: c.width, height: c.height, channels: 4 },
-  })
-    .webp({ quality: 96, alphaQuality: 100 })
-    .toFile("public/assets/player/" + names[i] + ".webp");
+for (const [i, c] of ordered.entries()) {
   regions[names[i]] = {
     left: c.left,
     top: c.top,
     width: c.width,
     height: c.height,
   };
+  // Linh's separated rig was rejected. Only her intact portrait is used;
+  // prepare-linh-animation.mjs extracts the replacement whole-body frames.
+  if (linh && names[i] !== "portrait") continue;
+  const pixels = Buffer.alloc(c.width * c.height * 4);
+  for (const p of c.pixels) {
+    const x = (p % width) - c.left,
+      y = Math.floor(p / width) - c.top;
+    data.copy(pixels, (y * c.width + x) * 4, p * 4, p * 4 + 4);
+  }
+  const output = sharp(pixels, {
+    raw: { width: c.width, height: c.height, channels: 4 },
+  });
+  if (linh)
+    output.resize({
+      width: names[i] === "portrait" ? 512 : 384,
+      height: names[i] === "portrait" ? 512 : 384,
+      fit: "inside",
+      withoutEnlargement: true,
+    });
+  await output
+    .webp({ quality: 96, alphaQuality: 100 })
+    .toFile(
+      linh && names[i] === "portrait"
+        ? "public/assets/linh.webp"
+        : directory + "/" + names[i] + ".webp",
+    );
 }
 await writeFile(
-  "docs/PLAYER_RIG_REGIONS.json",
+  linh ? "docs/LINH_RIG_REGIONS.json" : "docs/PLAYER_RIG_REGIONS.json",
   JSON.stringify(regions, null, 2) + "\n",
 );
 console.log(regions);

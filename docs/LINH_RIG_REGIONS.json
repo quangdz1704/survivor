@@ -1,0 +1,56 @@
+{
+  "portrait": {
+    "left": 21,
+    "top": 11,
+    "width": 412,
+    "height": 516
+  },
+  "head": {
+    "left": 461,
+    "top": 123,
+    "width": 374,
+    "height": 319
+  },
+  "torso": {
+    "left": 948,
+    "top": 106,
+    "width": 272,
+    "height": 390
+  },
+  "sword-arm": {
+    "left": 115,
+    "top": 563,
+    "width": 278,
+    "height": 254
+  },
+  "free-arm": {
+    "left": 608,
+    "top": 555,
+    "width": 197,
+    "height": 326
+  },
+  "leg-left": {
+    "left": 1000,
+    "top": 531,
+    "width": 140,
+    "height": 383
+  },
+  "leg-right": {
+    "left": 121,
+    "top": 869,
+    "width": 169,
+    "height": 366
+  },
+  "scarf-tail": {
+    "left": 403,
+    "top": 983,
+    "width": 512,
+    "height": 216
+  },
+  "scarf-collar": {
+    "left": 974,
+    "top": 989,
+    "width": 241,
+    "height": 177
+  }
+}

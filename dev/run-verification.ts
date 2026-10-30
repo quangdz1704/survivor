@@ -4,6 +4,12 @@ import { newProfile, settleResult } from "../src/core/game";
 import { ProfileRepository } from "../src/core/profile";
 const game = createGame(document.getElementById("game")!);
 const log = document.getElementById("log")!;
+const hero =
+  new URLSearchParams(location.search).get("hero") === "linh" ? "linh" : "an";
+const freshProfile = () => ({ ...newProfile(), hero });
+let sawSlow = false,
+  sawReturn = false;
+const seenWeapons = new Set<string>();
 let testing = false,
   mode = "victory",
   seen = new Set<string>(),
@@ -14,10 +20,12 @@ let testing = false,
   slowClockPassed = false,
   pauseChecked = false;
 const report = (extra = "") => {
-  log.textContent = `Đồng hồ ở 15 FPS: ${slowClockPassed ? "ĐẠT" : "CHƯA CHẠY"}\nChế độ: ${mode}\nThời gian: ${latest?.time.toFixed(1) ?? 0}s\nHP: ${latest?.hp ?? 0} · Cấp: ${latest?.level ?? 1}\nQuái đã hạ: ${latest?.kills ?? 0}\nĐồng thời tối đa: ${maxEnemies}\nLoại quái đã gặp: ${[...seen].join(", ")}\nLần chọn nâng cấp: ${pauses}\n${extra}\nKết quả: ${JSON.stringify(results, null, 2)}`;
+  log.textContent = `Nhân vật: ${hero} · Vũ khí: ${[...seenWeapons].join(", ")}\nSlow: ${sawSlow} · Lá trở về: ${sawReturn}\nĐồng hồ ở 15 FPS: ${slowClockPassed ? "ĐẠT" : "CHƯA CHẠY"}\nChế độ: ${mode}\nThời gian: ${latest?.time.toFixed(1) ?? 0}s\nHP: ${latest?.hp ?? 0} · Cấp: ${latest?.level ?? 1}\nQuái đã hạ: ${latest?.kills ?? 0}\nĐồng thời tối đa: ${maxEnemies}\nLoại quái đã gặp: ${[...seen].join(", ")}\nLần chọn nâng cấp: ${pauses}\n${extra}\nKết quả: ${JSON.stringify(results, null, 2)}`;
 };
 bridge.subscribe((snapshot) => {
   latest = snapshot;
+  for (const [id, rank] of Object.entries(snapshot.weapons))
+    if (rank > 0) seenWeapons.add(id);
   if (testing) report();
 });
 bridge.event("choices", (choices) => {
@@ -34,6 +42,8 @@ bridge.event("choices", (choices) => {
       "fireball",
       "lightning",
       "sword",
+      "frost",
+      "leaf",
       "fireball",
       "lightning",
       "damage",
@@ -77,7 +87,7 @@ bridge.event("result", async (result) => {
     mode = "defeat";
     setTimeout(() => {
       testing = true;
-      bridge.send("start", newProfile());
+      bridge.send("start", freshProfile());
     }, 250);
   } else report("HOÀN TẤT · Hai kết quả đã đi qua cùng engine.");
 });
@@ -86,13 +96,15 @@ bridge.whenReady(() => {
 });
 document.getElementById("start")!.onclick = () => {
   seen = new Set();
+  seenWeapons.clear();
+  sawSlow = sawReturn = false;
   maxEnemies = 0;
   pauses = 0;
   results = [];
   pauseChecked = false;
   mode = "victory";
   testing = false;
-  bridge.send("start", newProfile());
+  bridge.send("start", freshProfile());
   const clockScene: any = game.scene.getScene("forest");
   const initialX = clockScene.player.x;
   bridge.send("move", { x: 1, y: 0 });
@@ -102,7 +114,7 @@ document.getElementById("start")!.onclick = () => {
     Math.abs(clockScene.spawnClock - 1) < 0.001 &&
     clockScene.player.x - initialX > 150;
   if (!slowClockPassed) throw new Error("Match clock slows at 15 FPS");
-  const p = newProfile();
+  const p = freshProfile();
   p.settings = {
     ...p.settings,
     effects: false,
@@ -132,6 +144,10 @@ function drive(scene: any) {
     return;
   }
   const enemies = scene.enemies.filter((e: any) => e.living);
+  sawSlow ||= enemies.some((e: any) => e.chill.remaining > 0);
+  sawReturn ||= scene.combat.projectiles.some(
+    (p: any) => p.active && p.kind === "leaf" && p.flight.returning,
+  );
   enemies.forEach((e: any) => seen.add(e.kind));
   maxEnemies = Math.max(maxEnemies, enemies.length);
   let tx = 1200 + Math.cos(run.time * 0.33) * 240,

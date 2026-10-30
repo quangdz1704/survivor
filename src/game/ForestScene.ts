@@ -22,7 +22,13 @@ import {
   waveAt,
   xpRequired,
 } from "../core/game";
-import type { EnemyKind, Profile, Settings, UpgradeId } from "../core/game";
+import type {
+  EnemyKind,
+  Profile,
+  Settings,
+  UpgradeId,
+  WeaponId,
+} from "../core/game";
 import { audioManager } from "../audio/AudioManager";
 
 interface Stomp {
@@ -140,7 +146,7 @@ export class ForestScene extends Phaser.Scene {
     this.bossCooldown = 3;
     this.motion.reset();
     this.move = { x: 0, y: 0 };
-    this.player.resetPose();
+    this.player.useHero(profile.hero);
     this.player.setPosition(1200, 1200).setVisible(true).setAlpha(1);
     this.shadow.setVisible(true);
     this.aura.setVisible(true);
@@ -360,7 +366,8 @@ export class ForestScene extends Phaser.Scene {
       this.player.y,
       run,
       this.grid,
-      (enemy, damage, dx, dy) => this.hitEnemy(enemy, damage, dx, dy),
+      (enemy, damage, dx, dy, weapon) =>
+        this.hitEnemy(enemy, damage, dx, dy, weapon),
     );
     if (run.ended) return;
     this.updateBoss(dt);
@@ -465,13 +472,27 @@ export class ForestScene extends Phaser.Scene {
     baseDamage: number,
     dx: number,
     dy: number,
+    weapon: WeaponId,
   ) {
     if (!enemy.living || this.run!.ended) return;
     const hit = rolledDamage(baseDamage, this.run!.stats, this.random);
     enemy.hp = Math.max(0, enemy.hp - hit.damage);
     enemy.hit(dx, dy);
+    if (weapon === "frost" && enemy.hp > 0) {
+      const rank = this.run!.weapons.frost;
+      enemy.chill.apply(
+        1.4 + (rank - 1) * 0.16,
+        0.3 + rank * 0.015,
+        enemy.kind === "golem",
+      );
+    }
     this.effects.number(enemy.x, enemy.y, hit.damage, hit.critical);
-    this.effects.burst(enemy.x, enemy.y, hit.critical ? 0xffd06d : 0xecffb4, 4);
+    this.effects.burst(
+      enemy.x,
+      enemy.y,
+      hit.critical ? 0xffd06d : weapon === "frost" ? 0x9ce8ff : 0xecffb4,
+      4,
+    );
     audioManager.play("hit");
     if (enemy.hp === 0) {
       this.run!.kills++;

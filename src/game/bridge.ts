@@ -6,6 +6,7 @@ import type {
   UpgradeId,
   WeaponId,
 } from "../core/game";
+import { initialWeapons } from "../core/game";
 export type GameMode = "menu" | "playing" | "paused" | "levelup" | "ended";
 export interface Snapshot {
   hp: number;
@@ -36,7 +37,7 @@ export const emptySnapshot = (): Snapshot => ({
   x: 1200,
   y: 1200,
   attacks: 0,
-  weapons: { sword: 1, fireball: 0, lightning: 0 },
+  weapons: initialWeapons("an"),
   boss: null,
   wave: 1,
   fps: 60,

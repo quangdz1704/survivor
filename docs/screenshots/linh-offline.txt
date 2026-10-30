@@ -1,0 +1,38 @@
+HTML content Survivor Mini — Rừng thì thầm, URL: 127.0.0.1:5181/
+						68 container
+							69 image
+							70 container
+								71 text survivor mini
+							72 text MỘT CUỘC PHIÊU LƯU NHỎ.
+							73 container Survivor Mini
+								74 image
+								75 container
+									76 image
+									77 text SINH LỰC 65  /  85
+									78 button Tạm dừng
+									79 container Kinh nghiệm 0 trên 50
+									80 image
+									81 text CẤP  02 00:18
+									82 image
+									83 text 09
+									84 image
+									85 text RỪNG THÌ THẦM ĐỢT  1
+								86 container Băng tinh cấp 1
+									87 image
+									88 text 1
+								89 container
+									90 image
+									91 text SỨC MẠNH ĐANG LỚN DẦN
+									92 heading Lên cấp 2!, Value: 2
+										93 text Lên cấp  !
+									94 text Chọn một món quà của khu rừng.
+									95 button VŨ KHÍ MỚI Lá xoáy Phóng lá sắc xuyên quái rồi bay trở về bên bạn.
+									96 button KỸ NĂNG MỚI Nhịp chiến đấu +15% tốc độ tấn công của tất cả vũ khí.
+									97 button KỸ NĂNG MỚI Mắt diều hâu +5% xác suất chí mạng.
+									98 text Thời gian tạm dừng để bạn lựa chọn.
+							99 text  SURVIVOR MINI 1.1 WASD để di chuyển  ·  ESC để tạm dừng
+							100 button Toàn màn hình
+							101 image
+							102 text MỘT KHU RỪNG. VÔ VÀN KHẢ NĂNG.
+				103 scroll area
+					104 

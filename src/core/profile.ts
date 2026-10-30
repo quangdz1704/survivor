@@ -13,6 +13,7 @@ export function sanitizeProfile(value: unknown): Profile {
     settings = data.settings ?? DEFAULT_SETTINGS;
   return {
     version: 1,
+    hero: data.hero === "linh" ? "linh" : "an",
     gold: Math.floor(finite(data.gold, 0, 0, 1e9)),
     upgrades: {
       health: Math.floor(finite(upgrades.health, 0, 0, MAX_PERMANENT_LEVEL)),

@@ -5,6 +5,14 @@ import type { EnemyActor } from "./EnemyActor";
 import { SpatialGrid } from "./SpatialGrid";
 import { Effects } from "./Effects";
 import { audioManager } from "../audio/AudioManager";
+import { ReturningFlight } from "./ReturningFlight";
+type Hit = (
+  enemy: EnemyActor,
+  damage: number,
+  dx: number,
+  dy: number,
+  weapon: WeaponId,
+) => void;
 interface Projectile {
   image: Phaser.GameObjects.Image;
   active: boolean;
@@ -17,6 +25,7 @@ interface Projectile {
   radius: number;
   hits: Set<number>;
   trail: number;
+  flight: ReturningFlight;
 }
 interface Beam {
   graphics: Phaser.GameObjects.Graphics;
@@ -29,6 +38,8 @@ export class CombatSystem {
     sword: 0,
     fireball: 0,
     lightning: 0,
+    frost: 0,
+    leaf: 0,
   };
   private targets: EnemyActor[] = [];
   private nearby: EnemyActor[] = [];
@@ -52,6 +63,7 @@ export class CombatSystem {
         radius: 0,
         hits: new Set(),
         trail: 0,
+        flight: new ReturningFlight(),
       });
     for (let i = 0; i < 8; i++)
       this.beams.push({
@@ -98,11 +110,49 @@ export class CombatSystem {
     g.fillStyle(0xfff6be);
     g.fillCircle(21, 20, 5);
     g.generateTexture("fireball", 48, 48);
+    g.clear();
+    g.fillStyle(0x8ee7ff, 0.17);
+    g.fillEllipse(24, 26, 36, 49);
+    const crystal = [
+      { x: 24, y: 1 },
+      { x: 36, y: 19 },
+      { x: 29, y: 45 },
+      { x: 17, y: 46 },
+      { x: 11, y: 20 },
+    ];
+    g.fillStyle(0x8bdbff);
+    g.fillPoints(crystal, true);
+    g.lineStyle(2, 0x286c9b);
+    g.strokePoints(crystal, true);
+    g.fillStyle(0xe0ffff);
+    g.fillTriangle(24, 3, 24, 36, 14, 20);
+    g.lineStyle(2, 0xc9faff);
+    g.lineBetween(24, 3, 28, 44);
+    g.generateTexture("frost", 48, 50);
+    g.clear();
+    const leaf = [
+      { x: 25, y: 1 },
+      { x: 38, y: 12 },
+      { x: 40, y: 27 },
+      { x: 28, y: 43 },
+      { x: 10, y: 48 },
+      { x: 6, y: 32 },
+      { x: 12, y: 15 },
+    ];
+    g.fillStyle(0x83cc6d);
+    g.fillPoints(leaf, true);
+    g.lineStyle(2, 0x214e37);
+    g.strokePoints(leaf, true);
+    g.lineStyle(2, 0xffe3a2);
+    g.lineBetween(11, 43, 29, 9);
+    g.lineBetween(17, 31, 31, 29);
+    g.lineBetween(22, 22, 18, 15);
+    g.generateTexture("leaf", 48, 50);
     g.destroy();
   }
   reset() {
     this.attacks = 0;
-    this.cooldowns = { sword: 0, fireball: 0, lightning: 0 };
+    this.cooldowns = { sword: 0, fireball: 0, lightning: 0, frost: 0, leaf: 0 };
     for (const p of this.projectiles) {
       p.active = false;
       p.image.setVisible(false);
@@ -119,7 +169,7 @@ export class CombatSystem {
     y: number,
     run: RunModel,
     grid: SpatialGrid<EnemyActor>,
-    hit: (enemy: EnemyActor, damage: number, dx: number, dy: number) => void,
+    hit: Hit,
   ) {
     for (const weapon of WEAPONS) {
       const level = run.weapons[weapon];
@@ -178,7 +228,13 @@ export class CombatSystem {
               .strokePath();
           }
           struck.add(target.id);
-          hit(target, config.damage, target.x - fromX, target.y - fromY);
+          hit(
+            target,
+            config.damage,
+            target.x - fromX,
+            target.y - fromY,
+            weapon,
+          );
           this.effects.burst(target.x, target.y, 0xb7dbff, 7);
           fromX = target.x;
           fromY = target.y;
@@ -196,17 +252,18 @@ export class CombatSystem {
           p.kind = weapon;
           p.vx = Math.cos(angle) * config.speed;
           p.vy = Math.sin(angle) * config.speed;
-          p.life = weapon === "sword" ? 1.1 : 1.5;
+          p.life = weapon === "sword" ? 1.1 : weapon === "leaf" ? 2.2 : 1.5;
           p.damage = config.damage;
           p.radius = config.radius;
           p.pierce = config.pierce;
           p.hits.clear();
           p.trail = 0;
+          if (weapon === "leaf") p.flight.launch(x, y - 6, angle, config.speed);
           p.image
-            .setTexture(weapon === "sword" ? "blade" : "fireball")
+            .setTexture(weapon === "sword" ? "blade" : weapon)
             .setDisplaySize(
-              weapon === "sword" ? 25 : 35,
-              weapon === "sword" ? 42 : 35,
+              weapon === "sword" ? 25 : weapon === "frost" ? 19 : 32,
+              weapon === "sword" ? 42 : weapon === "fireball" ? 35 : 37,
             )
             .setPosition(x, y - 6)
             .setRotation(angle + Math.PI / 2)
@@ -224,8 +281,21 @@ export class CombatSystem {
     for (const p of this.projectiles) {
       if (!p.active) continue;
       p.life -= dt;
-      p.image.x += p.vx * dt;
-      p.image.y += p.vy * dt;
+      if (p.kind === "leaf") {
+        p.flight.step(dt, x, y - 6);
+        p.image.setPosition(p.flight.x, p.flight.y);
+        p.image.rotation += dt * 15;
+        p.vx = p.flight.vx;
+        p.vy = p.flight.vy;
+        if (p.flight.done) {
+          p.active = false;
+          p.image.setVisible(false);
+          continue;
+        }
+      } else {
+        p.image.x += p.vx * dt;
+        p.image.y += p.vy * dt;
+      }
       p.image.setDepth(p.image.y + 100);
       p.trail += dt;
       if (p.trail > 0.065) {
@@ -233,13 +303,20 @@ export class CombatSystem {
         this.effects.burst(
           p.image.x,
           p.image.y,
-          p.kind === "fireball" ? 0xffb755 : 0xb2ffe7,
+          p.kind === "fireball"
+            ? 0xffb755
+            : p.kind === "frost"
+              ? 0x8edcff
+              : p.kind === "leaf"
+                ? 0xc2ee86
+                : 0xb2ffe7,
           1,
         );
       }
       grid.query(p.image.x, p.image.y, 60, this.nearby);
       for (const enemy of this.nearby) {
         if (
+          p.pierce <= 0 ||
           !enemy.living ||
           p.hits.has(enemy.id) ||
           Phaser.Math.Distance.Between(p.image.x, p.image.y, enemy.x, enemy.y) >
@@ -252,9 +329,9 @@ export class CombatSystem {
           p.life = 0;
           break;
         }
-        hit(enemy, p.damage, p.vx, p.vy);
+        hit(enemy, p.damage, p.vx, p.vy, p.kind);
         if (--p.pierce <= 0) {
-          p.life = 0;
+          if (p.kind !== "leaf") p.life = 0;
           break;
         }
       }
@@ -266,11 +343,7 @@ export class CombatSystem {
       }
     }
   }
-  private explode(
-    p: Projectile,
-    grid: SpatialGrid<EnemyActor>,
-    hit: (enemy: EnemyActor, damage: number, dx: number, dy: number) => void,
-  ) {
+  private explode(p: Projectile, grid: SpatialGrid<EnemyActor>, hit: Hit) {
     const { x, y } = p.image;
     this.effects.burst(x, y, 0xffcb73, 15);
     this.effects.ring(x, y, p.radius, 0xffa459, 240);
@@ -281,6 +354,6 @@ export class CombatSystem {
         Phaser.Math.Distance.Between(x, y, enemy.x, enemy.y) <=
           p.radius + enemy.radius
       )
-        hit(enemy, p.damage, enemy.x - x, enemy.y - y);
+        hit(enemy, p.damage, enemy.x - x, enemy.y - y, p.kind);
   }
 }

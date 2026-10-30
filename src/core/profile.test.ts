@@ -3,6 +3,26 @@ import { IDBFactory } from "fake-indexeddb";
 import { ProfileRepository, sanitizeProfile } from "./profile";
 import { buyPermanent, newProfile, settleResult } from "./game";
 describe("versioned saved progress", () => {
+  it("upgrades old v1 saves without losing gold and persists hero selection alongside a purchase", async () => {
+    const legacy = { ...newProfile(), gold: 250, hero: undefined };
+    expect(sanitizeProfile(legacy).gold).toBe(250);
+    expect(sanitizeProfile(legacy).hero).toBe("an");
+    expect(sanitizeProfile({ ...legacy, hero: "unknown" }).hero).toBe("an");
+    const factory = new IDBFactory(),
+      repo = new ProfileRepository(factory, "heroes");
+    await repo.update(() => ({ ...newProfile(), gold: 250 }));
+    await Promise.all([
+      repo.update((p) => ({ ...p, hero: "linh" })),
+      repo.update((p) => buyPermanent(p, "damage")),
+    ]);
+    repo.close();
+    const reopened = new ProfileRepository(factory, "heroes"),
+      saved = await reopened.load();
+    expect(saved.hero).toBe("linh");
+    expect(saved.gold).toBe(150);
+    expect(saved.upgrades.damage).toBe(1);
+    reopened.close();
+  });
   it("survives a new repository instance and serializes concurrent purchases", async () => {
     const factory = new IDBFactory(),
       repo = new ProfileRepository(factory, "persistence");

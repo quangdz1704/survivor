@@ -1,4 +1,43 @@
-export type WeaponId = "sword" | "fireball" | "lightning";
+export type WeaponId = "sword" | "fireball" | "lightning" | "frost" | "leaf";
+export type HeroId = "an" | "linh";
+export const HEROES: Record<
+  HeroId,
+  {
+    name: string;
+    title: string;
+    description: string;
+    portrait: string;
+    weapon: WeaponId;
+    hp: number;
+    damage: number;
+    speed: number;
+    pickup: number;
+  }
+> = {
+  an: {
+    name: "An",
+    title: "Người giữ rừng",
+    description: "Bền bỉ và cân bằng. Khởi đầu với Kiếm phép.",
+    portrait: "/assets/adventurer.webp",
+    weapon: "sword",
+    hp: 100,
+    damage: 10,
+    speed: 180,
+    pickup: 60,
+  },
+  linh: {
+    name: "Linh",
+    title: "Pháp sư sương",
+    description:
+      "Linh hoạt, hút XP xa hơn nhưng ít máu. Khởi đầu với Băng tinh.",
+    portrait: "/assets/linh.webp",
+    weapon: "frost",
+    hp: 85,
+    damage: 9,
+    speed: 189,
+    pickup: 75,
+  },
+};
 export type PassiveId =
   "damage" | "haste" | "speed" | "magnet" | "critical" | "health";
 export type UpgradeId = WeaponId | PassiveId;
@@ -13,6 +52,7 @@ export interface Settings {
 }
 export interface Profile {
   version: 1;
+  hero: HeroId;
   gold: number;
   upgrades: Record<PermanentId, number>;
   settings: Settings;
@@ -48,7 +88,21 @@ export interface UpgradeChoice {
   next: number;
   weapon: boolean;
 }
-export const WEAPONS: WeaponId[] = ["sword", "fireball", "lightning"];
+export const WEAPONS: WeaponId[] = [
+  "sword",
+  "fireball",
+  "lightning",
+  "frost",
+  "leaf",
+];
+export const initialWeapons = (hero: HeroId): Record<WeaponId, number> => ({
+  sword: 0,
+  fireball: 0,
+  lightning: 0,
+  frost: 0,
+  leaf: 0,
+  [HEROES[hero].weapon]: 1,
+});
 export const PASSIVES: PassiveId[] = [
   "damage",
   "haste",
@@ -69,6 +123,7 @@ export const DEFAULT_SETTINGS: Settings = {
 export function newProfile(): Profile {
   return {
     version: 1,
+    hero: "an",
     gold: 0,
     upgrades: { health: 0, damage: 0, speed: 0 },
     settings: { ...DEFAULT_SETTINGS },
@@ -93,6 +148,8 @@ export const UPGRADE_NAMES: Record<UpgradeId, string> = {
   sword: "Kiếm phép",
   fireball: "Hỏa cầu",
   lightning: "Thiên lôi",
+  frost: "Băng tinh",
+  leaf: "Lá xoáy",
   damage: "Sức mạnh rừng",
   haste: "Nhịp chiến đấu",
   speed: "Bước chân gió",
@@ -104,6 +161,8 @@ export const UPGRADE_LIMITS: Record<UpgradeId, number> = {
   sword: 6,
   fireball: 6,
   lightning: 6,
+  frost: 6,
+  leaf: 6,
   damage: 5,
   haste: 5,
   speed: 4,
@@ -118,15 +177,17 @@ export function statsFor(
   profile: Profile,
   ranks: Record<PassiveId, number>,
 ): PlayerStats {
+  const hero = HEROES[profile.hero];
   return {
-    maxHp: 100 + profile.upgrades.health * 15 + ranks.health * 20,
-    damage: (10 + profile.upgrades.damage * 2) * (1 + ranks.damage * 0.1),
+    maxHp: hero.hp + profile.upgrades.health * 15 + ranks.health * 20,
+    damage:
+      (hero.damage + profile.upgrades.damage * 2) * (1 + ranks.damage * 0.1),
     movementSpeed:
-      180 * (1 + profile.upgrades.speed * 0.035 + ranks.speed * 0.1),
+      hero.speed * (1 + profile.upgrades.speed * 0.035 + ranks.speed * 0.1),
     attackSpeed: 1 + ranks.haste * 0.15,
     criticalChance: 0.05 + ranks.critical * 0.05,
     criticalMultiplier: 1.5,
-    pickupRadius: 60 * (1 + ranks.magnet * 0.2),
+    pickupRadius: hero.pickup * (1 + ranks.magnet * 0.2),
     armor: 0,
   };
 }
@@ -230,6 +291,24 @@ export function weaponConfig(id: WeaponId, level: number, stats: PlayerStats) {
       radius: rank >= 4 ? 165 : 330,
       pierce: 1,
     },
+    frost: {
+      interval: 0.95,
+      range: 310,
+      speed: 390,
+      multiplier: 1.15,
+      count: 1 + Math.floor(rank / 2),
+      radius: 0,
+      pierce: rank >= 4 ? 2 : 1,
+    },
+    leaf: {
+      interval: 1.45,
+      range: 210,
+      speed: 350,
+      multiplier: 1.65,
+      count: 1 + Math.floor(rank / 3),
+      radius: 0,
+      pierce: 4 + rank,
+    },
   }[id];
   return {
     ...config,
@@ -239,6 +318,18 @@ export function weaponConfig(id: WeaponId, level: number, stats: PlayerStats) {
   };
 }
 export function upgradeDescription(id: UpgradeId, next: number) {
+  if (id === "frost")
+    return next === 1
+      ? "Bắn tinh thể băng, làm chậm quái trong 1,4 giây."
+      : next === 4
+        ? "Băng xuyên 2 mục tiêu. Tăng sát thương và làm chậm."
+        : "Tăng sát thương, số tinh thể và thời gian làm chậm.";
+  if (id === "leaf")
+    return next === 1
+      ? "Phóng lá sắc xuyên quái rồi bay trở về bên bạn."
+      : next === 3 || next === 6
+        ? "Thêm một lá mỗi đợt. Tăng sát thương và xuyên quái."
+        : "Lá mạnh hơn, xuyên nhiều quái hơn và hồi nhanh hơn.";
   if (id === "sword")
     return next === 3 || next === 6
       ? "Thêm một kiếm mỗi đợt. Sát thương tăng."
@@ -273,7 +364,7 @@ export class RunModel {
   xp = 0;
   time = 0;
   kills = 0;
-  weapons: Record<WeaponId, number> = { sword: 1, fireball: 0, lightning: 0 };
+  weapons: Record<WeaponId, number>;
   ranks: Record<PassiveId, number> = {
     damage: 0,
     haste: 0,
@@ -292,6 +383,7 @@ export class RunModel {
     id: string = crypto.randomUUID(),
   ) {
     this.id = id;
+    this.weapons = initialWeapons(profile.hero);
     this.hp = this.stats.maxHp;
   }
   get stats() {

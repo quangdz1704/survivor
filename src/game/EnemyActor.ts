@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { SlowEffect } from "./SlowEffect";
 import { ENEMIES } from "../core/game";
 import type { EnemyKind } from "../core/game";
 const HUMANOID_PARTS = [
@@ -21,6 +22,7 @@ export class EnemyActor extends Phaser.GameObjects.Container {
   knockX = 0;
   knockY = 0;
   charging = 0;
+  readonly chill = new SlowEffect();
   private pose: Phaser.GameObjects.Container;
   private shadow: Phaser.GameObjects.Ellipse;
   private layers: Phaser.GameObjects.Image[] = [];
@@ -131,6 +133,7 @@ export class EnemyActor extends Phaser.GameObjects.Container {
     this.phase = Math.random() * Math.PI * 2;
     this.deathTime = 0;
     this.stagger = 0;
+    this.chill.clear();
     this.charging = 0;
     this.knockX = this.knockY = 0;
     this.pose.setPosition(0, 0).setScale(1).setAngle(0);
@@ -143,9 +146,12 @@ export class EnemyActor extends Phaser.GameObjects.Container {
     this.layers.forEach((p) => p.clearTint());
   }
   movementMultiplier() {
-    return this.kind === "slime"
-      ? 0.55 + Math.max(0, Math.sin(this.phase)) * 0.9
-      : 1;
+    return (
+      this.chill.multiplier *
+      (this.kind === "slime"
+        ? 0.55 + Math.max(0, Math.sin(this.phase)) * 0.9
+        : 1)
+    );
   }
   hit(dx: number, dy: number) {
     this.stagger = 0.11;
@@ -160,6 +166,7 @@ export class EnemyActor extends Phaser.GameObjects.Container {
   }
   animate(dt: number, distance: number, headingX: number) {
     if (!this.active) return;
+    this.chill.step(dt);
     if (this.hp <= 0) {
       this.deathTime -= dt;
       this.alpha = Math.max(0, this.deathTime / 0.27);
@@ -220,6 +227,8 @@ export class EnemyActor extends Phaser.GameObjects.Container {
     }
     this.stagger = Math.max(0, this.stagger - dt);
     if (this.stagger > 0) this.layers.forEach((p) => p.setTintFill(0xffefbc));
+    else if (this.chill.remaining > 0)
+      this.layers.forEach((p) => p.setTint(0x8edcff));
     else this.layers.forEach((p) => p.clearTint());
     this.setDepth(this.y);
   }

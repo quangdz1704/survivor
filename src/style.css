@@ -347,6 +347,7 @@ button:active {
   background-repeat: no-repeat;
 }
 .hero-art {
+  object-fit: contain;
   width: 260px;
   height: 260px;
   background-position: 0 0;
@@ -1218,6 +1219,123 @@ button:active {
 }
 .skill-lightning {
   color: #b9d8ff !important;
+}
+.skill-frost {
+  color: #9de8ff !important;
+}
+.skill-leaf {
+  color: #c7ee91 !important;
+}
+.hero-switch {
+  background: #183f32ed;
+  border: 1px solid #ddcf9c66;
+  border-radius: 12px;
+  padding: 8px 12px;
+  min-height: 44px;
+  z-index: 2;
+}
+.hero-switch > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.hero-switch > small {
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+.hero-modal {
+  padding: 22px 17px;
+  max-height: 95%;
+  overflow: auto;
+}
+.hero-modal .modal-emblem {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 14px;
+}
+.hero-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.hero-option {
+  display: flex;
+  align-items: center;
+  position: relative;
+  gap: 12px;
+  text-align: left;
+  padding: 13px 10px;
+  background: linear-gradient(120deg, #31543f, #213e32);
+  border: 1px solid #76927366;
+  border-radius: 16px;
+  min-height: 132px;
+}
+.hero-option.selected {
+  border-color: #ebcb75;
+  box-shadow:
+    inset 0 0 0 1px #ebcb7533,
+    0 3px 14px #0c261a55;
+}
+.hero-option > img {
+  width: 75px;
+  height: 105px;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 5px #082d2180);
+}
+.hero-option-copy {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 7px;
+}
+.hero-option-copy > strong {
+  font-family: Georgia, serif;
+  font-size: 21px;
+  color: #fff0c6;
+}
+.hero-option-copy > strong small {
+  display: block;
+  font:
+    10px "Trebuchet MS",
+    Arial,
+    sans-serif;
+  color: #d4c896;
+  margin-top: 4px;
+}
+.hero-option-copy > span {
+  font-size: 10px;
+  line-height: 1.6;
+  color: #cbd8bb;
+}
+.hero-traits {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.hero-traits > span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #ffdc8d;
+  font-size: 9px;
+}
+.hero-choice-check {
+  position: absolute;
+  right: 9px;
+  top: 9px;
+  width: 21px;
+  height: 21px;
+  border: 1px solid #d3c38766;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #122f26;
+  color: #ffe6a2;
+}
+.hero-hint {
+  font-size: 10px !important;
+  line-height: 1.7;
 }
 .skill-icon {
   width: 46px;

@@ -23,11 +23,12 @@ import { bridge } from "../game/bridge";
 import { Joystick } from "./Joystick";
 import { useUI } from "./store";
 import { profileRepository } from "../core/profile";
-import { settleResult } from "../core/game";
+import { settleResult, HEROES } from "../core/game";
 import { audioManager } from "../audio/AudioManager";
 import { GameHUD, formatTime } from "./components/GameHUD";
 import { LevelUp, Records, Shop } from "./components/Progression";
 import { SettingsPanel } from "./components/SettingsPanel";
+import { HeroChooser } from "./components/HeroChooser";
 import { observeUpdate, applyUpdate } from "../pwa";
 interface InstallPrompt extends Event {
   prompt: () => Promise<void>;
@@ -45,11 +46,13 @@ export function App() {
     rewardSaved = useUI((s) => s.rewardSaved),
     storageAvailable = useUI((s) => s.storageAvailable);
   const [settingsOpen, setSettingsOpen] = useState(false),
+    [heroesOpen, setHeroesOpen] = useState(false),
     [shop, setShop] = useState(false),
     [guide, setGuide] = useState(false),
     [records, setRecords] = useState(false),
     [updateAvailable, setUpdateAvailable] = useState(false),
     [installPrompt, setInstallPrompt] = useState<InstallPrompt | null>(null);
+  const hero = HEROES[profile.hero];
   useEffect(() => {
     let mounted = true;
     const state = useUI.getState();
@@ -142,7 +145,7 @@ export function App() {
     };
   }, []);
   function start() {
-    if (!ready || !profileReady) return;
+    if (!ready || !profileReady || heroesOpen) return;
     audioManager.unlock();
     setGuide(false);
     bridge.send("start", {
@@ -185,7 +188,7 @@ export function App() {
       <section className="game-shell" ref={shell} aria-label="Survivor Mini">
         <div className="game-canvas" ref={mount} />
         {mode === "menu" && (
-          <div className="menu-screen">
+          <div className="menu-screen" inert={heroesOpen}>
             <div className="menu-vignette" />
             <div className="menu-top">
               <span className="edition">
@@ -219,17 +222,24 @@ export function App() {
               <div className="hero-ground" />
               <img
                 className="hero-art"
-                src="/assets/adventurer.webp"
-                alt="Nhân vật An với áo choàng xanh ngọc và khăn cam"
+                src={hero.portrait}
+                alt={`${hero.name} — ${hero.title}`}
                 draggable={false}
               />
               <span className="hero-spark s-one">✦</span>
               <span className="hero-spark s-two">✧</span>
               <span className="hero-spark s-three">✦</span>
-              <div className="hero-label">
-                <span>AN</span>
-                <small>NGƯỜI GIỮ RỪNG</small>
-              </div>
+              <button
+                className="hero-label hero-switch"
+                onClick={() => setHeroesOpen(true)}
+                disabled={!profileReady}
+                aria-label="Chọn nhân vật"
+              >
+                <span>
+                  {hero.name.toUpperCase()} <ChevronRight size={12} />
+                </span>
+                <small>{hero.title.toUpperCase()} · ĐỔI NHÂN VẬT</small>
+              </button>
             </div>
             <div className="menu-bottom">
               <div className="chapter-card">
@@ -386,6 +396,7 @@ export function App() {
           </div>
         )}
         {settingsOpen && <SettingsPanel close={() => setSettingsOpen(false)} />}
+        {heroesOpen && <HeroChooser close={() => setHeroesOpen(false)} />}
         {shop && <Shop close={() => setShop(false)} />}
         {records && <Records close={() => setRecords(false)} />}
         {guide && (
@@ -439,7 +450,7 @@ export function App() {
       </section>
       <footer className="desktop-footer">
         <span>
-          <span className="live-dot" /> SURVIVOR MINI 1.0
+          <span className="live-dot" /> SURVIVOR MINI 1.1
         </span>
         <span>
           WASD để di chuyển <i>·</i> ESC để tạm dừng

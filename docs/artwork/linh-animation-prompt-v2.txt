@@ -1,0 +1,22 @@
+Built-in image_gen, identity-preserve. No CLI/API fallback.
+Input 1: public/assets/linh.webp, exact approved design and proportion reference.
+Input 2: rejected first generated walk draft (not shipped).
+Selected generated output: exec-ac48906e-9a36-4918-858a-4859fa662302.png
+Copied source: docs/artwork/linh-walk-source-v2.png
+Runtime: public/assets/player/linh-walk.webp
+Technical slicing: node scripts/prepare-linh-animation.mjs
+Selection: first four complete poses (left contact, left support/passing, right contact, right support/passing); remaining two repeated-leading-leg poses excluded. Later eight-frame generation also rejected for repeated leading leg. No limb compositing or independent limb scaling.
+
+PROMPT:
+Use case: identity-preserve. Production transparent 2D game sprite sheet.
+Reference 1 is exact Linh character design. Reference 2 is rejected first animation draft: do not repeat its gait mistake (seven poses use the SAME planted leg). Keep the excellent complete body drawing quality and proportions.
+Make a NEW clean SIX FRAME WALK CYCLE in a 3-column x 2-row grid, landscape 1536x1024. Each cell512x512, six complete characters at IDENTICAL SCALE, head and torso stay nearly fixed at same location. Same front three-quarter camera in every frame, not side view. Face and hood from reference1. Natural leg length, head proportion and attached neck/shoulders from reference1. Do not enlarge the head.
+EXACT POSES in reading order:
+1 (upper left): character LEFT LEG (on image RIGHT) strides FORWARD, sole on ground; RIGHT LEG (image LEFT) extends backward.
+2 (upper middle): passing pose, LEFT LEG is straight and planted below hip on image RIGHT; RIGHT KNEE on image LEFT lifts forward, its boot off ground.
+3 (upper right): character RIGHT LEG (image LEFT) strides FORWARD, foot lands on ground on image LEFT; LEFT LEG (image RIGHT) extends BACKWARD, heel lifted. THIS MUST BE THE OPPOSITE LEG TO FRAME1.
+4 (lower left): RIGHT LEG (image LEFT) remains planted straight; LEFT KNEE (image RIGHT) lifts forward with boot off ground.
+5 (lower middle): LEFT LEG (image RIGHT) extends forward to return toward frame1; RIGHT LEG (image LEFT) is trailing.
+6 (lower right): return transition: LEFT foot touches down ahead on image RIGHT, RIGHT heel lifts behind on image LEFT.
+Two legs and two boots in each frame, thighs/knees/ankles bend and occlude naturally. Free arm counter swings to opposite leg. Wand arm on image RIGHT restrained. Scarf slight follow-through. Fullbody connected artwork, no rig parts, no detached neck, no shorts.
+CRITICAL: absolutely NO colored backdrop, no dark gradient, no haze, glow or drop shadow. Actual clean transparent alpha between sprites. Exactly 6 complete sprites in equal cells with clear transparent gutters, entire wand and scarf within each cell. Top of hood y45 and soles y470 in each cell. No text, labels, border or grid.

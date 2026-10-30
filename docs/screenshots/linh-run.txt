@@ -1,0 +1,25 @@
+The following is a diff from the previous accessibility tree for Window: "Survivor Mini — kiểm thử lượt chơi" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~							342 text Nhân vật: linh · Vũ khí: frost, lightning, fireball, sword, leaf
+Slow: true · Lá trở về: true
+Đồng hồ ở 15 FPS: ĐẠT
+Chế độ: defeat
+Thời gian: 135.6s
+HP: 0 · Cấp: 4
+Quái đã hạ: 150
+Đồng thời tối đa: 82
+Loại quái đã gặp: slime, bat, skeleton, orc, golem
+Lần chọn nâng cấp: 13
+HOÀN TẤT · Hai kết quả đã đi qua cùng engine.
+Kết quả: [
+  {
+    "id": "d31ed80e-c2d7-474a-be25-32dbf9a2af06",
+    "victory": true,
+    "time": 334.22589000002455,
+    "kills": 588,
+    "level": 11,
+    "gold": 1149
+  },
+  {
+    "id": "60
+~					335 tab (selected, settable, boolean) Survivor Mini — kiểm thử lượt chơi - Memory usage - 279 MB, Value: on
+The focused UI element is 323 button Chạy kiểm thử

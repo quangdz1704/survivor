@@ -1,6 +1,6 @@
 import { Heart, Leaf, Pause, Shield, Skull } from "lucide-react";
 import { useUI } from "../store";
-import { WEAPONS } from "../../core/game";
+import { WEAPONS, UPGRADE_NAMES } from "../../core/game";
 import { SkillIcon } from "./SkillIcon";
 export const formatTime = (time: number) =>
   `${Math.floor(time / 60)
@@ -76,7 +76,7 @@ export function GameHUD({ pause }: { pause: () => void }) {
           <div
             key={id}
             className={`active-weapon skill-${id}`}
-            aria-label={`${id === "sword" ? "Kiếm phép" : id === "fireball" ? "Hỏa cầu" : "Thiên lôi"} cấp ${stats.weapons[id]}`}
+            aria-label={`${UPGRADE_NAMES[id]} cấp ${stats.weapons[id]}`}
           >
             <SkillIcon id={id} size={23} />
             <small>{stats.weapons[id]}</small>
@@ -88,7 +88,7 @@ export function GameHUD({ pause }: { pause: () => void }) {
           <span>
             Chạm bất kỳ đâu và kéo
             <br />
-            <strong>Kiếm sẽ lo phần còn lại.</strong>
+            <strong>Vũ khí sẽ lo phần còn lại.</strong>
           </span>
         </div>
       )}

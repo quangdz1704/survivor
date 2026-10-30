@@ -61,3 +61,32 @@ Independent code review identified corpse targeting, shop-close/save race and ma
 - Character supports movement in all directions using front three-quarter cutout art and horizontal mirroring; no separate back-facing artwork.
 - Local save only; clearing site data loses progress. The currently running match is not restored after reload.
 - Broad human difficulty testing remains future balancing work. No production deployment has occurred.
+
+## Version1.1 — new heroes and weapons
+
+The user reports the original release plays well on a phone and has deployed main to Vercel. This content increment remains local/uncommitted on `feature/heroes-and-weapons`.
+
+- **45 tests across9 files pass**, plus lint, TypeScript and production build. Added backward-compatible hero-save validation and concurrent purchase/selection tests, hero starting stats/loadout tests, timed non-stacking slow and boss resistance, returning flight at30/60/120FPS, real CombatSystem dispatch/collision/dedup/reset using stubbed rendering primitives, and React chooser lock-until-save coverage. Only renderer primitives are stubbed in the CombatSystem tests, not the production weapon loop.
+- Independent read-only review found no Critical/Important issues in current hero selection, persistence, weapons, pooling or status integration. React state remains aggregate-only; no new frame-by-frame React updates.
+- The first assembled Linh rig was incorrectly judged acceptable. The user rejected its oversized head, short legs and disconnected neck/shoulders.13-linh-rig.jpg and14-linh-animation.webp are retained as rejected historical evidence; they do not demonstrate an approved visual result.
+- Actual Chrome engine QA ran both heroes from default profiles, with the same movement/level-choice bot and no HP/XP/time/stat injections. Both runs saw all5 weapons, all5 enemies, frost tint/slow and leaf return. Manual/levelup pause and15FPS clock/spawn/movement regression still pass; result persistence and duplicate-reward checks complete.
+
+| Hero | Victory time | Kills | Level | Gold | Standing defeat            |
+| ---- | -----------: | ----: | ----: | ---: | -------------------------- |
+| An   |      317.09s |   580 |    14 | 1128 | 140.3s,157kills,level3,0HP |
+| Linh |      334.23s |   588 |    11 | 1149 | 135.6s,150kills,level4,0HP |
+
+Evidence15-linh-run.jpg/linh-run.txt and16-an-expansion-run.jpg/an-expansion-run.txt. These are accelerated actual engine runs, not a physical mobile FPS/difficulty certification. The React hero chooser was also viewed in the production preview's portrait game stage; both illustrated cards and the selected border render correctly (17-hero-chooser.jpg). Selecting Linh saved and returned to her portrait at camp. The chooser's pending-save controls are verified by a deferred repository response test.
+
+The original expansion PWA build precached54 entries (~4051KiB), including the now-rejected Linh rig layers and portrait; verified directly against generated SW paths. New content has no additional runtime network or backend requirements. Existing physical-device limitations apply to the new release until it is published and tried on a phone.
+
+The production UI preserved Linh after reload and after applying the menu SW update; the footer showed1.1. The preview server was then stopped and an escalated HTTP probe confirmed connection refused. Reload still opened Linh from cache, and an offline run started at85/85HP with Frost1, reached level2 at00:18 and showed65/85HP after contact. Evidence18-linh-menu.jpg,19-linh-offline.jpg and linh-offline.txt. New Chrome captures are cropped to the game/QA content to omit browser chrome and unrelated bookmarks. Native responsive width editing was unreliable, so chooser QA used the desktop portrait game stage rather than claiming a newly measured390×844 device emulation.
+
+
+## Linh anatomy repair after user rejection
+
+Replaced the separated Linh rig with the original whole-body idle portrait and four complete painted contact/passing poses. New source and prompt are retained; the extractor aligns soles without changing limb proportions. Two generated draft sheets were rejected because their legs did not alternate correctly. An’s original rig remains unchanged. New walk texture is1024×256 with four256×256 cells; frame rate follows actual displacement, and Linh’s horizontal facing matches her right-facing source.
+
+Actual Chrome renderer comparison:20-linh-body-comparison.jpg, with original portrait/idle/slow/full-speed at one ground line.21-linh-body-animation.webp contains30 native browser captures over3.022s. Captures were cropped to the gallery; they show connected whole bodies and alternating leading legs. The four-pose cycle is intentionally compact; this visual review does not certify high-frame-count animation or a new phone performance measurement. Tests cover game logic, not aesthetic approval. User acceptance of this replacement is still pending.
+
+45 existing tests, ESLint and TypeScript/production build pass after the actor replacement. Independent read-only review checked hero switching, facing, hit/death/reset and reproduced the strip byte for byte from the extractor; no material correctness issue found. Final PWA asset count is recorded after removing the unused cutout layers.

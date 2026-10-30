@@ -1,6 +1,6 @@
 # Local preview and Vercel
 
-Source repository: [quangdz1704/survivor](https://github.com/quangdz1704/survivor). No production deployment has been performed. Production publishing requires the user's explicit instruction.
+Source repository: [quangdz1704/survivor](https://github.com/quangdz1704/survivor). The user deployed main commit896c6c6 at https://survivor-rho-azure.vercel.app/ and reported phone play works. The agent has not performed a deployment. Version1.1 content currently remains on local branch `feature/heroes-and-weapons`; production publishing requires an explicit user instruction.
 
 ## Local verification
 

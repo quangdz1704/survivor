@@ -12,6 +12,7 @@ import {
   waveAt,
   weaponConfig,
   xpRequired,
+  WEAPONS,
 } from "./game";
 import type { UpgradeId, RunResult } from "./game";
 import { seededRandom } from "../game/rules";
@@ -36,7 +37,7 @@ describe("damage and weapon levels", () => {
   });
   it("improves each weapon and reduces its cooldown with haste", () => {
     const r = run();
-    for (const id of ["sword", "fireball", "lightning"] as const) {
+    for (const id of WEAPONS) {
       const first = weaponConfig(id, 1, r.stats),
         last = weaponConfig(id, 6, r.stats);
       expect(last.damage).toBeGreaterThan(first.damage);
@@ -70,9 +71,7 @@ describe("XP and upgrades", () => {
     r.gainXp(20);
     expect(r.choices).toHaveLength(3);
     expect(new Set(r.choices.map((c) => c.id)).size).toBe(3);
-    expect(
-      r.choices.some((c) => c.id === "fireball" || c.id === "lightning"),
-    ).toBe(true);
+    expect(r.choices.some((c) => c.weapon && c.current === 0)).toBe(true);
     expect(r.select("not-real" as UpgradeId)).toBe(false);
     const choice = r.choices[0];
     expect(r.select(choice.id)).toBe(true);
@@ -107,8 +106,7 @@ describe("XP and upgrades", () => {
     const r = run();
     r.hp = 5;
     r.ranks.health = 4;
-    for (const id of ["sword", "fireball", "lightning"] as const)
-      r.weapons[id] = 6;
+    for (const id of WEAPONS) r.weapons[id] = 6;
     for (const id of [
       "damage",
       "haste",
@@ -130,6 +128,36 @@ describe("XP and upgrades", () => {
     expect(r.level).toBe(1);
     expect(r.time).toBe(0);
     expect(r.finish(false)).toBeNull();
+  });
+});
+describe("playable heroes", () => {
+  it("keeps An unchanged and gives Linh a distinct starting weapon and stats", () => {
+    const an = run(),
+      linh = new RunModel({ ...newProfile(), hero: "linh" }, () => 0.5, "linh");
+    expect(an.weapons.sword).toBe(1);
+    expect(an.hp).toBe(100);
+    expect(linh.weapons.frost).toBe(1);
+    expect(linh.weapons.sword).toBe(0);
+    expect(linh.hp).toBe(85);
+    expect(linh.stats.movementSpeed).toBe(189);
+    expect(linh.stats.pickupRadius).toBe(75);
+    expect(WEAPONS.filter((id) => linh.weapons[id] > 0)).toEqual(["frost"]);
+  });
+  it("shares permanent upgrades while resetting loadout and temporary progress each run", () => {
+    const profile = {
+      ...newProfile(),
+      hero: "linh" as const,
+      upgrades: { health: 2, damage: 1, speed: 1 },
+    };
+    const first = new RunModel(profile, () => 0.5, "one");
+    expect(first.hp).toBe(115);
+    expect(first.stats.damage).toBe(11);
+    first.weapons.leaf = 6;
+    first.ranks.damage = 5;
+    const next = new RunModel(profile, () => 0.5, "two");
+    expect(next.weapons.leaf).toBe(0);
+    expect(next.weapons.frost).toBe(1);
+    expect(next.ranks.damage).toBe(0);
   });
 });
 describe("five-minute waves and rewards", () => {

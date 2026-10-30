@@ -1,0 +1,39 @@
+{
+  "source": "docs/artwork/linh-walk-source-v2.png",
+  "frameSize": 256,
+  "groundY": 248,
+  "frames": [
+    {
+      "left": 0,
+      "top": 0,
+      "width": 512,
+      "height": 512,
+      "sole": 504,
+      "offsetY": -8
+    },
+    {
+      "left": 512,
+      "top": 0,
+      "width": 512,
+      "height": 512,
+      "sole": 509,
+      "offsetY": -13
+    },
+    {
+      "left": 1024,
+      "top": 0,
+      "width": 512,
+      "height": 512,
+      "sole": 506,
+      "offsetY": -10
+    },
+    {
+      "left": 0,
+      "top": 512,
+      "width": 512,
+      "height": 512,
+      "sole": 493,
+      "offsetY": 3
+    }
+  ]
+}

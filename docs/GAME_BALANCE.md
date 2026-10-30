@@ -47,3 +47,14 @@ Passive caps: damage 5 (+10% base each), haste 5 (+15% each), speed 4 (+10% each
 Permanent upgrades cap at 10: health +15, damage +2, speed +3.5% each rank. Costs: floor(base ×1.65^currentRank), base 80/100/90 respectively. Gold: floor(0.5×seconds +1.5×kills +100 for victory).
 
 The QA bot starts without permanent upgrades and can defeat the boss through ordinary movement/upgrade choices. Its accelerated simulation is a regression check, not proof that every build wins or that the difficulty suits all players.
+
+## Version 1.1 content
+
+An remains unchanged. Linh: 85 HP, base damage 9, speed 189, pickup 75; starts Frost rank1. Shared permanent bonuses apply to both heroes.
+
+| Weapon rank1 |         Base damage on An | Interval | Range | Speed | Special                                     |
+| ------------ | ------------------------: | -------: | ----: | ----: | ------------------------------------------- |
+| Frost        | 11.5 before rounding/crit |    0.95s |   310 |   390 | 31.5% slow for1.4s                          |
+| Leaf         | 16.5 before rounding/crit |    1.45s |   210 |   350 | Outward0.48s, returning flight,5-hit budget |
+
+Frost: `1 + floor(rank/2)` shards, pierce2 at rank4, duration `1.4 + (rank−1)×0.16`, slow `0.3 + rank×0.015`. Slow does not stack; boss halves strength and shortens duration to70%. Leaf: `1 + floor(rank/3)` leaves, hit budget `4 + rank`; each target at most once per flight,2.2s maximum flight lifetime. Common damage/cooldown rank multipliers still apply to both. Five weapons can be combined; all content is open without a purchase. These values need human balance feedback.

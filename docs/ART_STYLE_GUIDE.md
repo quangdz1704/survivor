@@ -19,7 +19,7 @@ A small guardian exploring an ancient, welcoming forest. Chibi adventurer An wea
 
 ## Animation
 
-Menu breathing and sparks through CSS. Gameplay player uses eight separate illustrated layers: head, torso, sword arm, free arm, two legs, scarf tail and collar. Legs step alternately from actual travel distance with inverse arm swing; torso bounce stays under 1.4px and head counters torso rotation. Scarf rotation follows with a delay. No whole-player texture stretching. Damage feedback is a brief tint with a mild invulnerability pulse; death folds the body and fades. Horizontal facing still uses mirroring; back-facing art remains pending. Slime uses squash-hop timed to ground movement. Bat has separate wing pivots. Skeleton, Orc and Golem use six-part rigs with distance-driven stride and opposite arm swing; Golem lifts both arms before a stomp. All enemies flash on hit and tilt/fade on death. Reduced effects disables particles/shake; CSS honors prefers-reduced-motion.
+Menu breathing and sparks through CSS. An uses eight separate illustrated layers: head, torso, sword arm, free arm, two legs, scarf tail and collar. Legs step alternately from actual travel distance with inverse arm swing; torso bounce stays under 1.4px and head counters torso rotation. Scarf rotation follows with a delay. No whole-player texture stretching. Damage feedback is a brief tint with a mild invulnerability pulse; death folds the body and fades. Horizontal facing still uses mirroring; back-facing art remains pending. Slime uses squash-hop timed to ground movement. Bat has separate wing pivots. Skeleton, Orc and Golem use six-part rigs with distance-driven stride and opposite arm swing; Golem lifts both arms before a stomp. All enemies flash on hit and tilt/fade on death. Reduced effects disables particles/shake; CSS honors prefers-reduced-motion.
 
 ## Approval
 
@@ -28,3 +28,7 @@ The user approved the visual/player-motion direction and requested full developm
 ## Control revision
 
 Following user feedback, use a floating joystick at the initial touch location anywhere in the play surface; hide it when idle. Keep HUD buttons above the touch surface.
+
+## Linh / version1.1
+
+Second playable silhouette: ivory bob, violet hood and tunic, icy-cyan scarf and compact crystal wand. The first cutout assembly was rejected by the user: head too large, legs too short, and visible neck/shoulder joints. Linh now uses the exact intact portrait at rest and four whole-body painted contact/passing poses while moving. Both legs alternate; only uniform whole-frame scaling and baseline translation are allowed. Do not reuse An’s joint measurements for Linh. An retains his approved artwork. Frost uses cool cyan faceted shards, chilled enemies get a light blue tint. Leaf uses a green/gold organic projectile spinning out and home. Both remain readable against forest grass and reuse the bounded effects budget. Hero chooser uses illustrated portraits and gold selected borders, with no additional map or art style introduced.

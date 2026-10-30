@@ -8,6 +8,8 @@ import {
   Wind,
   Zap,
   TrendingUp,
+  Snowflake,
+  Leaf,
 } from "lucide-react";
 import type { UpgradeId } from "../../core/game";
 export function SkillIcon({ id, size = 24 }: { id: UpgradeId; size?: number }) {
@@ -15,6 +17,8 @@ export function SkillIcon({ id, size = 24 }: { id: UpgradeId; size?: number }) {
     sword: Swords,
     fireball: Flame,
     lightning: Zap,
+    frost: Snowflake,
+    leaf: Leaf,
     health: Heart,
     damage: TrendingUp,
     haste: Wind,

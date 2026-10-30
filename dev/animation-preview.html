@@ -27,8 +27,8 @@
         font-size: 13px;
       }
       #preview {
-        width: min(94vw, 780px);
-        aspect-ratio: 780/360;
+        width: min(94vw, 1024px);
+        aspect-ratio: 1024/440;
       }
       canvas {
         display: block;
@@ -40,10 +40,13 @@
     </style>
   </head>
   <body>
-    <h1>Nhịp chân mới của An</h1>
+    <h1>Đối chiếu tỷ lệ và chuyển động</h1>
     <p>Cùng nhân vật và bộ điều khiển animation đang dùng trong game.</p>
     <div id="preview"></div>
-    <p>Đứng nghỉ · Đi chậm · Chạy — đổi hướng mỗi 4 giây.</p>
+    <p>
+      Ảnh gốc · Đứng nghỉ · Đi chậm · Chạy — cùng đường chạm đất. Nhấn Space để
+      dừng/tiếp tục.
+    </p>
     <script type="module">
       import Phaser from "phaser";
       import { PlayerActor } from "/src/game/PlayerActor.ts";
@@ -51,28 +54,55 @@
       class Preview extends Phaser.Scene {
         preload() {
           PlayerActor.preload(this);
+          this.load.image("reference-an", "/assets/adventurer.webp");
         }
         create() {
+          const hero =
+            new URLSearchParams(location.search).get("hero") === "linh"
+              ? "linh"
+              : "an";
+          this.paused = false;
+          this.input.keyboard.on("keydown-SPACE", () => {
+            this.paused = !this.paused;
+          });
+          const reference = this.add
+            .image(128, 352, hero === "linh" ? "linh-idle" : "reference-an")
+            .setOrigin(0.55, 1);
+          reference.setScale((76 * 1.08 * 2.7) / reference.height);
+          this.add
+            .text(128, 396, "ẢNH GỐC", {
+              fontFamily: "Arial",
+              fontSize: "14px",
+              color: "#e5d5a7",
+            })
+            .setOrigin(0.5);
           this.actors = [];
           this.motions = [];
           for (let i = 0; i < 3; i++) {
-            this.add.ellipse(130 + i * 260, 280, 112, 26, 0x0b211d, 0.55);
-            this.actors.push(new PlayerActor(this, 130 + i * 260, 205));
+            const x = 384 + i * 256;
+            this.add.ellipse(x, 352, 112, 22, 0x0b211d, 0.55);
+            const actor = new PlayerActor(this, x, 270);
+            actor.useHero(hero);
+            this.actors.push(actor);
             this.motions.push(new PlayerMotion());
             this.add
-              .text(130 + i * 260, 320, ["ĐỨNG NGHỈ", "ĐI CHẬM", "CHẠY"][i], {
+              .text(x, 396, ["ĐỨNG NGHỈ", "ĐI CHẬM", "CHẠY"][i], {
                 fontFamily: "Arial",
-                fontSize: "12px",
+                fontSize: "14px",
                 color: "#e5d5a7",
               })
               .setOrigin(0.5);
           }
         }
         update(time, delta) {
-          if (!this.actors) return;
+          if (!this.actors || this.paused) return;
           const dt = Math.min(delta, 45) / 1000;
           this.actors.forEach((actor, i) => {
-            const direction = Math.floor(time / 4000) % 2 ? -1 : 1;
+            const direction =
+              new URLSearchParams(location.search).has("turn") &&
+              Math.floor(time / 4000) % 2
+                ? -1
+                : 1;
             const m = this.motions[i].step([0, 0.35, 1][i] * direction, 0, dt);
             actor.animate(m.dx, m.dy, dt);
             actor.setScale(actor.scaleX * 2.7, actor.scaleY * 2.7);
@@ -82,8 +112,8 @@
       new Phaser.Game({
         type: Phaser.AUTO,
         parent: "preview",
-        width: 780,
-        height: 360,
+        width: 1024,
+        height: 440,
         backgroundColor: "#244a37",
         scene: Preview,
         audio: { noAudio: true },

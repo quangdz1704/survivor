@@ -5,6 +5,8 @@ export type Sound =
   | "sword"
   | "fireball"
   | "lightning"
+  | "frost"
+  | "leaf"
   | "hit"
   | "death"
   | "xp"
@@ -171,6 +173,8 @@ class AudioManager {
       sword: [950, 0.1, 0.14, "triangle", 340],
       fireball: [160, 0.24, 0.4, "sawtooth", 50],
       lightning: [1400, 0.16, 0.3, "sawtooth", 110],
+      frost: [1500, 0.15, 0.17, "sine", 700],
+      leaf: [480, 0.16, 0.17, "triangle", 1150],
       hit: [220, 0.065, 0.2, "triangle", 90],
       death: [240, 0.12, 0.2, "sine", 60],
       xp: [900, 0.08, 0.12, "sine", 1500],

@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { PLAYER_SPEED } from "./rules";
+import type { HeroId } from "../core/game";
 
 const PARTS = [
   "head",
@@ -12,7 +13,7 @@ const PARTS = [
   "scarf-collar",
 ] as const;
 
-/** Small cutout rig: joints move independently; the character texture is never stretched. */
+/** An uses his approved cutout rig; Linh uses intact, painted animation frames. */
 export class PlayerActor extends Phaser.GameObjects.Container {
   private torsoGroup: Phaser.GameObjects.Container;
   private head: Phaser.GameObjects.Image;
@@ -29,10 +30,17 @@ export class PlayerActor extends Phaser.GameObjects.Container {
   private lean = 0;
   private scarfAngle = 0;
   private hurt = 0;
+  private hero: HeroId = "an";
+  private linh: Phaser.GameObjects.Image;
 
   static preload(scene: Phaser.Scene) {
     for (const part of PARTS)
       scene.load.image(`player-${part}`, `/assets/player/${part}.webp`);
+    scene.load.image("linh-idle", "/assets/linh.webp");
+    scene.load.spritesheet("linh-walk", "/assets/player/linh-walk.webp", {
+      frameWidth: 256,
+      frameHeight: 256,
+    });
   }
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -68,9 +76,29 @@ export class PlayerActor extends Phaser.GameObjects.Container {
       collar,
       this.head,
     ]);
-    this.add([this.scarf, this.rightLeg, this.leftLeg, this.torsoGroup]);
+    this.linh = scene.add.image(0, 28, "linh-idle").setVisible(false);
+    this.add([
+      this.scarf,
+      this.rightLeg,
+      this.leftLeg,
+      this.torsoGroup,
+      this.linh,
+    ]);
     this.setSize(48, 68).setScale(1.08);
     scene.add.existing(this);
+  }
+
+  useHero(hero: HeroId) {
+    this.hero = hero;
+    for (const child of [
+      this.scarf,
+      this.rightLeg,
+      this.leftLeg,
+      this.torsoGroup,
+    ])
+      child.setVisible(hero === "an");
+    this.linh.setVisible(hero === "linh");
+    this.resetPose();
   }
 
   resetPose() {
@@ -82,6 +110,7 @@ export class PlayerActor extends Phaser.GameObjects.Container {
     this.facing = 1;
     this.setScale(1.08).setAngle(0);
     this.parts.forEach((part) => part.clearTint());
+    this.linh.clearTint();
     this.animate(0, 0, 0);
   }
 
@@ -96,11 +125,33 @@ export class PlayerActor extends Phaser.GameObjects.Container {
     const targetWeight = Math.min(1, speed / PLAYER_SPEED);
     this.weight += (targetWeight - this.weight) * (1 - Math.exp(-24 * dt));
     const previousBeat = Math.floor(this.phase / Math.PI);
-    this.phase += (Math.hypot(dx, dy) / 64) * Math.PI * 2;
+    this.phase +=
+      (Math.hypot(dx, dy) / (this.hero === "linh" ? 88 : 64)) * Math.PI * 2;
     const footfall =
       Math.floor(this.phase / Math.PI) > previousBeat && this.weight > 0.4;
-    if (Math.abs(dx) > 0.06) this.facing = dx > 0 ? -1 : 1;
+    if (Math.abs(dx) > 0.06)
+      this.facing = (dx > 0 ? 1 : -1) * (this.hero === "linh" ? 1 : -1);
     this.setScale(this.facing * 1.08, 1.08);
+    this.hurt = Math.max(0, this.hurt - dt);
+    if (this.hero === "linh") {
+      const moving = speed > 4;
+      // A single painted body keeps neck, shoulders and hips connected.
+      // Fixed cell dimensions preserve scale and alignment across the gait.
+      this.linh
+        .setTexture(
+          moving ? "linh-walk" : "linh-idle",
+          moving ? Math.floor((this.phase / (Math.PI * 2)) * 4) % 4 : undefined,
+        )
+        .setOrigin(0.55, moving ? 248 / 256 : 1)
+        .setDisplaySize(
+          (this.linh.width * (moving ? 81 : 76)) / this.linh.height,
+          moving ? 81 : 76,
+        )
+        .setPosition(0, 28 + (moving ? 0 : Math.sin(this.age * 2.4) * 0.25));
+      if (this.hurt > 0) this.linh.setTint(0xffd8ba);
+      else this.linh.clearTint();
+      return footfall;
+    }
     const stride = Math.sin(this.phase) * this.weight;
     const bounce = -Math.abs(Math.sin(this.phase)) * 1.35 * this.weight;
     const breath = Math.sin(this.age * 2.4) * 0.32 * (1 - this.weight);
@@ -122,7 +173,6 @@ export class PlayerActor extends Phaser.GameObjects.Container {
     this.scarfAngle +=
       (desiredScarf - this.scarfAngle) * (1 - Math.exp(-8 * dt));
     this.scarf.setPosition(4, -7 + bounce * 0.6).setAngle(this.scarfAngle);
-    this.hurt = Math.max(0, this.hurt - dt);
     if (this.hurt > 0) {
       this.parts.forEach((part) => part.setTint(0xffd8ba));
       this.head.angle -= this.hurt * 35;

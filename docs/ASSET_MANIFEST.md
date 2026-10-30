@@ -66,3 +66,18 @@ Reproduction: `node scripts/prepare-enemy-rigs.mjs`, alpha component regions in 
 Menu/game music motifs and button/weapon/hit/death/XP/level/damage/boss/victory/defeat sounds are original synthesis code in `src/audio/AudioManager.ts` using Web Audio oscillators and envelopes. No sampled songs, downloaded audio files, external audio packs or attribution-bearing recordings are bundled.
 
 PWA icons192/512/maskable derive from this project's generated An cutout with original pine backgrounds. Paths: `public/icons/`. Same generated-art status as the source hero. No external font files are shipped. Sources and QA images in docs are not runtime dependencies and are excluded from dist.
+
+## Linh — original frost mage (version1.1)
+
+Built-in OpenAI image generation produced one transparent nine-part sheet retained at `docs/artwork/linh-rig-source.png`. Nine connected cutouts: assembled full-body portrait, head, torso, wand arm, free arm, two legs, scarf tail, scarf collar. Ivory bob hair, amber eyes, violet/cream tunic and hood, icy-cyan scarf and a short crystal wand; same three-quarter illustration and warm upper-left lighting as An. No downloaded third-party art or audio.
+
+Technical extraction: `node scripts/prepare-player-rig.mjs linh`. Regions: `docs/LINH_RIG_REGIONS.json`. Portrait: `public/assets/linh.webp`; the separated animation layers were rejected by the user and removed from runtime. This source and its region record are retained as design history. `prepare-player-rig.mjs linh` now extracts only the intact portrait. Same generated-output status as existing artwork: not claimed CC0/exclusive copyright, use subject to applicable provider terms. The portrait is cached by PWA. Prompt record: `docs/artwork/linh-generation-prompt.txt`.
+
+Băng tinh and Lá xoáy projectile silhouettes are original Phaser Graphics code in CombatSystem, consistent with existing magical effects; UI icons Snowflake/Leaf reuse Lucide with its retained ISC notice. Frost/Leaf SFX are original local Web Audio synthesis.
+
+
+### Linh animation repair
+
+Built-in `image_gen` using the intact Linh portrait as the identity/proportion reference. Selected transparent sheet: `docs/artwork/linh-walk-source-v2.png`; exact prompt, selection and method: `docs/artwork/linh-animation-prompt-v2.txt`. The first and third generated drafts were rejected for repeating the same leading leg. From the selected six-pose sheet, only the first four complementary contact/passing poses are used. The last two repeat a leading leg and are excluded.
+
+`node scripts/prepare-linh-animation.mjs` extracts complete cells, aligns boot soles through translation, and downsamples each entire frame uniformly to256×256. No limb edits, independent resizing or joint compositing. Runtime strip: `public/assets/player/linh-walk.webp`; slicing/baseline record: `docs/LINH_ANIMATION_REGIONS.json`. Idle uses the unchanged original `public/assets/linh.webp`. Same generated-art status/provider terms as the original; not claimed CC0 or exclusive copyright. Four poses are a compact stylized cycle, not a claim of eight-direction or high-frame-count animation.
