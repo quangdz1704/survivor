@@ -22,7 +22,7 @@ function setup() {
   s.boss.setPosition(1100, 1100);
   s.bossCooldown = 0;
   s.updateBoss(0);
-  log.textContent = `Vùng sát thương: ${GOLEM_BLAST_RADIUS}px · Báo trước: 1 giây · Sát thương: 25\nHiệu ứng: ${enabled ? "đầy đủ" : "giảm"}`;
+  log.textContent = `Vùng sát thương: ${GOLEM_BLAST_RADIUS}px · Báo trước: 1 giây · Sát thương: 42\nHiệu ứng: ${enabled ? "đầy đủ" : "giảm"}`;
   return s;
 }
 function advance(seconds: number) {
@@ -69,8 +69,8 @@ document.getElementById("verify")!.onclick = () => {
   s.scene.pause();
   advance(1.1);
   check(
-    s.run.hp === 75 && s.stomp === null,
-    "Trong vùng: đúng 25 sát thương, kết thúc cảnh báo",
+    s.run.hp === 58 && s.stomp === null,
+    "Trong vùng: đúng 42 sát thương, kết thúc cảnh báo",
   );
   advance(1.3);
   check(
@@ -117,7 +117,7 @@ document.getElementById("verify")!.onclick = () => {
   s.scene.pause();
   advance(1.1);
   check(
-    s.run.hp === 75 && s.stomp === null,
+    s.run.hp === 58 && s.stomp === null,
     "Giảm hiệu ứng: giữ nguyên sát thương/thời điểm",
   );
   enabled = true;

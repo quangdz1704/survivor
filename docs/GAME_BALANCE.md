@@ -103,3 +103,31 @@ Mana cap100, +2 per ordinary kill/+10 elite or boss, passive+0.4/s outside rage.
 Gear:6 slots/12 items, ranks1–20, bonus factor1+0.22×(rank−1). Initial six rare items are owned but unequipped. Craft300gold/15essence; upgrade50+40×rank gold and2+floor(rank/2) essence. Pet fox starts owned at1 but unselected; unlock other pets240gold/12essence, upgrade90+70×rank gold and4+rank essence, cap10. Fox gains2% crit/rank and dash bite; Owl8% pickup/rank plus slowing beam; Sprout5HP/rank plus heal3+2×rank every8s and a damage pulse. All pet damage scales with rank and player damage. Equipment bonuses apply to all weapons and preserve each hero's starting weapon.
 
 Runs lasting60s or winning drop one item selected deterministically from the run ID. Already-owned drops grant5essence. Base essence=floor((time/20+kills/30+10 if victory)×reward multiplier). Gold uses the existing formula×difficulty reward. Settlement is idempotent by run ID. Win Normal unlocks the next map and the completed map's Hard; winning Hard unlocks its Nightmare.
+
+## Current tuning /2.1 —2026-11-02
+
+This section supersedes the historical values above. Source: `core/combatBalance.ts`, `campaign.ts`, `encounters.ts`, `game.ts`. The user requested meaningful collectible equipment, visible attacking pets and stronger late-game resistance.
+
+| Evolution at unlock | Range | Damage/cadence | Growth |
+| --- | ---: | --- | --- |
+| Sword array |60px orbit, previously86 |Sword6×1.05, target immunity0.44s/attackSpeed (was×1.7/0.28s) |+12% damage/mastery, cap20; +12% range/mastery, cap5 (96px final orbit) |
+| Blizzard |100px, previously158 |Frost6×0.7 every0.65s/attackSpeed (was×1.25/0.38s), slow32%/1.25s |Range reaches160px at5 area ranks; damage increases12% per power rank |
+| Leaf vortex |180px activation,330px/s,4 leaves |Leaf6×0.9, interval×1.05 (was8 leaves/300px/420px/s/×1.35/×0.85) |Ranks7–11 add one leaf each; same12% damage/range mastery |
+
+Rage lasts3s (was6); global damage×1.18/attack speed×1.12 (was1.5/1.35), at most2 activations per run. Ordinary kill gives0.15mana (was2), elite/boss4 (was10), passive0.1/s (was0.4). No gain while active or after the second use; pause/choice freezes time. A300s/600-kill simulation with two elites activates once; dense6000-kill simulation is capped at2, even if mana is manually refilled. This is a tuning target, not a guarantee every player earns a charge.
+
+Ultimate base power is0.85×current damage×(1+0.18×weapon rank). Sword retains10 blades at72±22px with0.3s target immunity and×1.2 hit power. Leaf16 spiral leaves spread32–197px with the same immunity/power. Fireball one65px meteor every0.45s,×2.5 power. Lightning6 targets/0.48s,×1.8. Ice Age165px pulse/0.75s,×1.25 and45% slow/1.4s with boss resistance. Ice Age now renders wind/crystals and eight faceted ice spires; Blizzard wind/ice contrast increased while its damage area shrank.
+
+| Boss | Old → new base HP | Old → new contact | New special damage |
+| --- | ---: | ---: | --- |
+| Slime King |340 →900 |10 →22 |28 pulse |
+| Orc Captain |850 →2200 |18 →34 |42 dash |
+| Golem |1500 →4200 |25 →38 |42 stomp /34 fan /44 clusters |
+| Ember Drake |2300 →6200 |34 →48 |46 cluster /42 fan /54 lane |
+| Frost Warden |2900 →7600 |38 →54 |48 cluster /40 fan /52 lane |
+
+Hard now has×1.9HP/×1.55damage/×1.16speed; Nightmare×3.4/×2.3/×1.28. Normal values unchanged. Existing map HP factors, attack warnings and0.8s hit immunity remain. No faster/invisible boss telegraphs were introduced. Extra enraged cross-lane damage46 before difficulty scaling.
+
+Equipment: new profiles own only the gifted Dawnblade1 and start with Fox1 selected. Existing saved equipment ranks/selections are preserved (an explicit old pet-null stays unselected; the menu now links directly to companion selection). Unowned gear cannot be crafted/upgraded; obtain it from the camp draw, a mini-boss bag or the existing60s/completion reward. Draw costs200 in-game gold:75% rare/25% epic, uniform within each tier. Owned duplicates give5essence without lowering level. Draw payment checks the latest queued profile and reuses its RNG sample if storage falls back/retries. No real money is used.
+
+Each of the two mini-bosses drops a separate equipment bag beside its relic chest. Two reserved sprite/text slots avoid XP-pool eviction. Drop positions clamp to reachable player bounds; walking within38px collects it. Gear is added to the permanent collection at result settlement, including defeat; abandoning the run still forfeits its pending rewards. Result settlement combines up to2 collected pieces and the completion piece once per run ID. Item bonuses take effect when equipped in the profile and apply from the next run.

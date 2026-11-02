@@ -44,7 +44,7 @@ let testing = false,
   slowClockPassed = false,
   pauseChecked = false;
 const report = (extra = "") => {
-  log.textContent = `Lượt đã xong: ${results.map((r) => `${r.victory ? "Thắng" : "Thua"} ${r.time.toFixed(2)}s, ${r.kills} quái, cấp${r.level}, ${r.gold} vàng, bảo vật ${r.relics?.join("+") || "không"}`).join("; ")}\nMini-boss: ${JSON.stringify(eliteLog)}\nRương đã chọn: ${rewardChoices}\nBảo vật: ${latest?.relics.join(", ") || "chưa có"}\nNhân vật: ${hero} · Map: ${map} · Vũ khí: ${[...seenWeapons].join(", ")}\nMục tiêu: ${goalEvolution ? UPGRADE_NAMES[goalEvolution] : "phối hợp"}\nTiến hóa đã thấy: ${JSON.stringify(seenEvolutions)}\nSlow: ${sawSlow} · Lá trở về: ${sawReturn}\nĐồng hồ ở 15 FPS: ${slowClockPassed ? "ĐẠT" : "CHƯA CHẠY"}\nChế độ: ${mode}\nThời gian: ${latest?.time.toFixed(1) ?? 0}s\nHP: ${latest?.hp ?? 0} · Cấp: ${latest?.level ?? 1}\nQuái đã hạ: ${latest?.kills ?? 0}\nĐồng thời tối đa: ${maxEnemies}\nLoại quái đã gặp: ${[...seen].join(", ")}\nLần chọn nâng cấp: ${pauses}\n${extra}\nKết quả: ${JSON.stringify(results, null, 2)}`;
+  log.textContent = `Lượt đã xong: ${results.map((r) => `${r.victory ? "Thắng" : "Thua"} ${r.time.toFixed(2)}s, ${r.kills} quái, cấp${r.level}, ${r.gold} vàng, cuồng nộ ${r.rageUses} lần, bảo vật ${r.relics?.join("+") || "không"}`).join("; ")}\nMini-boss: ${JSON.stringify(eliteLog)}\nRương đã chọn: ${rewardChoices}\nBảo vật: ${latest?.relics.join(", ") || "chưa có"}\nNhân vật: ${hero} · Map: ${map} · Vũ khí: ${[...seenWeapons].join(", ")}\nMục tiêu: ${goalEvolution ? UPGRADE_NAMES[goalEvolution] : "phối hợp"}\nTiến hóa đã thấy: ${JSON.stringify(seenEvolutions)}\nSlow: ${sawSlow} · Lá trở về: ${sawReturn}\nĐồng hồ ở 15 FPS: ${slowClockPassed ? "ĐẠT" : "CHƯA CHẠY"}\nChế độ: ${mode}\nThời gian: ${latest?.time.toFixed(1) ?? 0}s\nHP: ${latest?.hp ?? 0} · Cấp: ${latest?.level ?? 1}\nQuái đã hạ: ${latest?.kills ?? 0}\nĐồng thời tối đa: ${maxEnemies}\nLoại quái đã gặp: ${[...seen].join(", ")}\nLần chọn nâng cấp: ${pauses}\n${extra}\nKết quả: ${JSON.stringify(results, null, 2)}`;
 };
 bridge.subscribe((snapshot) => {
   latest = snapshot;
@@ -126,6 +126,8 @@ bridge.event("result", async (result) => {
     ...result,
     relics: [...scene.run.relics],
     elites: { ...scene.run.elites },
+    rageUses: scene.run.rageUses,
+    collectedGear: [...scene.run.collectedGear],
   });
   testing = false;
   report("Đang kiểm tra phần thưởng/lưu lại…");

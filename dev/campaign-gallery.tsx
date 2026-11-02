@@ -50,7 +50,7 @@ createRoot(document.getElementById("qa-ui")!).render(<UI />);
 bridge.subscribe((stats) => {
   useUI.getState().setStats(stats);
   document.getElementById("log")!.textContent =
-    `Cảnh đặt sẵn · ${stats.map}\nMana ${stats.mana.toFixed(1)} · Rage ${stats.rageRemaining.toFixed(1)}s\nQuái ${stats.enemies} · Hạ ${stats.kills}\nMastery ${JSON.stringify(scene().run?.masteries)}\nObject ${scene().children.list.length}`;
+    `Cảnh đặt sẵn · ${stats.map}\nMana ${stats.mana.toFixed(1)} · Rage ${stats.rageRemaining.toFixed(1)}s\nQuái ${stats.enemies} · Hạ ${stats.kills}\nĐồ nhặt ${JSON.stringify(scene().run?.collectedGear)}\nMastery ${JSON.stringify(scene().run?.masteries)}\nObject ${scene().children.list.length}`;
 });
 bridge.event("choices", useUI.getState().setChoices);
 bridge.event("result", useUI.getState().setResult);
@@ -128,4 +128,10 @@ document.getElementById("upgrade")!.onclick = () => {
 document.getElementById("home")!.onclick = () => {
   bridge.send("home", undefined);
   useUI.getState().setMode("menu");
+};
+
+document.getElementById("gear")!.onclick = () => {
+  const s = scene();
+  if (s.run && !s.run.ended)
+    s.equipmentDrops.spawn("cinderwand", s.player.x + 55, s.player.y);
 };

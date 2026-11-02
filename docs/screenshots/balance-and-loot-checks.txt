@@ -1,0 +1,4 @@
+2026-11-02 · Chrome local, version2.1
+Fresh Kang/Sword focus, no stat/time injection: loss342.55s,404kills,level10,777gold,rage1; Sword array190.50s/level9; both elite chests claimed; Fang+Heart. Separate standing loss80.48s,73kills,level2,149gold,rage0. Report showed15FPS check passed and completed result verification.
+Armory separate QA database:1000gold/100essence → draw Glacier Boots1 for200gold → equipped armor0.2/speed187 → upgraded rank2 for90gold/2essence → gold710/essence98/speed189. Reload retained boots/rank/equip/balances.
+Campaign gallery (prefilled): Ice Age observedRage2.8s→0.0s and second use2/2; Fox visible at hero side; native Right450ms collected rendered Trượng hỏa tâm bag into ["cinderwand"]. No personal save writes.

@@ -16,13 +16,13 @@ Chạm bất kỳ đâu trong vùng chơi rồi kéo để điều khiển joyst
 ## Đã triển khai
 
 - Ba vùng đất 2400×2400: Rừng thì thầm, Vực tro tàn và Thành băng vĩnh cửu; artwork cartoon nguyên bản. Ba độ khó Thường/Khắc nghiệt/Ác mộng, thắng trận để mở vùng và thử thách tiếp theo.
-- Màn Hành trang có hồ sơ nhân vật, sáu ô đồ, kho12 món hiếm/sử thi và nâng đồ tới20. Ba pet Cáo lửa/Cú sương/Mầm xanh có tấn công/hỗ trợ riêng, nâng tới10 bằng vàng và tinh hoa.
+- Màn Hành trang có hồ sơ nhân vật, sáu ô đồ, kho12 món hiếm/sử thi và nâng đồ tới20. Đồ mới lấy từ túi rơi của mini-boss, thưởng trận hoặc quay rương200 vàng; chỉ đồ đã sở hữu mới nâng được. Ba pet Cáo lửa/Cú sương/Mầm xanh có tấn công/hỗ trợ riêng, nâng tới10 bằng vàng và tinh hoa.
 - Chọn Kang hoặc Dun ở menu; lưu lựa chọn, chỉ số và vũ khí khởi đầu riêng. Kang dùng rig 8 lớp; Dun dùng các khung hình nguyên người để giữ tỷ lệ và tránh lộ khớp; Slime nhảy, Dơi vỗ cánh riêng, Bộ xương/Orc/Golem có rig chân tay, phản ứng trúng đòn và chết.
 - Ba tiến hóa: Kiếm trận (Kiếm phép 6 + Nhịp chiến đấu 2), Bão tuyết (Băng tinh 6 + Lời gọi tinh tú 2), Lốc lá (Lá xoáy 6 + Bước chân gió 2). Có thẻ chọn, công thức/tiến độ và huy hiệu HUD riêng; tiến hóa chỉ giữ trong lượt hiện tại.
 - Năm vũ khí: Kiếm phép, Hỏa cầu, Thiên lôi, Băng tinh làm chậm và Lá xoáy bay trở về; mỗi vũ khí6 cấp cơ bản. Kiếm/Băng/Lá sau tiến hóa lên được11 để thêm đạn/lá; thẻ sức mạnh và tầm phủ tiếp tục nâng dạng tiến hóa. Sáu kỹ năng thụ động, ba lựa chọn ngẫu nhiên hợp lệ mỗi lần lên cấp.
 - Hai mini-boss ở phút 1/3: Slime vương nổ vòng có cảnh báo và Đội trưởng Orc lao theo hướng cố định. Mỗi con rơi rương chọn 1 trong 3 bảo vật, không trùng món đã có; 6 bảo vật tạo cách phối riêng với vũ khí/tiến hóa. Xem lại bảo vật trong màn tạm dừng.
 - Thêm Imp tro, Bọ than, Sói băng, Ma băng và hai boss Hỏa long/Băng vệ. Cả ba boss có nhiều chưởng cảnh báo, tăng nhịp khi ít HP; quái bắn đạn/đuổi nhanh tạo áp lực khác nhau.
-- Thanh mana và năm chiêu cuồng nộ chủ động:10 kiếm xoay, mưa thiên thạch, sét liên hoàn, đại băng hà và24 lá xoáy. Mỗi lần dùng kéo dài6s.
+- Thanh mana và năm chiêu cuồng nộ chủ động:10 kiếm xoay, mưa thiên thạch, sét liên hoàn, đại băng hà và16 lá xoáy. Mỗi lần dùng kéo dài3s, tối đa2 lần mỗi lượt; mana hồi chậm.
 - Vàng, tinh hoa, trang bị, pet, chiến dịch, nâng cấp vĩnh viễn, thành tích và cài đặt lưu bằng IndexedDB; giữ tương thích save cũ. Có chế độ lưu tạm nếu trình duyệt chặn storage.
 - Nhạc menu/game và SFX tổng hợp tại máy sau thao tác người chơi; chỉnh âm lượng, hiệu ứng, độ nhạy và rung.
 - PWA với icon, service worker, cache offline và đề nghị cập nhật ở menu; không tự tải lại giữa trận.
@@ -44,9 +44,10 @@ PWA chỉ bật trong bản production/preview. Cần tải online lần đầu 
 - `/dev/enemy-animation.html`: chuyển động của cả năm loại quái.
 - `/dev/run-verification.html`: bot chạy engine thật qua thắng/thua, kiểm tra pause và thưởng/lưu. Dùng IndexedDB QA riêng.
 - `/dev/treasure.html`: cảnh QA thủ lĩnh, thẻ bảo vật và 22 kiểm tra tích hợp; có đặt sẵn thời gian/chỉ số.
+- `/dev/armory-qa.html`: hồ sơ QA riêng để thử quay/trang bị/nâng đồ, không ghi hồ sơ cá nhân.
 - `/dev/campaign-gallery.html`: cảnh đặt sẵn mana/cấp để thử ba vùng, pet, năm rage, chưởng boss và thẻ nâng cấp tiếp. Không ghi hồ sơ cá nhân.
 - `/dev/load-verification.html`: cảnh nhân tạo480 quái với cả5 vũ khí/3tiến hóa/pet/rage. Thêm `?difficulty=normal` hoặc `hard` và `&map=forest` để đổi; không phải lượt chơi cân bằng.
 
-Các trang QA không nằm trong bản production. Xem [clip quái](docs/screenshots/07-enemy-animation.webp), [kiểm thử và giới hạn](docs/TESTING.md), [asset](docs/ASSET_MANIFEST.md) và [triển khai Vercel](docs/DEPLOYMENT.md). Người dùng đã triển khai bản main lên Vercel và phản hồi chơi trên điện thoại ổn. Bản chiến dịch2.0 được triển khai và commit local trên nhánh `feature/elites-and-relics`, chưa push hay cập nhật production.113 kiểm thử tự động và lint/typecheck/build đạt. Công cụ trình duyệt đang lỗi kết nối nên giao diện/animation2.0, lượt thắng bình thường và FPS480 quái chưa được xác nhận trực tiếp; xem giới hạn tại docs/TESTING.md. Chưa đo FPS trên thiết bị iOS/Android thật; nhân vật vẫn dùng hình ba phần tư phía trước và lật ngang, chưa có artwork nhìn từ lưng.
+Các trang QA không nằm trong bản production. Xem [clip quái](docs/screenshots/07-enemy-animation.webp), [kiểm thử và giới hạn](docs/TESTING.md), [asset](docs/ASSET_MANIFEST.md) và [triển khai Vercel](docs/DEPLOYMENT.md). Người dùng đã triển khai bản main lên Vercel và phản hồi chơi trên điện thoại ổn. Bản cân bằng2.1 được triển khai và commit local trên nhánh `feature/loot-and-combat-balance`, chưa push hay cập nhật production.122 kiểm thử tự động và lint/typecheck/build đạt. Đã kiểm tra Chrome: quay/trang bị/nâng/lưu đồ, nhặt túi trong map, pet bên cạnh và cuồng nộ. Bot build Kiếm trận dùng1 lần cuồng nộ rồi thua boss ở342,55s; đây chưa phải chứng nhận mọi build/màn được cân bằng. Chưa đo FPS480 quái hoặc trên thiết bị iOS/Android thật; xem docs/TESTING.md; nhân vật vẫn dùng hình ba phần tư phía trước và lật ngang, chưa có artwork nhìn từ lưng.
 
 Bấm tên nhân vật ở menu để đổi Kang/Dun. Kang có 100 HP và Kiếm phép; Dun có 85 HP, chạy nhanh hơn 5%, hút XP xa hơn 25% và khởi đầu với Băng tinh. Tất cả nhân vật/vũ khí đều mở sẵn; vàng và nâng cấp ở trại được dùng chung. Chi tiết phiên bản mới: [nội dung và kiểm thử](docs/CONTENT_EXPANSION_PLAN.md).

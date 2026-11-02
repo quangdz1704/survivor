@@ -1,0 +1,7 @@
+# Loot and combat balance correction
+
+User request: profile equipment earned by picking up/drawing and equipped for stats; visible attacking companion; smaller/weaker initial evolutions with gradual growth; clearer Ice Age; scarce, shorter and less powerful rage used1–2 times per map; durable dangerous bosses and harder advanced maps. Preserve existing owned gear. Commit completed changes, no push/deployment.
+
+Implemented: camp draw200gold with75% rare/25% epic and duplicate essence; actual two mini-boss equipment bags with result settlement; ownership-gated upgrades, stat/equip/draw feedback; menu companion entry and visible pet follow/trail;100px Blizzard/60px sword array/4-leaf starter vortex with12% mastery growth;3s rage,0.15mana per kill/0.1persecond and max2 uses; smaller ultimate zones and stronger ice visuals; increased boss HP/attacks and Hard/Nightmare multipliers.
+
+Verification completed:122 tests/23files, lint/typecheck/build, independent source review plus edge/retry fixes, Chrome draw/equip/upgrade/reload, pet/ice/rage and actual gear pickup checks. Fresh Kang Sword-array bot used rage once and lost at342.55s after both elite rewards; standing control lost at80.48s. See TESTING.md for evidence and the distinction between ordinary simulation and prefills. Physical-device performance, broad human tuning and every-map victory remain unverified. Do not infer perfect balance from one bot result.

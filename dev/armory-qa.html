@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Survivor Mini — kiểm tra đồ nhặt và quay</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 28px;
+        background: #112c27;
+        color: #fff3cb;
+        font: 14px Arial;
+      }
+      #stage.game-shell {
+        width: 390px;
+        height: 844px;
+        flex-shrink: 0;
+      }
+      aside {
+        width: 340px;
+      }
+      aside p,
+      pre {
+        line-height: 1.7;
+        white-space: pre-wrap;
+      }
+      aside button {
+        padding: 12px;
+        background: #e7c779;
+        color: #17372d;
+        border: 0;
+        border-radius: 9px;
+        margin: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" class="game-shell"></div>
+    <aside>
+      <h1>Hành trang · QA riêng</h1>
+      <p>
+        Hồ sơ thử riêng có1000 vàng/100 tinh hoa. Quay và nâng cấp dùng logic
+        production. Không ghi hồ sơ chơi cá nhân.
+      </p>
+      <button id="reset">Đặt lại hồ sơ QA</button>
+      <pre id="log">Đang tải…</pre>
+    </aside>
+    <script type="module" src="/dev/armory-qa.tsx"></script>
+  </body>
+</html>
