@@ -10,3 +10,6 @@ Approved scope: optional risk/reward events and readable boss retaliation window
    Verification: React interactions/focus and gameplay integration, Chrome QA at mobile dimensions, tests/lint/typecheck/build, source review and commits. Physical-phone performance and broad human balance remain separate acceptance work.
 
 Implementation order: rules + regression checks → engine/visual/UI event slice → boss slice → browser evidence/docs. No deployment or remote push requested for this turn.
+
+
+Completion checkpoint: rules, engine integration, world markers, production UI, regression coverage and independent read-only source review are complete.138 tests/26 files, lint, TypeScript and production build pass. Review fixes cover hostile-zone saturation and focus restoration. The prepared QA fixture uses an isolated save and clearly labeled prefills. Browser visual acceptance remains pending: broad native Chrome reads were rejected for private unrelated tabs; task-scoped browser host unavailable. Explicit permission for a separate Chrome QA window has been requested; do not infer approval from elapsed time. No visual2.2 verification, physical-device FPS or normal human victory is claimed. No remote push/deployment.

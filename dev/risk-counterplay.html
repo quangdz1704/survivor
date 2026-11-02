@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Survivor Mini — Tế đàn & phản công</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 28px;
+        background: #112c27;
+        color: #fff3cb;
+        font: 14px Arial;
+      }
+      #stage.game-shell {
+        width: 390px;
+        height: 844px;
+        flex-shrink: 0;
+      }
+      #qa-ui {
+        position: absolute;
+        inset: 0;
+      }
+      body > aside {
+        width: 350px;
+      }
+      body > aside h1 {
+        font: 700 28px Georgia;
+      }
+      body > aside p,
+      body > aside pre {
+        line-height: 1.65;
+        white-space: pre-wrap;
+      }
+      body > aside button {
+        padding: 12px;
+        margin: 4px;
+        border: 1px solid #d5b96b;
+        border-radius: 10px;
+        background: #f2c779;
+        color: #17382d;
+        cursor: pointer;
+      }
+      body > aside button:disabled {
+        opacity: 0.4;
+      }
+      #verify-log {
+        color: #d8efb7;
+      }
+      @media (max-width: 760px) {
+        body {
+          flex-direction: column;
+          align-items: center;
+        }
+        #stage.game-shell {
+          width: min(390px, 94vw);
+          height: 780px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage" class="game-shell">
+      <div id="game" class="game-canvas"></div>
+      <div id="qa-ui"></div>
+    </div>
+    <aside>
+      <h1>Tế đàn & phản công</h1>
+      <p>
+        Cảnh QA dùng engine/UI thật. Đặt sẵn thời gian, HP cao, tắt quái khi thử
+        boss; không phải lượt cân bằng. Hồ sơ QA riêng. Di chuyển bằng phím mũi
+        tên hoặc joystick.
+      </p>
+      <button id="trial" disabled>Tế đàn QA</button>
+      <button id="fast" disabled>Tốc độ ×8: TẮT</button>
+      <button id="settle" disabled>Kết thúc & lưu QA</button>
+      <button id="golem" disabled>Golem cảnh báo</button>
+      <button id="ember-drake" disabled>Hỏa long đường chưởng</button>
+      <button id="frost-warden" disabled>Băng vệ đường chưởng</button>
+      <button id="slime-king" disabled>Slime vương</button>
+      <button id="orc-captain" disabled>Đội trưởng Orc</button>
+      <button id="freeze" disabled>Dừng khi lộ lõi: BẬT</button>
+      <button id="resume" disabled>Tiếp tục</button>
+      <pre id="log">Đang tải…</pre>
+    </aside>
+    <script type="module" src="/dev/risk-counterplay.tsx"></script>
+  </body>
+</html>
