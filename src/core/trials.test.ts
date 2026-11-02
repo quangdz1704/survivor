@@ -1,0 +1,66 @@
+import { describe, expect, it } from "vitest";
+import { newProfile, RunModel, settleResult } from "./game";
+import { Trial } from "./trials";
+
+describe("optional cursed shrine trials", () => {
+  it("offers twice, requires inspection and expires harmlessly", () => {
+    const trial = new Trial();
+    trial.tick(89, 1);
+    expect(trial.phase).toBe("dormant");
+    trial.tick(90, 1);
+    expect(trial.phase).toBe("available");
+    expect(trial.inspect(false)).toBe(false);
+    expect(trial.decide("accept")).toBe(false);
+    trial.tick(135, 45);
+    expect(trial.phase).toBe("skipped");
+    trial.tick(210, 75);
+    expect(trial.round).toBe(2);
+    expect(trial.inspect(true)).toBe(true);
+    expect(trial.decide("close")).toBe(true);
+    expect(trial.phase).toBe("available");
+    trial.inspect(true);
+    trial.decide("skip");
+    trial.tick(400, 190);
+    expect(trial.phase).toBe("skipped");
+  });
+  it("freezes choices/pause, rewards survival once and settles all four collected items once", () => {
+    const run = new RunModel(newProfile(), () => 0.8, "trial-survival");
+    run.tick(90, false);
+    run.trial.inspect(true);
+    const start = run.time;
+    run.tick(100, false);
+    expect(run.time).toBe(start);
+    run.trial.decide("accept");
+    run.tick(20, true);
+    expect(run.trial.remaining).toBe(45);
+    run.tick(44, false);
+    expect(run.collectedGear).toEqual([]);
+    run.tick(1, false);
+    expect(run.trial.phase).toBe("won");
+    expect(run.collectedGear).toEqual([run.trial.reward]);
+    run.tick(1, false);
+    expect(run.collectedGear).toHaveLength(1);
+    run.collectedGear.push("dawnblade", "barkhood");
+    run.tick(74, false);
+    run.trial.inspect(true);
+    run.trial.decide("accept");
+    run.tick(45, false);
+    expect(run.collectedGear).toHaveLength(4);
+    const result = run.finish(false)!;
+    const saved = settleResult(newProfile(), result);
+    expect(settleResult(saved, result)).toBe(saved);
+    expect(saved.loadout.inventory[run.trial.reward!]).toBe(1);
+    expect(result.collectedGear).toHaveLength(4);
+  });
+  it("does not award unfinished trials after death or leak them to a fresh run", () => {
+    const run = new RunModel(newProfile(), () => 0);
+    run.tick(90, false);
+    run.trial.inspect(true);
+    run.trial.decide("accept");
+    run.tick(44, false);
+    expect(run.finish(false)!.collectedGear).toEqual([]);
+    run.tick(10, false);
+    expect(run.trial.phase).toBe("active");
+    expect(new RunModel(newProfile()).trial.phase).toBe("dormant");
+  });
+});

@@ -2,6 +2,7 @@ import { WORLD_SIZE } from "./rules";
 import type Phaser from "phaser";
 import type { RunModel } from "../core/game";
 import { GEAR } from "../core/equipment";
+import { TRIAL } from "../core/trials";
 import type { GearId } from "../core/equipment";
 import type { Effects } from "./Effects";
 import { audioManager } from "../audio/AudioManager";
@@ -77,7 +78,8 @@ export class EquipmentDrops {
       if (!s.id) continue;
       s.image.setY(s.y + Math.sin(this.age * 3) * 3);
       if (Math.hypot(s.x - x, s.y - y) > 38) continue;
-      if (run.collectedGear.length < 2) run.collectedGear.push(s.id);
+      if (run.collectedGear.length < TRIAL.maxCollectedGear)
+        run.collectedGear.push(s.id);
       s.id = null;
       s.image.setVisible(false);
       s.label.setVisible(false);

@@ -1,4 +1,6 @@
 import { RAGE, EVOLVED } from "./combatBalance";
+import { Trial, TRIAL } from "./trials";
+import { rollGear } from "./equipment";
 import { MASTERY, MASTERY_IDS, initialMasteries, isMastery } from "./mastery";
 import type { MasteryId } from "./mastery";
 import { ELITE_IDS, ELITES, initialElites } from "./encounters";
@@ -372,7 +374,7 @@ export function settleResult(profile: Profile, result: RunResult): Profile {
       result.time / 20 + result.kills / 30 + (result.victory ? 10 : 0),
     );
   const drops = [
-    ...(result.collectedGear ?? []).slice(0, 2),
+    ...(result.collectedGear ?? []).slice(0, TRIAL.maxCollectedGear),
     ...(result.gearDrop ? [result.gearDrop] : []),
   ].filter((id) => GEAR_IDS.includes(id));
   const loadout = grantGear(profile.loadout, drops);
@@ -538,6 +540,7 @@ export class RunModel {
   relicChoices: RelicId[] = [];
   stationaryTime = 0;
   collectedGear: GearId[] = [];
+  readonly trial = new Trial();
   ranks: Record<PassiveId, number> = {
     damage: 0,
     haste: 0,
@@ -617,7 +620,9 @@ export class RunModel {
       : 1;
   }
   get pending() {
-    return this.choices.length > 0 || this.relicChoices.length > 0;
+    return (
+      this.choices.length > 0 || this.relicChoices.length > 0 || this.trial.open
+    );
   }
   trackMovement(dt: number, distance: number) {
     this.stationaryTime =
@@ -797,6 +802,12 @@ export class RunModel {
       this.time += elapsed;
       this.rageRemaining = Math.max(0, this.rageRemaining - elapsed);
       this.gainMana(elapsed * RAGE.manaPerSecond);
+      if (this.trial.tick(this.time, elapsed)) {
+        const item = rollGear(this.random);
+        this.trial.reward = item;
+        if (this.collectedGear.length < TRIAL.maxCollectedGear)
+          this.collectedGear.push(item);
+      }
     }
   }
   hurt(damage: number) {
