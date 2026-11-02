@@ -7,3 +7,6 @@ Scope: opening story tied to Kang/Dun and the existing three regions; a short in
 3. Presentation: first Play opens story when onboarding=new; menu can replay it. Previous/next/close/skip, keyboard focus, readable mobile layout, progress coach and ready panel. Complete/skip persists once before starting the real run; close/leave practice does not falsely mark completion. Reuse existing portraits/map art and procedural graphics. Verify React flows, full tests/lint/build and attempt task-scoped browser QA. Prior Chrome QA authorization persists; do not ask again for it.
 
 Work in small commits, retain old saves, no push/deployment. Record actual verification and any browser tool limitation honestly.
+
+
+Completion: story/save foundation, safe engine practice, illustrated mobile UI, skip/replay and result narrative are implemented.151 tests/28 files, lint, TypeScript and build pass; source recheck resolves long-practice event leakage and delayed-save navigation races. Close/Escape restore focus; compact coach and scrollable story/ready panels support short screens without requiring timed reading. QA fixture HTML/module servedHTTP200. Browser visual acceptance is unverified because the task-scoped Chrome host is unavailable; user authorization persists, no repeat permission needed. No physical-device performance claim, remote push or deployment.

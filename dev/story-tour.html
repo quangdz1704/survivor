@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Survivor Mini · Câu chuyện & tour QA</title>
+    <style>
+      #qa-controls {
+        position: fixed;
+        top: 18px;
+        right: 18px;
+        z-index: 100;
+        width: 280px;
+        padding: 18px;
+        background: #14342fee;
+        border: 1px solid #cfba7966;
+        border-radius: 16px;
+        color: #f6e8be;
+        font: 12px/1.7 Arial;
+      }
+      #qa-controls h1 {
+        font: bold 22px Georgia;
+      }
+      #qa-controls button {
+        margin: 4px 3px;
+        padding: 9px;
+        border-radius: 8px;
+        border: 1px solid #dac68b;
+        background: #dec68b;
+        color: #173a33;
+        cursor: pointer;
+      }
+      #qa-controls pre {
+        white-space: pre-wrap;
+      }
+      #root .game-shell {
+        width: min(var(--qa-width, 390px), 100vw);
+      }
+      @media (max-width: 1000px) {
+        #qa-controls {
+          position: relative;
+          width: auto;
+          margin: 18px;
+          right: auto;
+          top: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <aside id="qa-controls">
+      <h1>Câu chuyện & tour</h1>
+      <p>
+        App, engine và lưu dữ liệu thật, dùng hồ sơ QA riêng. Không đặt sẵn kỹ
+        năng, XP hoặc máu. Nút hồ sơ bên dưới chỉ xóa tiến độ QA.
+      </p>
+      <button id="kang">Hồ sơ mới · Kang</button
+      ><button id="dun">Hồ sơ mới · Dun</button>
+      <button id="veteran">Hồ sơ cũ QA</button
+      ><button id="narrow">Khung 320px / 390px</button>
+      <pre id="qa-log">Đang tải…</pre>
+    </aside>
+    <script type="module" src="/dev/story-tour.tsx"></script>
+  </body>
+</html>

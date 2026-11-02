@@ -17,6 +17,7 @@ import {
   Swords,
   Trophy,
   X,
+  BookOpen,
 } from "lucide-react";
 import { createGame } from "../game/createGame";
 import { bridge } from "../game/bridge";
@@ -37,6 +38,13 @@ import { RiskEventChoice, RiskEventStatus } from "./components/RiskEvent";
 import { MAPS, DIFFICULTIES } from "../core/campaign";
 import { GEAR, PETS } from "../core/equipment";
 import { Armory } from "./components/Armory";
+import {
+  StoryIntro,
+  TutorialCoach,
+  TutorialReady,
+} from "./components/StoryTour";
+import { CHAPTER_ENDINGS } from "../core/story";
+import type { Onboarding } from "../core/tutorial";
 import { observeUpdate, applyUpdate } from "../pwa";
 interface InstallPrompt extends Event {
   prompt: () => Promise<void>;
@@ -53,6 +61,12 @@ export function App() {
     result = useUI((s) => s.result),
     rewardSaved = useUI((s) => s.rewardSaved),
     storageAvailable = useUI((s) => s.storageAvailable);
+  const lessonReady = useUI((s) => s.stats.tutorial?.stage === "ready"),
+    practicing = useUI((s) => s.stats.tutorial !== null);
+  const [storyOpen, setStoryOpen] = useState(false),
+    [tourBusy, setTourBusy] = useState(false);
+  const tourLock = useRef(false);
+  const tourIntent = useRef(0);
   const [settingsOpen, setSettingsOpen] = useState(false),
     [heroesOpen, setHeroesOpen] = useState(false),
     [armoryOpen, setArmoryOpen] = useState(false),
@@ -129,7 +143,10 @@ export function App() {
   }, [settings, profileReady]);
   useEffect(() => {
     const pauseGame = () => {
-      if (useUI.getState().mode === "playing") {
+      if (
+        useUI.getState().mode === "playing" &&
+        useUI.getState().stats.tutorial?.stage !== "ready"
+      ) {
         bridge.send("pause", true);
         useUI.getState().setMode("paused");
       }
@@ -142,6 +159,7 @@ export function App() {
     };
     const key = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      if (useUI.getState().stats.tutorial?.stage === "ready") return;
       const current = useUI.getState().mode;
       if (current === "trial") {
         bridge.send("trial", "close");
@@ -164,16 +182,56 @@ export function App() {
     };
   }, []);
   function start() {
-    if (!ready || !profileReady || heroesOpen) return;
+    if (!ready || !profileReady || heroesOpen || tourLock.current) return;
     audioManager.unlock();
     setGuide(false);
+    if (useUI.getState().profile.onboarding === "new") {
+      setStoryOpen(true);
+      return;
+    }
     bridge.send("start", {
       ...useUI.getState().profile,
       settings: useUI.getState().settings,
     });
     useUI.getState().setMode("playing");
   }
+  function practice() {
+    if (tourLock.current) return;
+    audioManager.unlock();
+    setStoryOpen(false);
+    bridge.send("practice", {
+      ...useUI.getState().profile,
+      settings: useUI.getState().settings,
+    });
+    useUI.getState().setMode("playing");
+  }
+  async function finishTour(status: Exclude<Onboarding, "new">) {
+    if (tourLock.current) return;
+    tourLock.current = true;
+    const intent = ++tourIntent.current;
+    setTourBusy(true);
+    try {
+      const saved = await profileRepository.update((current) => ({
+        ...current,
+        onboarding: current.onboarding === "done" ? "done" : status,
+      }));
+      if (!mount.current) return;
+      useUI.getState().setProfile(saved);
+      useUI.setState({ storageAvailable: profileRepository.available });
+      if (intent !== tourIntent.current) return;
+      setStoryOpen(false);
+      audioManager.unlock();
+      const paused = useUI.getState().mode === "paused" || document.hidden;
+      bridge.send("start", { ...saved, settings: useUI.getState().settings });
+      if (paused) bridge.send("pause", true);
+      useUI.getState().setMode(paused ? "paused" : "playing");
+    } finally {
+      tourLock.current = false;
+      if (mount.current) setTourBusy(false);
+    }
+  }
   function home() {
+    tourIntent.current++;
     bridge.send("home", undefined);
     useUI.getState().setMode("menu");
   }
@@ -216,7 +274,8 @@ export function App() {
               shop ||
               settingsOpen ||
               records ||
-              guide
+              guide ||
+              storyOpen
             }
           >
             <div className="menu-vignette" />
@@ -314,11 +373,15 @@ export function App() {
               <button
                 className="play-button"
                 onClick={start}
-                disabled={!ready || !profileReady}
+                disabled={!ready || !profileReady || tourBusy}
               >
                 <Swords size={23} />
                 <span>
-                  {ready && profileReady ? "XUẤT PHÁT" : "ĐANG CHUẨN BỊ…"}
+                  {ready && profileReady
+                    ? profile.onboarding === "new"
+                      ? "BẮT ĐẦU HÀNH TRÌNH"
+                      : "XUẤT PHÁT"
+                    : "ĐANG CHUẨN BỊ…"}
                 </span>
                 <ArrowRight size={23} />
               </button>
@@ -340,12 +403,16 @@ export function App() {
                 </button>
               </div>
               <div className="menu-actions">
-                <button onClick={() => setGuide(true)}>
-                  <Compass size={16} /> Cách chơi <ChevronRight size={15} />
+                <button
+                  disabled={!ready || !profileReady || tourBusy}
+                  onClick={() => setStoryOpen(true)}
+                >
+                  <BookOpen size={16} /> Câu chuyện & tour{" "}
+                  <ChevronRight size={15} />
                 </button>
-                <span>
-                  <Shield size={14} /> Chuyến đi 5 phút
-                </span>
+                <button onClick={() => setGuide(true)}>
+                  <Compass size={14} /> Cẩm nang
+                </button>
               </div>
               {installPrompt && (
                 <button
@@ -374,12 +441,20 @@ export function App() {
 
         {mode !== "menu" && (
           <>
-            <GameHUD pause={pause} />
+            <div inert={lessonReady}>
+              <GameHUD pause={pause} />
+            </div>
             <RiskEventStatus />
             {mode === "playing" && (
               <>
                 <Joystick />
-                <RageControl />
+                {!practicing && <RageControl />}
+                {!lessonReady && (
+                  <TutorialCoach
+                    busy={tourBusy}
+                    onSkip={() => void finishTour("skipped")}
+                  />
+                )}
               </>
             )}
           </>
@@ -412,6 +487,21 @@ export function App() {
         {mode === "levelup" && <LevelUp />}
         {mode === "treasure" && <Treasure />}
         {mode === "trial" && <RiskEventChoice />}
+        {lessonReady && mode !== "menu" && mode !== "ended" && (
+          <TutorialReady
+            busy={tourBusy}
+            onContinue={() => void finishTour("done")}
+          />
+        )}
+        {storyOpen && (
+          <StoryIntro
+            hero={profile.hero}
+            busy={tourBusy}
+            onClose={() => setStoryOpen(false)}
+            onPractice={practice}
+            onSkip={() => void finishTour("skipped")}
+          />
+        )}
         {mode === "ended" && result && (
           <div className="modal-backdrop">
             <section className="modal result-modal">
@@ -428,8 +518,8 @@ export function App() {
               </h2>
               <p>
                 {result.victory
-                  ? "Thủ lĩnh đã gục ngã. Thử thách mới đang chờ bạn."
-                  : "Mỗi chuyến đi đều giúp bạn mạnh mẽ hơn."}
+                  ? CHAPTER_ENDINGS[result.map ?? "forest"]
+                  : "Mầm sáng vẫn ở bên bạn. Trở về trại, nâng trang bị và pet rồi tiếp tục lời hứa với khu rừng."}
               </p>
               <div className="result-stats">
                 <div>
@@ -592,7 +682,7 @@ export function App() {
       </section>
       <footer className="desktop-footer">
         <span>
-          <span className="live-dot" /> SURVIVOR MINI 2.2
+          <span className="live-dot" /> SURVIVOR MINI 2.3
         </span>
         <span>
           WASD di chuyển <i>·</i> SPACE cuồng nộ <i>·</i> ESC tạm dừng

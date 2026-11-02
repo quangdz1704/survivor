@@ -15,6 +15,8 @@ Chạm bất kỳ đâu trong vùng chơi rồi kéo để điều khiển joyst
 
 ## Đã triển khai
 
+- Câu chuyện “Ký sự Ánh Rừng”: Kang/Dun mang mầm sáng đi giải phóng ba phong ấn, đánh thức Trái Tim Rừng. Lần xuất phát đầu mở truyện3 cảnh và tour thực hành an toàn: di chuyển, tự đánh, nhặt XP, chọn kỹ năng, né chưởng. Có bỏ qua/học lại và lưu trạng thái; hồ sơ cũ có lượt chơi không bị ép học.
+
 - Ba vùng đất 2400×2400: Rừng thì thầm, Vực tro tàn và Thành băng vĩnh cửu; artwork cartoon nguyên bản. Ba độ khó Thường/Khắc nghiệt/Ác mộng, thắng trận để mở vùng và thử thách tiếp theo.
 - Màn Hành trang có hồ sơ nhân vật, sáu ô đồ, kho12 món hiếm/sử thi và nâng đồ tới20. Đồ mới lấy từ túi rơi của mini-boss, thưởng trận hoặc quay rương200 vàng; chỉ đồ đã sở hữu mới nâng được. Ba pet Cáo lửa/Cú sương/Mầm xanh có tấn công/hỗ trợ riêng, nâng tới10 bằng vàng và tinh hoa.
 - Chọn Kang hoặc Dun ở menu; lưu lựa chọn, chỉ số và vũ khí khởi đầu riêng. Kang dùng rig 8 lớp; Dun dùng các khung hình nguyên người để giữ tỷ lệ và tránh lộ khớp; Slime nhảy, Dơi vỗ cánh riêng, Bộ xương/Orc/Golem có rig chân tay, phản ứng trúng đòn và chết.
@@ -46,11 +48,12 @@ PWA chỉ bật trong bản production/preview. Cần tải online lần đầu 
 - `/dev/enemy-animation.html`: chuyển động của cả năm loại quái.
 - `/dev/run-verification.html`: bot chạy engine thật qua thắng/thua, kiểm tra pause và thưởng/lưu. Dùng IndexedDB QA riêng.
 - `/dev/treasure.html`: cảnh QA thủ lĩnh, thẻ bảo vật và 22 kiểm tra tích hợp; có đặt sẵn thời gian/chỉ số.
+- `/dev/story-tour.html`: App/engine thật với hồ sơ QA riêng, tạo hồ sơ Kang/Dun/cũ và đổi khung320/390px; không đặt sẵn HP/XP cho bài tập.
 - `/dev/risk-counterplay.html`: tế đàn, thưởng/lưu QA và cảnh né đòn của5 thủ lĩnh; có đặt sẵn HP/thời gian và tùy chọn dừng hình khi lộ lõi.
 - `/dev/armory-qa.html`: hồ sơ QA riêng để thử quay/trang bị/nâng đồ, không ghi hồ sơ cá nhân.
 - `/dev/campaign-gallery.html`: cảnh đặt sẵn mana/cấp để thử ba vùng, pet, năm rage, chưởng boss và thẻ nâng cấp tiếp. Không ghi hồ sơ cá nhân.
 - `/dev/load-verification.html`: cảnh nhân tạo480 quái với cả5 vũ khí/3tiến hóa/pet/rage. Thêm `?difficulty=normal` hoặc `hard` và `&map=forest` để đổi; không phải lượt chơi cân bằng.
 
-Các trang QA không nằm trong bản production. Xem [clip quái](docs/screenshots/07-enemy-animation.webp), [kiểm thử và giới hạn](docs/TESTING.md), [asset](docs/ASSET_MANIFEST.md) và [triển khai Vercel](docs/DEPLOYMENT.md). Người dùng đã triển khai bản main lên Vercel và phản hồi chơi trên điện thoại ổn. Bản2.2 được commit local trên nhánh `feature/risk-shrines-and-counterplay`, chưa push hoặc cập nhật production.138 kiểm thử tự động và lint/typecheck/build đạt. Bản2.1 đã có kiểm tra Chrome quay/trang bị/nâng/lưu đồ, nhặt túi, pet và cuồng nộ; bản2.2 có kiểm tra tích hợp và trang QA riêng cho tế đàn/phản công. Kiểm tra giao diện trực tiếp2.2 chưa hoàn thành do kết nối trình duyệt bị giới hạn; xem [báo cáo](docs/TESTING.md). Chưa đo FPS480 quái hoặc trên thiết bị iOS/Android thật. Nhân vật vẫn dùng hình ba phần tư phía trước và lật ngang, chưa có artwork nhìn từ lưng.
+Các trang QA không nằm trong bản production. Xem [clip quái](docs/screenshots/07-enemy-animation.webp), [kiểm thử và giới hạn](docs/TESTING.md), [asset](docs/ASSET_MANIFEST.md) và [triển khai Vercel](docs/DEPLOYMENT.md). Người dùng đã triển khai bản main lên Vercel và phản hồi chơi trên điện thoại ổn. Bản2.3 được commit local trên nhánh `feature/story-and-first-play-tour`, chưa push hoặc cập nhật production.151 kiểm thử tự động và lint/typecheck/build đạt. Tour có kiểm tra tích hợp lưu/bỏ qua/học lại, pause và rời trại khi đang lưu. Trang QA/module trảHTTP200; công cụ truy cập trình duyệt hiện mất kết nối nên hình ảnh2.3 chưa được xác nhận trực tiếp. Xem [báo cáo](docs/TESTING.md). Chưa đo FPS480 quái hoặc trên thiết bị iOS/Android thật. Nhân vật vẫn dùng hình ba phần tư phía trước và lật ngang, chưa có artwork nhìn từ lưng.
 
 Bấm tên nhân vật ở menu để đổi Kang/Dun. Kang có 100 HP và Kiếm phép; Dun có 85 HP, chạy nhanh hơn 5%, hút XP xa hơn 25% và khởi đầu với Băng tinh. Tất cả nhân vật/vũ khí đều mở sẵn; vàng và nâng cấp ở trại được dùng chung. Chi tiết phiên bản mới: [nội dung và kiểm thử](docs/CONTENT_EXPANSION_PLAN.md).
