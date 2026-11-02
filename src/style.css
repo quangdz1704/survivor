@@ -2889,3 +2889,371 @@ button:active {
     font-size: 24px;
   }
 }
+
+/* First adventure: a short storybook, followed by real actions in a safe clearing. */
+.story-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 32;
+  display: flex;
+  flex-direction: column;
+  padding: max(20px, env(safe-area-inset-top)) 22px
+    max(18px, env(safe-area-inset-bottom));
+  color: #f9efce;
+  background:
+    radial-gradient(ellipse at 50% 25%, #46624a80, transparent 55%),
+    linear-gradient(165deg, #152e34, #153e32 60%, #102a2b);
+}
+.story-top,
+.story-top > span,
+.story-controls > div {
+  display: flex;
+  align-items: center;
+}
+.story-top {
+  justify-content: space-between;
+  gap: 8px;
+}
+.story-top > span {
+  gap: 8px;
+  font-size: 10px;
+  letter-spacing: 1.8px;
+  color: #dbc991;
+}
+.story-pages {
+  display: flex;
+  gap: 6px;
+  padding: 15px 0 6px;
+}
+.story-pages i {
+  height: 3px;
+  border-radius: 5px;
+  background: #d8dabf25;
+  flex: 1;
+}
+.story-pages .story-page-read {
+  background: #dfc780;
+  box-shadow: 0 0 10px #edcd6740;
+}
+.story-viewport {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.story-illustration {
+  position: relative;
+  isolation: isolate;
+  height: clamp(140px, 28vh, 260px);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.story-illustration::before {
+  content: "";
+  position: absolute;
+  inset: 20px -30px 0;
+  z-index: -2;
+  background: url("/assets/forest-atlas.webp") 0 100%/300% 200%;
+  opacity: 0.18;
+  border-radius: 50%;
+  mask-image: radial-gradient(ellipse, #000 25%, transparent 70%);
+}
+.story-orbit {
+  position: absolute;
+  height: 160px;
+  width: 220px;
+  border: 1px solid #d8cb7940;
+  border-radius: 50%;
+  transform: rotate(-22deg);
+  box-shadow:
+    0 0 45px #abd59518,
+    inset 0 0 35px #abd59515;
+}
+.story-heart {
+  position: absolute;
+  left: 50%;
+  top: 16%;
+  color: #f1db93;
+  filter: drop-shadow(0 0 17px #ffd977a0);
+}
+.story-hero,
+.story-ally {
+  position: absolute;
+  height: 88%;
+  width: auto;
+  max-width: 68%;
+  object-fit: contain;
+  bottom: 3%;
+  filter: drop-shadow(0 12px 12px #0a2428a0);
+}
+.story-hero {
+  left: 18%;
+}
+.story-ally {
+  right: 5%;
+  transform: scaleX(-1);
+  height: 79%;
+}
+.story-page-1 .story-hero {
+  left: 1%;
+}
+.story-page-1 .story-heart {
+  left: 45%;
+  top: 8%;
+}
+.story-page-2 .story-hero {
+  height: 80%;
+  left: 28%;
+  opacity: 0.5;
+}
+.story-page-2 .story-heart {
+  top: 5%;
+  left: 45%;
+}
+.story-mote {
+  position: absolute;
+  color: #f4d899;
+  font-size: 21px;
+  text-shadow: 0 0 15px #ffe18d;
+}
+.story-mote-one {
+  left: 12%;
+  top: 28%;
+}
+.story-mote-two {
+  right: 12%;
+  top: 55%;
+  font-size: 30px;
+}
+.story-seals {
+  display: flex;
+  position: absolute;
+  inset: auto 0 0;
+  gap: 10px;
+  justify-content: center;
+}
+.story-seals > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-direction: column;
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 11px 8px;
+  min-width: 77px;
+  color: #d2e6ac;
+  border: 1px solid #d2e6ac50;
+  border-radius: 13px;
+  background: #172f30e8;
+}
+.story-seals > span:nth-child(2) {
+  color: #ffc18e;
+  border-color: #ffc18e50;
+}
+.story-seals > span:nth-child(3) {
+  color: #b7eaff;
+  border-color: #b7eaff50;
+}
+.story-copy {
+  padding: 20px 0 5px;
+}
+.story-copy .eyebrow {
+  font-size: 8px;
+  line-height: 1.8;
+  letter-spacing: 1.6px;
+  color: #d9c48b;
+}
+.story-copy h2 {
+  font:
+    700 30px/1.15 Georgia,
+    serif;
+  letter-spacing: -0.5px;
+  margin: 10px 0 16px;
+  max-width: 300px;
+}
+.story-copy p {
+  font-size: 13px;
+  line-height: 1.9;
+  color: #d0ddcb;
+}
+.story-copy blockquote {
+  margin: 16px 0 5px;
+  padding-left: 13px;
+  border-left: 2px solid #e6ca7b80;
+  color: #e4d5a9;
+  font:
+    italic 13px/1.7 Georgia,
+    serif;
+}
+.story-controls {
+  flex-shrink: 0;
+  padding-top: 14px;
+  background: linear-gradient(#15372f00, #15372f 25%);
+}
+.story-controls > small {
+  display: block;
+  margin-bottom: 10px;
+  color: #a3bba6;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.story-controls > div {
+  gap: 9px;
+}
+.story-controls .play-button {
+  flex: 1;
+  padding: 14px 10px;
+  min-height: 50px;
+  font-size: 12px;
+  margin: 0;
+}
+.story-controls .icon-button {
+  flex-shrink: 0;
+}
+.story-skip {
+  display: block;
+  width: 100%;
+  text-align: center;
+  color: #c7d0ba;
+  font-size: 11px;
+  padding: 14px 5px 2px;
+  background: none;
+  border: 0;
+  min-height: 40px;
+}
+.tutorial-coach {
+  position: absolute;
+  z-index: 7;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  left: 16px;
+  right: 16px;
+  border: 1px solid #d4c38870;
+  border-radius: 16px;
+  padding: 15px;
+  color: #fff1cf;
+  background: linear-gradient(130deg, #193e38f5, #22363bf5);
+  box-shadow: 0 10px 32px #061c254d;
+  pointer-events: none;
+}
+.tutorial-coach-heading,
+.tutorial-coach-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.tutorial-coach-heading {
+  justify-content: space-between;
+  color: #d9c78c;
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.tutorial-coach-heading > small {
+  font-size: 10px;
+}
+.tutorial-coach h3 {
+  font:
+    700 19px/1.3 Georgia,
+    serif;
+  margin: 10px 0 8px;
+}
+.tutorial-coach p {
+  color: #cbdacd;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 0 0 12px;
+}
+.tutorial-task {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  line-height: 1.6;
+  color: #f0dc9c;
+}
+.tutorial-task svg {
+  flex-shrink: 0;
+}
+.tutorial-coach progress {
+  display: block;
+  width: 100%;
+  height: 5px;
+  margin-top: 12px;
+  accent-color: #d9c47c;
+}
+.tutorial-coach > button {
+  pointer-events: auto;
+  display: block;
+  padding: 12px 0 0;
+  border: 0;
+  background: none;
+  color: #adbfaf;
+  font-size: 10px;
+  min-height: 36px;
+}
+.tutorial-ready-backdrop {
+  z-index: 33;
+}
+.tutorial-ready {
+  max-height: 100%;
+  overflow-y: auto;
+}
+.tutorial-checklist {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 20px 0;
+  color: #c8dfa9;
+  font-size: 12px;
+}
+.tutorial-checklist > span {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+}
+.tutorial-ready > small {
+  display: block;
+  margin-top: 16px;
+  color: #b3c6b7;
+  font-size: 10px;
+  line-height: 1.8;
+}
+@media (max-height: 680px) {
+  .story-screen {
+    padding-top: 12px;
+    padding-bottom: 10px;
+  }
+  .story-illustration {
+    height: 145px;
+  }
+  .story-copy {
+    padding-top: 12px;
+  }
+  .story-copy h2 {
+    font-size: 26px;
+    margin-bottom: 10px;
+  }
+  .story-copy p {
+    font-size: 12px;
+  }
+  .tutorial-coach {
+    bottom: max(20px, env(safe-area-inset-bottom));
+    padding: 12px;
+  }
+  .tutorial-coach h3 {
+    font-size: 17px;
+  }
+  .tutorial-coach p {
+    font-size: 11px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-screen *,
+  .tutorial-coach * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
