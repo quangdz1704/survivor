@@ -60,10 +60,10 @@ export class PetActor {
           this.beamTarget.x,
           this.beamTarget.y,
         );
-    const tx = x - 43,
-      ty = y + 12 + Math.sin(this.age * 3) * 3;
+    const tx = x - 68,
+      ty = y + 28 + Math.sin(this.age * 3) * 3;
     if (!this.image.visible) this.image.setPosition(tx, ty);
-    this.image.setTexture(`pet-${id}`).setDisplaySize(47, 47).setVisible(true);
+    this.image.setTexture(`pet-${id}`).setDisplaySize(54, 54).setVisible(true);
     const targetX = this.dash?.x ?? tx,
       targetY = this.dash?.y ?? ty;
     this.image.x += (targetX - this.image.x) * (1 - Math.exp(-7 * dt));
@@ -71,6 +71,9 @@ export class PetActor {
     this.image.setDepth(this.image.y);
     this.image.setAngle(Math.sin(this.age * 5) * 2);
     if (this.dash) {
+      this.beam
+        .lineStyle(5, 0xffbd73, 0.6)
+        .lineBetween(this.image.x, this.image.y, this.dash.x, this.dash.y);
       this.dash.remaining -= dt;
       if (this.dash.remaining <= 0) {
         const target = this.dash.enemy;

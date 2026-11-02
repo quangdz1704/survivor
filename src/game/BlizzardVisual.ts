@@ -39,9 +39,9 @@ export class BlizzardVisual {
       .setDepth(y + 80)
       .setVisible(true);
     // A cool, open center lets the player and enemy silhouettes stay legible.
-    this.ground.fillStyle(0xa3e8f5, 0.035 * fade).fillCircle(0, 0, radius);
+    this.ground.fillStyle(0xa3e8f5, 0.06 * fade).fillCircle(0, 0, radius);
     this.ground
-      .fillStyle(0xbceff8, 0.025 * fade)
+      .fillStyle(0xbceff8, 0.04 * fade)
       .fillCircle(0, 0, radius * 0.82);
     // Broken frost at the true damage boundary replaces the hard UI-like ring.
     for (let i = 0; i < 14; i++) {
@@ -65,10 +65,19 @@ export class BlizzardVisual {
           );
       }
     }
+    // Ice teeth stay inside the true range and reinforce the frost silhouette.
+    for (let i = 0; i < 10; i++) {
+      const a = (i * TAU) / 10 + Math.sin(this.age * 0.5) * 0.04;
+      const cx = Math.cos(a) * (radius - 7),
+        cy = Math.sin(a) * (radius - 7);
+      this.ground
+        .fillStyle(0xbcefff, 0.26 * fade)
+        .fillTriangle(cx - 4, cy + 2, cx, cy - 10, cx + 4, cy + 2);
+    }
     if (fullEffects) {
       for (let i = 0; i < 4; i++) {
-        this.ribbon(i, 11, 0.055 * fade, radius / 158);
-        this.ribbon(i, 3.2, 0.38 * fade, radius / 158);
+        this.ribbon(i, 9, 0.09 * fade, radius / 158);
+        this.ribbon(i, 3.8, 0.52 * fade, radius / 158);
       }
     }
     const count = fullEffects ? 32 : 9;
@@ -86,7 +95,7 @@ export class BlizzardVisual {
       } else {
         const length = fullEffects ? 3 + (i % 3) : 2;
         this.snow
-          .lineStyle(i % 3 === 0 ? 1.8 : 1.1, 0xecfcff, opacity * 0.75)
+          .lineStyle(i % 3 === 0 ? 1.8 : 1.1, 0xecfcff, opacity * 0.9)
           .lineBetween(sx, sy, sx - tx * length, sy - ty * length);
       }
     }
