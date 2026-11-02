@@ -1,3 +1,4 @@
+import { RAGE } from "../../core/combatBalance";
 import { Flame } from "lucide-react";
 import { useUI } from "../store";
 import { bridge } from "../../game/bridge";
@@ -5,7 +6,8 @@ import { RAGE_NAMES } from "../../game/RageCombat";
 export function RageControl() {
   const stats = useUI((s) => s.stats),
     mode = useUI((s) => s.mode),
-    active = stats.rageRemaining > 0;
+    active = stats.rageRemaining > 0,
+    exhausted = stats.rageUses >= RAGE.maxUses;
   return (
     <div
       className={`rage-control ${stats.mana >= 100 ? "rage-ready" : ""} ${active ? "rage-active" : ""}`}
@@ -13,11 +15,11 @@ export function RageControl() {
       <button
         className="rage-button"
         aria-label={`Cuồng nộ: ${RAGE_NAMES[stats.rageWeapon]}, mana ${Math.floor(stats.mana)} trên 100`}
-        disabled={mode !== "playing" || stats.mana < 100 || active}
+        disabled={mode !== "playing" || stats.mana < 100 || active || exhausted}
         onClick={() => bridge.send("rage", undefined)}
         style={
           {
-            "--mana": `${active ? (stats.rageRemaining / 6) * 100 : stats.mana}%`,
+            "--mana": `${active ? (stats.rageRemaining / RAGE.duration) * 100 : stats.mana}%`,
           } as React.CSSProperties
         }
       >
@@ -26,12 +28,18 @@ export function RageControl() {
         <strong>
           {active
             ? `${stats.rageRemaining.toFixed(1)}s`
-            : stats.mana >= 100
-              ? "CUỒNG NỘ"
-              : `${Math.floor(stats.mana)}%`}
+            : exhausted
+              ? "ĐÃ DÙNG HẾT"
+              : stats.mana >= 100
+                ? "CUỒNG NỘ"
+                : `${Math.floor(stats.mana)}%`}
         </strong>
       </button>
-      <small>{RAGE_NAMES[stats.rageWeapon]}</small>
+      <small>
+        {RAGE_NAMES[stats.rageWeapon]}
+        <br />
+        {stats.rageUses}/{RAGE.maxUses} lần trong lượt
+      </small>
     </div>
   );
 }

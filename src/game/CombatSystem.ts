@@ -1,3 +1,4 @@
+import { EVOLVED } from "../core/combatBalance";
 import Phaser from "phaser";
 import { weaponConfig, WEAPONS, evolutionFor } from "../core/game";
 import type { RunModel, WeaponId } from "../core/game";
@@ -187,11 +188,11 @@ export class CombatSystem {
         continue;
       const config = weaponConfig(weapon, level, run.stats);
       if (evolved && weapon === "leaf") {
-        config.count = 8 + Math.max(0, level - 6);
-        config.speed = 420;
-        config.range = 300;
-        config.damage *= 1.35;
-        config.interval *= 0.85;
+        config.count = EVOLVED.leaf.count + Math.max(0, level - 6);
+        config.speed = EVOLVED.leaf.speed;
+        config.range = EVOLVED.leaf.range;
+        config.damage *= EVOLVED.leaf.damage;
+        config.interval *= EVOLVED.leaf.interval;
       }
       if (evolved) {
         config.damage *= run.mastery(weapon, "power");

@@ -120,13 +120,13 @@ describe("pooled new weapons", () => {
     run.weapons.frost = 6;
     run.evolutions.blizzard = true;
     step(0.8);
-    expect(hit).toHaveBeenCalledTimes(2);
+    expect(hit).toHaveBeenCalledTimes(1);
     const attacks = combat.attacks;
     run.finish(false);
     combat.stop();
     step(1);
     expect(combat.attacks).toBe(attacks);
-    expect(hit).toHaveBeenCalledTimes(2);
+    expect(hit).toHaveBeenCalledTimes(1);
     combat.reset();
     expect(combat.attacks).toBe(0);
   });
@@ -159,7 +159,7 @@ describe("pooled new weapons", () => {
     const dead = { ...enemy, id: 3, living: false } as EnemyActor;
     grid.rebuild([enemy, outside, dead]);
     step(1.2);
-    expect(hit).toHaveBeenCalledTimes(3);
+    expect(hit).toHaveBeenCalledTimes(1);
     expect(
       hit.mock.calls.every((call) => call[0] === enemy && call[4] === "frost"),
     ).toBe(true);
@@ -249,7 +249,7 @@ describe("continued evolution effects", () => {
     const { run, enemy, grid, step, hit } = setup("frost");
     run.evolutions.blizzard = true;
     run.weapons.frost = 6;
-    enemy.x = 200;
+    enemy.x = 160;
     grid.rebuild([enemy]);
     step(0.4);
     expect(hit).not.toHaveBeenCalled();
@@ -257,7 +257,7 @@ describe("continued evolution effects", () => {
     run.masteries["frost-power"] = 2;
     step(0.4);
     expect(hit).toHaveBeenCalledTimes(1);
-    expect(hit.mock.calls[0][1]).toBeCloseTo(10 * 1.15 * 2.4 * 1.25 * 1.3);
+    expect(hit.mock.calls[0][1]).toBeCloseTo(10 * 1.15 * 2.4 * 0.7 * 1.24);
   });
 });
 

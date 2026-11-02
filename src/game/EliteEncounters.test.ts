@@ -58,7 +58,7 @@ describe("elite attack and treasure runtime", () => {
     expect(enemy.charging).toBeGreaterThan(0);
     expect(hurt).not.toHaveBeenCalled();
     step(0.5, 1090, 1000);
-    expect(hurt).toHaveBeenCalledExactlyOnceWith(12);
+    expect(hurt).toHaveBeenCalledExactlyOnceWith(28);
     encounters.reset();
     step(10);
     expect(hurt).toHaveBeenCalledTimes(1);

@@ -1,3 +1,6 @@
+import { EquipmentDrops } from "./EquipmentDrops";
+import { rollGear } from "../core/equipment";
+import { RAGE, EVOLVED } from "../core/combatBalance";
 import Phaser from "phaser";
 import { PlayerActor } from "./PlayerActor";
 import { PlayerMotion } from "./PlayerMotion";
@@ -54,6 +57,7 @@ export class ForestScene extends Phaser.Scene {
   private hostile!: HostileAttacks;
   private rage!: RageCombat;
   private pet!: PetActor;
+  private equipmentDrops!: EquipmentDrops;
   private bossPattern = 0;
   private encounters!: EliteEncounters;
   private relicTargets: EnemyActor[] = [];
@@ -98,6 +102,7 @@ export class ForestScene extends Phaser.Scene {
     this.hostile = new HostileAttacks(this);
     this.rage = new RageCombat(this, this.effects);
     this.pet = new PetActor(this, this.effects);
+    this.equipmentDrops = new EquipmentDrops(this, this.effects);
     this.encounters = new EliteEncounters(this, this.effects);
     this.pickups = new Pickups(this, this.effects);
     this.shadow = this.add
@@ -197,6 +202,7 @@ export class ForestScene extends Phaser.Scene {
     this.hostile.reset();
     this.rage.reset();
     this.pet.reset();
+    this.equipmentDrops.reset();
     this.encounters.reset();
     this.pickups.clear();
     this.effects.clear();
@@ -550,6 +556,7 @@ export class ForestScene extends Phaser.Scene {
       this.heartBlast(),
     );
     if (run.ended) return;
+    this.equipmentDrops.update(dt, this.player.x, this.player.y, run);
     const treasure = this.encounters.collect(this.player.x, this.player.y, run);
     this.effects.update(dt);
     if (run.pending) {
@@ -640,7 +647,7 @@ export class ForestScene extends Phaser.Scene {
           this.invincible === 0
         ) {
           this.hurtPlayer(
-            25 * DIFFICULTIES[this.run!.profile.campaign.difficulty].damage,
+            42 * DIFFICULTIES[this.run!.profile.campaign.difficulty].damage,
           );
           if (this.run!.hp <= 0) this.finish(false);
         }
@@ -662,7 +669,7 @@ export class ForestScene extends Phaser.Scene {
               angle,
               9,
               Math.PI * 1.5,
-              24,
+              34,
               false,
               155,
             );
@@ -672,7 +679,7 @@ export class ForestScene extends Phaser.Scene {
                 this.player.x + Math.cos(i * 1.256) * 95,
                 this.player.y + Math.sin(i * 1.256) * 95,
                 58,
-                30,
+                44,
                 false,
                 0.9,
               );
@@ -708,7 +715,7 @@ export class ForestScene extends Phaser.Scene {
           x + Math.cos(a) * r,
           y + Math.sin(a) * r,
           ice ? 62 : 72,
-          ice ? 34 : 32,
+          ice ? 48 : 46,
           ice,
           0.95 + i * 0.1,
         );
@@ -722,7 +729,7 @@ export class ForestScene extends Phaser.Scene {
         angle,
         enraged ? 13 : 9,
         ice ? Math.PI * 2 : Math.PI * 0.9,
-        ice ? 27 : 29,
+        ice ? 40 : 42,
         ice,
         ice ? 175 : 155,
       );
@@ -734,14 +741,14 @@ export class ForestScene extends Phaser.Scene {
         boss.x,
         boss.y,
         ice ? 30 : 40,
-        ice ? 38 : 40,
+        ice ? 52 : 54,
         ice,
         1.1,
         boss.x + dx,
         boss.y + dy,
       );
       if (enraged)
-        this.hostile.zone(x - 130, y + 80, 50, 32, ice, 1.25, x + 130, y - 80);
+        this.hostile.zone(x - 130, y + 80, 50, 46, ice, 1.25, x + 130, y - 80);
     }
     this.effects.ring(boss.x, boss.y, 45, ice ? 0xb4edff : 0xffbe7b, 300);
     audioManager.play(ice ? "frost" : "fireball");
@@ -780,8 +787,8 @@ export class ForestScene extends Phaser.Scene {
       const rank = this.run!.weapons.frost;
       const evolved = this.run!.evolutions.blizzard;
       enemy.chill.apply(
-        evolved ? 1.8 : 1.4 + (rank - 1) * 0.16,
-        evolved ? 0.48 : 0.3 + rank * 0.015,
+        evolved ? EVOLVED.frost.slowDuration : 1.4 + (rank - 1) * 0.16,
+        evolved ? EVOLVED.frost.slow : 0.3 + rank * 0.015,
         isBoss(enemy.kind) || !!enemy.elite,
       );
     }
@@ -795,9 +802,15 @@ export class ForestScene extends Phaser.Scene {
     audioManager.play("hit");
     if (enemy.hp === 0) {
       this.run!.kills++;
-      this.run!.gainMana(enemy.elite || isBoss(enemy.kind) ? 10 : 2);
+      this.run!.gainMana(
+        enemy.elite || isBoss(enemy.kind)
+          ? RAGE.manaPerElite
+          : RAGE.manaPerKill,
+      );
       enemy.die();
       this.encounters.defeat(enemy, this.run!);
+      if (enemy.elite)
+        this.equipmentDrops.spawn(rollGear(this.random), enemy.x + 46, enemy.y);
       this.pickups.spawn(enemy.x, enemy.y, enemy.xp);
       if (!isBoss(enemy.kind) && this.random() < 0.045)
         this.pickups.spawn(enemy.x + 10, enemy.y, 8, "heal");
@@ -836,6 +849,7 @@ export class ForestScene extends Phaser.Scene {
     this.encounters.reset();
     this.rage.reset();
     this.pet.reset();
+    this.equipmentDrops.reset();
     this.hostile.reset();
     this.motion.reset();
     this.move = { x: 0, y: 0 };
@@ -857,6 +871,7 @@ export class ForestScene extends Phaser.Scene {
       hp: run.hp,
       mana: run.mana,
       rageRemaining: run.rageRemaining,
+      rageUses: run.rageUses,
       rageWeapon: run.rageWeapon,
       map: run.profile.campaign.map,
       difficulty: run.profile.campaign.difficulty,

@@ -29,7 +29,7 @@ describe("permanent equipment, pets and campaign", () => {
     expect(saved.campaign.completed).toContain("forest:normal");
     expect(mapUnlocked(saved, "ashlands")).toBe(true);
     expect(saved.loadout.inventory.dawnblade).toBe(1);
-    expect(saved.loadout.pet).toBeNull();
+    expect(saved.loadout.pet).toBe("fox");
   });
   it("rejects invalid slot IDs, unowned pets and corrupt ranks without wiping valid inventory", () => {
     const saved = sanitizeProfile({
@@ -136,4 +136,100 @@ describe("permanent equipment, pets and campaign", () => {
     expect(saved.loadout.pet).toBe("fox");
     reload.close();
   });
+});
+
+it("draws gear only after paying, applies its bonus when equipped, and never crafts unowned gear", async () => {
+  const { drawEquipment, EQUIPMENT_DRAW_COST } = await import("./equipment");
+  const poor = newProfile();
+  let rolls = 0;
+  expect(
+    drawEquipment(poor, () => {
+      rolls++;
+      return 0.76;
+    }).profile,
+  ).toBe(poor);
+  expect(rolls).toBe(0);
+  const wealthy = {
+    ...poor,
+    gold: EQUIPMENT_DRAW_COST,
+    loadout: { ...poor.loadout, essence: 100 },
+  };
+  const rich = { ...wealthy, gold: 1000 };
+  expect(improveGear(rich, "cinderwand")).toBe(rich);
+  const drawn = drawEquipment(wealthy, () => 0.76);
+  expect(drawn.item).toBe("cinderwand");
+  expect(drawn.profile.gold).toBe(0);
+  expect(drawn.duplicate).toBe(false);
+  expect(new RunModel(drawn.profile).stats.damage).toBe(10);
+  const equipped = equipGear(drawn.profile, "cinderwand");
+  expect(new RunModel(equipped).stats.damage).toBe(12);
+  const again = drawEquipment(
+    { ...equipped, gold: EQUIPMENT_DRAW_COST },
+    () => 0.76,
+  );
+  expect(again.duplicate).toBe(true);
+  expect(again.profile.loadout.essence).toBe(105);
+  expect(again.profile.loadout.inventory.cinderwand).toBe(1);
+});
+it("settles picked-up gear together with the completion reward once and preserves upgraded duplicates", () => {
+  const profile = newProfile();
+  profile.loadout.inventory.cinderwand = 4;
+  const result = {
+    id: "picked",
+    victory: false,
+    time: 80,
+    kills: 50,
+    level: 4,
+    gold: 0,
+    essence: 3,
+    collectedGear: ["cinderwand", "frostcrown"] as const,
+  };
+  const settled = settleResult(profile, {
+    ...result,
+    collectedGear: [...result.collectedGear],
+  });
+  expect(settled.loadout.inventory.cinderwand).toBe(4);
+  expect(settled.loadout.inventory.frostcrown).toBe(1);
+  expect(settled.loadout.essence).toBe(8);
+  expect(
+    settleResult(settled, {
+      ...result,
+      collectedGear: [...result.collectedGear],
+    }),
+  ).toBe(settled);
+});
+it("serializes two equipment draws so one affordable payment gives exactly one item", async () => {
+  const { drawEquipment, EQUIPMENT_DRAW_COST } = await import("./equipment");
+  const db = new IDBFactory(),
+    repo = new ProfileRepository(db, "draw-atomic");
+  await repo.update((p) => ({ ...p, gold: EQUIPMENT_DRAW_COST }));
+  await Promise.all([
+    repo.update((p) => drawEquipment(p, () => 0.76).profile),
+    repo.update((p) => drawEquipment(p, () => 0.99).profile),
+  ]);
+  repo.close();
+  const reload = new ProfileRepository(db, "draw-atomic"),
+    saved = await reload.load();
+  expect(saved.gold).toBe(0);
+  expect(saved.loadout.inventory.cinderwand).toBe(1);
+  expect(saved.loadout.inventory.mooncharm).toBe(0);
+  reload.close();
+});
+
+it("starts with one gift weapon, keeps rare loot discoverable, and preserves existing collections", async () => {
+  const { GEAR, GEAR_IDS, rollGear } = await import("./equipment");
+  const fresh = newProfile();
+  expect(GEAR_IDS.filter((id) => fresh.loadout.inventory[id] > 0)).toEqual([
+    "dawnblade",
+  ]);
+  expect(fresh.loadout.pet).toBe("fox");
+  const rare = rollGear(() => 0.2);
+  expect(GEAR[rare].tier).toBe("rare");
+  expect(fresh.loadout.inventory[rare]).toBe(0);
+  const old = newProfile();
+  for (const id of GEAR_IDS)
+    old.loadout.inventory[id] = GEAR[id].tier === "rare" ? 3 : 0;
+  const saved = sanitizeProfile(old);
+  for (const id of GEAR_IDS.filter((id) => GEAR[id].tier === "rare"))
+    expect(saved.loadout.inventory[id]).toBe(3);
 });

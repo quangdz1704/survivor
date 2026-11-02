@@ -92,3 +92,22 @@ it("selects the owned rage through the weapon rack and sends exactly one activat
     offSelect();
   }
 });
+
+it("shows the exhausted two-use limit instead of offering another rage", () => {
+  const host = document.createElement("div"),
+    root = createRoot(host);
+  useUI.setState({
+    mode: "playing",
+    stats: { ...emptySnapshot(), mana: 100, rageUses: 2 },
+  });
+  try {
+    act(() => root.render(<RageControl />));
+    expect(
+      host.querySelector<HTMLButtonElement>(".rage-button")!.disabled,
+    ).toBe(true);
+    expect(host.textContent).toContain("ĐÃ DÙNG HẾT");
+    expect(host.textContent).toContain("2/2");
+  } finally {
+    act(() => root.unmount());
+  }
+});

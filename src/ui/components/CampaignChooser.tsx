@@ -130,9 +130,9 @@ export function CampaignChooser({ close }: { close: () => void }) {
         </div>
         <p className="campaign-intro">
           {difficulty === "nightmare"
-            ? "Mật độ cực cao, quái nhanh hơn 22%, sát thương gấp đôi. Chuẩn bị trang bị, pet và dành cuồng nộ cho lúc bị vây."
+            ? "Mật độ cực cao, quái nhanh hơn 28%, sát thương ×2,3. Chuẩn bị trang bị, pet và dành cuồng nộ cho lúc bị vây."
             : difficulty === "hard"
-              ? "Quái bền hơn 60%, sát thương tăng 40%. Dành cho người đã nắm nhịp né chưởng."
+              ? "Quái bền hơn 90%, sát thương tăng 55%. Dành cho người đã nắm nhịp né chưởng."
               : "Năm phút sống sót, hai mini-boss và một trận đánh trùm cuối."}
         </p>
         <button

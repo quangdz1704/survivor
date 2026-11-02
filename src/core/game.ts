@@ -1,10 +1,11 @@
+import { RAGE, EVOLVED } from "./combatBalance";
 import { MASTERY, MASTERY_IDS, initialMasteries, isMastery } from "./mastery";
 import type { MasteryId } from "./mastery";
 import { ELITE_IDS, ELITES, initialElites } from "./encounters";
 import type { EliteId } from "./encounters";
 import { RELIC_IDS, RELICS } from "./relics";
 import type { RelicId } from "./relics";
-import { gearBonuses, initialLoadout, GEAR_IDS } from "./equipment";
+import { gearBonuses, initialLoadout, GEAR_IDS, grantGear } from "./equipment";
 import type { Loadout, GearId } from "./equipment";
 import { DIFFICULTIES, initialCampaign } from "./campaign";
 import type { Campaign, MapId, DifficultyId } from "./campaign";
@@ -89,7 +90,7 @@ export const EVOLUTIONS: Record<
     weaponRank: 6,
     passiveRank: 2,
     description:
-      "Tám lá sắc bung theo đường xoáy, xuyên quái rồi trở về bên bạn.",
+      "Bốn lá sắc bung theo đường xoáy, xuyên quái rồi trở về. Nâng cấp để thêm lá và tầm phủ.",
   },
 };
 export const initialEvolutions = (): Record<EvolutionId, boolean> => ({
@@ -158,6 +159,7 @@ export interface RunResult {
   difficulty?: DifficultyId;
   essence?: number;
   gearDrop?: GearId;
+  collectedGear?: GearId[];
 }
 export interface UpgradeChoice {
   id: UpgradeId;
@@ -224,13 +226,13 @@ export const ENEMIES: Record<
   bat: { hp: 12, damage: 4, speed: 65, xp: 4, radius: 15 },
   skeleton: { hp: 40, damage: 8, speed: 56, xp: 8, radius: 19 },
   orc: { hp: 100, damage: 15, speed: 34, xp: 18, radius: 25 },
-  golem: { hp: 1500, damage: 25, speed: 40, xp: 100, radius: 43 },
+  golem: { hp: 4200, damage: 38, speed: 40, xp: 100, radius: 43 },
   "ash-imp": { hp: 28, damage: 9, speed: 62, xp: 7, radius: 16 },
   "ember-beetle": { hp: 145, damage: 20, speed: 30, xp: 20, radius: 25 },
   "frost-wolf": { hp: 60, damage: 12, speed: 78, xp: 12, radius: 22 },
   "ice-wisp": { hp: 32, damage: 10, speed: 48, xp: 7, radius: 16 },
-  "ember-drake": { hp: 2300, damage: 34, speed: 44, xp: 180, radius: 49 },
-  "frost-warden": { hp: 2900, damage: 38, speed: 36, xp: 220, radius: 48 },
+  "ember-drake": { hp: 6200, damage: 48, speed: 44, xp: 180, radius: 49 },
+  "frost-warden": { hp: 7600, damage: 54, speed: 36, xp: 220, radius: 48 },
 };
 export const UPGRADE_NAMES: Record<UpgradeId, string> = {
   sword: "Kiếm phép",
@@ -369,11 +371,11 @@ export function settleResult(profile: Profile, result: RunResult): Profile {
     Math.floor(
       result.time / 20 + result.kills / 30 + (result.victory ? 10 : 0),
     );
-  const drop =
-    result.gearDrop && GEAR_IDS.includes(result.gearDrop)
-      ? result.gearDrop
-      : undefined;
-  const duplicateDrop = drop && profile.loadout.inventory[drop] > 0;
+  const drops = [
+    ...(result.collectedGear ?? []).slice(0, 2),
+    ...(result.gearDrop ? [result.gearDrop] : []),
+  ].filter((id) => GEAR_IDS.includes(id));
+  const loadout = grantGear(profile.loadout, drops);
   return {
     ...profile,
     gold:
@@ -389,16 +391,7 @@ export function settleResult(profile: Profile, result: RunResult): Profile {
           ? [...profile.campaign.completed, completed]
           : profile.campaign.completed,
     },
-    loadout: {
-      ...profile.loadout,
-      essence: profile.loadout.essence + essence + (duplicateDrop ? 5 : 0),
-      inventory: drop
-        ? {
-            ...profile.loadout.inventory,
-            [drop]: Math.max(1, profile.loadout.inventory[drop]),
-          }
-        : profile.loadout.inventory,
-    },
+    loadout: { ...loadout, essence: loadout.essence + essence },
     bestTime: Math.max(profile.bestTime, result.time),
     bestKills: Math.max(profile.bestKills, result.kills),
     totalRuns: profile.totalRuns + 1,
@@ -538,11 +531,13 @@ export class RunModel {
   masteries = initialMasteries();
   mana = 0;
   rageRemaining = 0;
+  rageUses = 0;
   rageWeapon: WeaponId;
   elites = initialElites();
   relics: RelicId[] = [];
   relicChoices: RelicId[] = [];
   stationaryTime = 0;
+  collectedGear: GearId[] = [];
   ranks: Record<PassiveId, number> = {
     damage: 0,
     haste: 0,
@@ -574,8 +569,8 @@ export class RunModel {
     if (this.relics.includes("rage") && this.hp <= stats.maxHp * 0.4)
       stats.attackSpeed *= 1.3;
     if (this.rageRemaining > 0) {
-      stats.damage *= 1.5;
-      stats.attackSpeed *= 1.35;
+      stats.damage *= RAGE.damageBonus;
+      stats.attackSpeed *= RAGE.attackSpeedBonus;
     }
     return stats;
   }
@@ -584,6 +579,7 @@ export class RunModel {
       !this.ended &&
       !this.pending &&
       this.rageRemaining <= 0 &&
+      this.rageUses < RAGE.maxUses &&
       Number.isFinite(amount)
     )
       this.mana = Math.min(100, Math.max(0, this.mana + amount));
@@ -593,10 +589,17 @@ export class RunModel {
       this.rageWeapon = weapon;
   }
   activateRage() {
-    if (this.ended || this.pending || this.mana < 100 || this.rageRemaining > 0)
+    if (
+      this.ended ||
+      this.pending ||
+      this.mana < 100 ||
+      this.rageRemaining > 0 ||
+      this.rageUses >= RAGE.maxUses
+    )
       return false;
     this.mana = 0;
-    this.rageRemaining = 6;
+    this.rageRemaining = RAGE.duration;
+    this.rageUses++;
     return true;
   }
   weaponLimit(weapon: WeaponId) {
@@ -608,7 +611,9 @@ export class RunModel {
   mastery(weapon: WeaponId, kind: "power" | "area") {
     const id = `${weapon}-${kind}`;
     return isMastery(id)
-      ? 1 + this.masteries[id] * (kind === "power" ? 0.15 : 0.08)
+      ? 1 +
+          this.masteries[id] *
+            (kind === "power" ? EVOLVED.powerPerRank : EVOLVED.areaPerRank)
       : 1;
   }
   get pending() {
@@ -791,7 +796,7 @@ export class RunModel {
       const elapsed = Math.max(0, dt);
       this.time += elapsed;
       this.rageRemaining = Math.max(0, this.rageRemaining - elapsed);
-      this.gainMana(elapsed * 0.4);
+      this.gainMana(elapsed * RAGE.manaPerSecond);
     }
   }
   hurt(damage: number) {
@@ -818,6 +823,7 @@ export class RunModel {
         (this.time / 20 + this.kills / 30 + (victory ? 10 : 0)) *
           DIFFICULTIES[this.profile.campaign.difficulty].reward,
       ),
+      collectedGear: [...this.collectedGear],
       gearDrop:
         this.time >= 60 || victory
           ? GEAR_IDS[

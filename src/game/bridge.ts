@@ -18,6 +18,7 @@ export interface Snapshot {
   hp: number;
   mana: number;
   rageRemaining: number;
+  rageUses: number;
   rageWeapon: WeaponId;
   map: MapId;
   difficulty: DifficultyId;
@@ -46,6 +47,7 @@ export const emptySnapshot = (): Snapshot => ({
   hp: 100,
   mana: 0,
   rageRemaining: 0,
+  rageUses: 0,
   rageWeapon: "sword",
   map: "forest",
   difficulty: "normal",

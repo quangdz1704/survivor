@@ -17,6 +17,7 @@ import {
   Sparkles,
   PawPrint,
   ChevronRight,
+  PackageOpen,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { HEROES, statsFor } from "../../core/game";
@@ -36,6 +37,8 @@ import {
   improvePet,
   gearCost,
   petCost,
+  drawEquipment,
+  EQUIPMENT_DRAW_COST,
 } from "../../core/equipment";
 import type { GearId, GearSlot, PetId } from "../../core/equipment";
 import { profileRepository } from "../../core/profile";
@@ -66,14 +69,16 @@ export function Armory({
   close,
   chooseHero,
   permanent,
+  initialTab = "gear",
 }: {
   close: () => void;
   chooseHero: () => void;
   permanent: () => void;
+  initialTab?: "gear" | "pets";
 }) {
   const dialog = useDialogFocus();
   const profile = useUI((s) => s.profile);
-  const [tab, setTab] = useState<"gear" | "pets">("gear");
+  const [tab, setTab] = useState<"gear" | "pets">(initialTab);
   const [selected, setSelected] = useState<GearId>("dawnblade");
   const [pet, setPet] = useState<PetId>(profile.loadout.pet ?? "fox");
   const [busy, setBusy] = useState(false),
@@ -87,7 +92,11 @@ export function Armory({
   const companion = PETS[pet],
     petLevel = profile.loadout.pets[pet],
     companionCost = petCost(petLevel);
-  async function save(mutator: (p: Profile) => Profile, success: string) {
+  async function save(
+    mutator: (p: Profile) => Profile,
+    success: string | (() => string),
+    afterSave?: () => void,
+  ) {
     if (lock.current) return;
     lock.current = true;
     setBusy(true);
@@ -103,10 +112,15 @@ export function Armory({
       useUI.setState({ storageAvailable: profileRepository.available });
       setMessage(
         changed
-          ? success
+          ? typeof success === "function"
+            ? success()
+            : success
           : "Hành trang đã thay đổi. Hãy kiểm tra lại vàng và tinh hoa.",
       );
-      if (changed) audioManager.play("level");
+      if (changed) {
+        audioManager.play("level");
+        afterSave?.();
+      }
     } finally {
       lock.current = false;
       setBusy(false);
@@ -270,6 +284,42 @@ export function Armory({
         </nav>
         {tab === "gear" ? (
           <>
+            <div className="equipment-draw">
+              <div>
+                <strong>Rương trang bị</strong>
+                <small>75% Hiếm · 25% Sử thi · đồ trùng +5 tinh hoa</small>
+              </div>
+              <button
+                disabled={busy || profile.gold < EQUIPMENT_DRAW_COST}
+                onClick={() => {
+                  let reward = "";
+                  let rewardItem: GearId | null = null;
+                  let sample: number | undefined;
+                  void save(
+                    (p) => {
+                      const drawn = drawEquipment(
+                        p,
+                        () => (sample ??= Math.random()),
+                      );
+                      if (drawn.item) {
+                        rewardItem = drawn.item;
+                        reward = `${GEAR[drawn.item].name}${drawn.duplicate ? " trùng: +5 tinh hoa." : " mới: đã vào kho, hãy trang bị để cộng chỉ số."}`;
+                      }
+                      return drawn.profile;
+                    },
+                    () => reward,
+                    () => {
+                      if (rewardItem) setSelected(rewardItem);
+                    },
+                  );
+                }}
+              >
+                <PackageOpen size={18} />
+                <span>
+                  Quay 1 lần<small>{EQUIPMENT_DRAW_COST} vàng</small>
+                </span>
+              </button>
+            </div>
             <div className="gear-collection">
               {GEAR_IDS.map((id) => (
                 <button
@@ -284,7 +334,7 @@ export function Armory({
                   <small>
                     {profile.loadout.inventory[id]
                       ? `+${profile.loadout.inventory[id]}`
-                      : "CHẾ TẠO"}
+                      : "CHƯA CÓ"}
                   </small>
                   {profile.loadout.equipped[GEAR[id].slot] === id && (
                     <Check className="equipped-check" size={12} />
@@ -356,6 +406,7 @@ export function Armory({
                   className="forge-button"
                   disabled={
                     busy ||
+                    !level ||
                     level >= MAX_GEAR_LEVEL ||
                     profile.gold < cost.gold ||
                     profile.loadout.essence < cost.essence
@@ -373,9 +424,11 @@ export function Armory({
                       ? "TỐI ĐA"
                       : level
                         ? "Nâng cấp"
-                        : "Chế tạo"}
+                        : "Chưa sở hữu"}
                     <small>
-                      {cost.gold} vàng · {cost.essence} tinh hoa
+                      {level
+                        ? `${cost.gold} vàng · ${cost.essence} tinh hoa`
+                        : "Nhặt trong trận hoặc quay rương"}
                     </small>
                   </span>
                 </button>
@@ -463,7 +516,7 @@ export function Armory({
           {busy
             ? "Đang lưu hành trang…"
             : message ||
-              "Sống sót 60 giây để nhận trang bị. Món trùng đổi thành 5 tinh hoa."}
+              "Nhặt túi đồ từ mini-boss hoặc quay rương bằng vàng. Đồ nhặt vào kho khi kết thúc trận; trang bị vào ô để cộng chỉ số."}
         </p>
         <button
           className="armory-permanent"

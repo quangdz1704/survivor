@@ -34,7 +34,7 @@ import { HeroChooser } from "./components/HeroChooser";
 import { CampaignChooser } from "./components/CampaignChooser";
 import { RageControl } from "./components/RageControl";
 import { MAPS, DIFFICULTIES } from "../core/campaign";
-import { GEAR } from "../core/equipment";
+import { GEAR, PETS } from "../core/equipment";
 import { Armory } from "./components/Armory";
 import { observeUpdate, applyUpdate } from "../pwa";
 interface InstallPrompt extends Event {
@@ -55,6 +55,7 @@ export function App() {
   const [settingsOpen, setSettingsOpen] = useState(false),
     [heroesOpen, setHeroesOpen] = useState(false),
     [armoryOpen, setArmoryOpen] = useState(false),
+    [armoryTab, setArmoryTab] = useState<"gear" | "pets">("gear"),
     [campaignOpen, setCampaignOpen] = useState(false),
     [shop, setShop] = useState(false),
     [guide, setGuide] = useState(false),
@@ -263,6 +264,26 @@ export function App() {
                 <small>{hero.title.toUpperCase()} · ĐỔI NHÂN VẬT</small>
               </button>
             </div>
+            <button
+              className="camp-companion"
+              onClick={() => {
+                setArmoryTab("pets");
+                setArmoryOpen(true);
+              }}
+            >
+              {profile.loadout.pet ? (
+                <img src={PETS[profile.loadout.pet].image} alt="" />
+              ) : (
+                <Sparkles size={18} />
+              )}
+              <span>
+                {profile.loadout.pet
+                  ? `${PETS[profile.loadout.pet].name} · Cấp ${profile.loadout.pets[profile.loadout.pet]}`
+                  : "Chọn pet vào trận"}
+                <small>Đồng hành & tấn công</small>
+              </span>
+              <ChevronRight size={14} />
+            </button>
             <div className="menu-bottom">
               <button
                 className="chapter-card"
@@ -295,7 +316,12 @@ export function App() {
                 <ArrowRight size={23} />
               </button>
               <div className="camp-actions">
-                <button onClick={() => setArmoryOpen(true)}>
+                <button
+                  onClick={() => {
+                    setArmoryTab("gear");
+                    setArmoryOpen(true);
+                  }}
+                >
                   <Sparkles size={16} />
                   Hành trang
                 </button>
@@ -417,6 +443,13 @@ export function App() {
               </div>
               <p className="earned-loot">
                 +{result.essence ?? 0} tinh hoa
+                {!!result.collectedGear?.length && (
+                  <>
+                    <br />
+                    Đã nhặt:{" "}
+                    {result.collectedGear.map((id) => GEAR[id].name).join(", ")}
+                  </>
+                )}
                 {result.gearDrop && (
                   <>
                     <br />
@@ -450,6 +483,7 @@ export function App() {
         {settingsOpen && <SettingsPanel close={() => setSettingsOpen(false)} />}
         {armoryOpen && (
           <Armory
+            initialTab={armoryTab}
             close={() => setArmoryOpen(false)}
             chooseHero={() => {
               setArmoryOpen(false);
@@ -510,7 +544,7 @@ export function App() {
                 <p>
                   <strong>Thách đấu thủ lĩnh</strong>Mini-boss xuất hiện ở phút
                   1 và phút 3. Né vòng sáng hoặc đường lao; hạ chúng rồi nhặt
-                  rương để chọn bảo vật cho lượt chơi.
+                  rương để chọn bảo vật và túi trang bị để mang về trại.
                 </p>
               </div>
               <div className="guide-row">
@@ -518,8 +552,9 @@ export function App() {
                 <p>
                   <strong>Cuồng nộ và sức mạnh mới</strong>Hạ quái để nạp mana.
                   Chạm biểu tượng vũ khí để chọn chiêu; đủ100 mana, bấm Cuồng nộ
-                  hoặc SPACE. Kiếm trận, Bão tuyết và Lốc lá vẫn nhận nâng cấp
-                  sát thương, tầm phủ và đạn hỗ trợ sau tiến hóa.
+                  hoặc SPACE. Mỗi lần kéo dài 3 giây, tối đa 2 lần mỗi trận.
+                  Kiếm trận, Bão tuyết và Lốc lá vẫn nhận nâng cấp sát thương,
+                  tầm phủ và đạn hỗ trợ sau tiến hóa.
                 </p>
               </div>
               <button className="play-button compact" onClick={start}>
@@ -537,7 +572,7 @@ export function App() {
       </section>
       <footer className="desktop-footer">
         <span>
-          <span className="live-dot" /> SURVIVOR MINI 2.0
+          <span className="live-dot" /> SURVIVOR MINI 2.1
         </span>
         <span>
           WASD di chuyển <i>·</i> SPACE cuồng nộ <i>·</i> ESC tạm dừng

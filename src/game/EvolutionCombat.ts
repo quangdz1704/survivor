@@ -1,3 +1,4 @@
+import { EVOLVED } from "../core/combatBalance";
 import type Phaser from "phaser";
 import { weaponConfig } from "../core/game";
 import type { RunModel, WeaponId } from "../core/game";
@@ -14,8 +15,8 @@ export type WeaponHit = (
   dy: number,
   weapon: WeaponId,
 ) => void;
-export const SWORD_ARRAY_RADIUS = 86;
-export const BLIZZARD_RADIUS = 158;
+export const SWORD_ARRAY_RADIUS = EVOLVED.sword.radius;
+export const BLIZZARD_RADIUS = EVOLVED.frost.radius;
 
 /** Reused continuous-attack visuals and bounded per-target hit immunity. */
 export class EvolutionCombat {
@@ -101,10 +102,15 @@ export class EvolutionCombat {
             Math.hypot(enemy.x - sx, enemy.y - sy) > enemy.radius + 20
           )
             continue;
-          this.swordHits.set(enemy.id, this.time + 0.28 / stats.attackSpeed);
+          this.swordHits.set(
+            enemy.id,
+            this.time + EVOLVED.sword.hitInterval / stats.attackSpeed,
+          );
           hit(
             enemy,
-            config.damage * 1.7 * run.mastery("sword", "power"),
+            config.damage *
+              EVOLVED.sword.damage *
+              run.mastery("sword", "power"),
             enemy.x - x,
             enemy.y - y,
             "sword",
@@ -122,7 +128,7 @@ export class EvolutionCombat {
     if (run.evolutions.blizzard && run.weapons.frost > 0) {
       const r = BLIZZARD_RADIUS * run.mastery("frost", "area");
       this.blizzard.update(dt, x, y, r, this.effects.enabled);
-      const interval = 0.38 / stats.attackSpeed;
+      const interval = EVOLVED.frost.interval / stats.attackSpeed;
       this.frostClock = Math.min(interval, this.frostClock + dt);
       if (this.frostClock >= interval) {
         this.frostClock = 0;
@@ -130,7 +136,7 @@ export class EvolutionCombat {
         let struck = false;
         const damage =
           weaponConfig("frost", run.weapons.frost, stats).damage *
-          1.25 *
+          EVOLVED.frost.damage *
           run.mastery("frost", "power");
         for (const enemy of this.targets) {
           if (

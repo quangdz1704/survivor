@@ -2666,3 +2666,79 @@ button:active {
   min-width: 18px;
   text-align: right;
 }
+.equipment-draw {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 0 14px;
+}
+.equipment-draw > div {
+  display: grid;
+  gap: 5px;
+}
+.equipment-draw strong {
+  font-size: 13px;
+}
+.equipment-draw small {
+  display: block;
+  font-size: 9px;
+  color: #b6c5ad;
+  line-height: 1.4;
+}
+.equipment-draw button {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e6ca7a88;
+  background: #d9b569;
+  color: #233d30;
+  border-radius: 10px;
+  min-height: 48px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.equipment-draw button small {
+  color: #435237;
+  font-weight: 400;
+}
+.equipment-draw button:disabled {
+  opacity: 0.45;
+}
+.camp-companion {
+  position: absolute;
+  z-index: 2;
+  right: 24px;
+  top: 49%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 9px;
+  border: 1px solid #d8c28a55;
+  border-radius: 12px;
+  color: #f5e6bd;
+  background: #153e32e8;
+  text-align: left;
+}
+.camp-companion img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+.camp-companion span {
+  font-size: 9px;
+}
+.camp-companion small {
+  display: block;
+  font-size: 7px;
+  color: #b7c8aa;
+  margin-top: 3px;
+}
+@media (max-height: 740px) {
+  .camp-companion {
+    top: 42%;
+    right: 14px;
+  }
+}

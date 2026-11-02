@@ -163,11 +163,11 @@ export interface Loadout {
 }
 export const initialLoadout = (): Loadout => ({
   inventory: Object.fromEntries(
-    GEAR_IDS.map((id) => [id, GEAR[id].tier === "rare" ? 1 : 0]),
+    GEAR_IDS.map((id) => [id, id === "dawnblade" ? 1 : 0]),
   ) as Record<GearId, number>,
   equipped: {},
   pets: { fox: 1, owl: 0, sprout: 0 },
-  pet: null,
+  pet: "fox",
   essence: 0,
 });
 export const MAX_GEAR_LEVEL = 20,
@@ -200,6 +200,7 @@ export function improveGear(profile: Profile, id: GearId): Profile {
   const level = profile.loadout.inventory[id],
     cost = gearCost(level);
   if (
+    level < 1 ||
     level >= MAX_GEAR_LEVEL ||
     profile.gold < cost.gold ||
     profile.loadout.essence < cost.essence
@@ -258,4 +259,46 @@ export function gearBonuses(loadout: Loadout): Required<GearBonus> {
       total[stat as keyof GearBonus] += amount * factor;
   }
   return total;
+}
+
+export const EQUIPMENT_DRAW_COST = 200;
+export const DUPLICATE_ESSENCE = 5;
+/** Both found items and camp draws use the same ownership/duplicate rules. */
+export function grantGear(loadout: Loadout, items: readonly GearId[]): Loadout {
+  if (!items.length) return loadout;
+  const inventory = { ...loadout.inventory };
+  let essence = loadout.essence;
+  for (const id of items) {
+    if (!GEAR_IDS.includes(id)) continue;
+    if (inventory[id] > 0) essence += DUPLICATE_ESSENCE;
+    else inventory[id] = 1;
+  }
+  return { ...loadout, inventory, essence };
+}
+export function rollGear(random = Math.random): GearId {
+  const rolled = random();
+  const value = Number.isFinite(rolled)
+    ? Math.max(0, Math.min(0.999999, rolled))
+    : 0;
+  const epic = value >= 0.75;
+  const pool = GEAR_IDS.filter(
+    (id) => GEAR[id].tier === (epic ? "epic" : "rare"),
+  );
+  const fraction = epic ? (value - 0.75) / 0.25 : value / 0.75;
+  return pool[Math.min(pool.length - 1, Math.floor(fraction * pool.length))];
+}
+export function drawEquipment(profile: Profile, random = Math.random) {
+  if (profile.gold < EQUIPMENT_DRAW_COST)
+    return { profile, item: null, duplicate: false };
+  const item = rollGear(random),
+    duplicate = profile.loadout.inventory[item] > 0;
+  return {
+    profile: {
+      ...profile,
+      gold: profile.gold - EQUIPMENT_DRAW_COST,
+      loadout: grantGear(profile.loadout, [item]),
+    },
+    item,
+    duplicate,
+  };
 }

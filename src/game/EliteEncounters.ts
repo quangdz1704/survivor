@@ -171,7 +171,7 @@ export class EliteEncounters {
               this.effects.burst(slot.x, slot.y, color, 16);
               audioManager.play("fireball");
               if (Math.hypot(px - slot.x, py - slot.y) <= ELITE_PULSE_RADIUS)
-                hurt(12);
+                hurt(ELITES[slot.id].attackDamage);
               if (this.generation !== generation) return;
               this.endAttack(slot);
             } else {
@@ -197,7 +197,7 @@ export class EliteEncounters {
           if (
             nearSegment(px, py, oldX, oldY, enemy.x, enemy.y, enemy.radius + 13)
           )
-            hurt(18);
+            hurt(ELITES[slot.id].attackDamage);
           if (this.generation !== generation) return;
           this.ground
             .lineStyle(7, color, 0.35)
