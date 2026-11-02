@@ -5,6 +5,7 @@ import type { EnemyActor } from "./EnemyActor";
 import type { Effects } from "./Effects";
 import { RunModel, newProfile } from "../core/game";
 import type { EliteId } from "../core/encounters";
+import { CounterWindow } from "../core/counterplay";
 
 function setup(id: EliteId) {
   const lineWidths: number[] = [];
@@ -36,17 +37,36 @@ function setup(id: EliteId) {
     maxHp: 500,
     radius: 30,
     charging: 0,
+    counter: new CounterWindow(),
     living: true,
   } as EnemyActor;
   encounters.register(id, enemy);
   const hurt = vi.fn();
   const step = (seconds: number, x = 1000, y = 1000, fps = 60) => {
-    for (let i = 0; i < Math.round(seconds * fps); i++)
+    for (let i = 0; i < Math.round(seconds * fps); i++) {
       encounters.update(1 / fps, x, y, hurt);
+      enemy.counter.tick(1 / fps);
+    }
   };
   return { encounters, enemy, effects, hurt, step, lineWidths };
 }
 describe("elite attack and treasure runtime", () => {
+  it.each(["slime-king", "orc-captain"] as EliteId[])(
+    "%s opens a bounded counter window after a missed heavy attack",
+    (id) => {
+      const missed = setup(id);
+      missed.step(3.5, 1200, 1000);
+      missed.step(0.9, 1000, 1250);
+      expect(missed.hurt).not.toHaveBeenCalled();
+      expect(missed.enemy.counter.multiplier).toBe(1.5);
+      missed.step(2, 1000, 1250);
+      expect(missed.enemy.counter.multiplier).toBe(1);
+      const hit = setup(id);
+      hit.step(4.3, 1000, 1000);
+      expect(hit.hurt).toHaveBeenCalled();
+      expect(hit.enemy.counter.multiplier).toBe(1);
+    },
+  );
   it("paints a dash warning at the full collision capsule width", () => {
     const { step, enemy, lineWidths } = setup("orc-captain");
     step(3.5, 1200, 1000);

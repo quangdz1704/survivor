@@ -62,6 +62,23 @@ const enemy = (id: number, x: number, y = 0) =>
     chill: new SlowEffect(),
   }) as EnemyActor;
 describe("hostile warnings and budgets", () => {
+  it("reports hit geometry exactly once even when damage is ignored, and cancels unresolved windows on reset", () => {
+    const { scene } = setup(),
+      attack = new HostileAttacks(scene),
+      resolve = vi.fn();
+    attack.zone(0, 0, 40, 30, false, 0.5, 100, 0, resolve);
+    attack.update(0.51, 50, 40, () => {});
+    attack.update(0.1, 50, 40, () => {});
+    expect(resolve).toHaveBeenCalledExactlyOnceWith(true);
+    resolve.mockClear();
+    attack.zone(0, 0, 40, 30, false, 0.5, 100, 0, resolve);
+    attack.update(0.51, 50, 41, () => {});
+    expect(resolve).toHaveBeenCalledExactlyOnceWith(false);
+    resolve.mockClear();
+    attack.zone(0, 0, 40, 30, false, 0.5, 100, 0, resolve);
+    attack.update(0.51, 50, 0, () => attack.reset());
+    expect(resolve).not.toHaveBeenCalled();
+  });
   it("matches the warned circle and capsule, fires once, and sweeps fast bullets", () => {
     const { scene } = setup(),
       attack = new HostileAttacks(scene),

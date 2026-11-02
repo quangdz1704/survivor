@@ -26,6 +26,7 @@ interface Zone {
   damage: number;
   ice: boolean;
   fired: boolean;
+  onResolve?: (intersected: boolean) => void;
 }
 interface Fan {
   x: number;
@@ -73,8 +74,9 @@ export class HostileAttacks {
     wait = 0.85,
     bx = x,
     by = y,
+    onResolve?: (intersected: boolean) => void,
   ) {
-    if (this.zones.length >= 24) return;
+    if (this.zones.length >= 24) return false;
     this.zones.push({
       x,
       y,
@@ -86,7 +88,9 @@ export class HostileAttacks {
       wait,
       life: 0.28,
       fired: false,
+      onResolve,
     });
+    return true;
   }
   fan(
     x: number,
@@ -173,8 +177,11 @@ export class HostileAttacks {
       } else {
         if (!z.fired) {
           z.fired = true;
-          if (segmentDistance(px, py, z.x, z.y, z.bx, z.by) <= z.radius)
-            hurt(z.damage);
+          const intersected =
+            segmentDistance(px, py, z.x, z.y, z.bx, z.by) <= z.radius;
+          if (intersected) hurt(z.damage);
+          if (this.generation !== generation) return;
+          z.onResolve?.(intersected);
           if (this.generation !== generation) return;
         }
         z.life -= dt;

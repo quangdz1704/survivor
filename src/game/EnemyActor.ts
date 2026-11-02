@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { SlowEffect } from "./SlowEffect";
+import { CounterWindow } from "../core/counterplay";
 import { isBoss } from "../core/campaign";
 import { ENEMIES } from "../core/game";
 import type { EnemyKind } from "../core/game";
@@ -29,6 +30,7 @@ export class EnemyActor extends Phaser.GameObjects.Container {
   elite: EliteId | null = null;
   private bodyScale = 1;
   readonly chill = new SlowEffect();
+  readonly counter = new CounterWindow();
   private pose: Phaser.GameObjects.Container;
   private shadow: Phaser.GameObjects.Ellipse;
   private layers: Phaser.GameObjects.Image[] = [];
@@ -167,6 +169,7 @@ export class EnemyActor extends Phaser.GameObjects.Container {
     this.deathTime = 0;
     this.stagger = 0;
     this.chill.clear();
+    this.counter.reset();
     this.charging = 0;
     this.attackClock = 1.5;
     this.knockX = this.knockY = 0;
@@ -205,11 +208,13 @@ export class EnemyActor extends Phaser.GameObjects.Container {
   }
   die() {
     this.hp = 0;
+    this.counter.reset();
     this.deathTime = 0.27;
     this.charging = 0;
   }
   animate(dt: number, distance: number, headingX: number, render = true) {
     if (!this.active) return;
+    this.counter.tick(dt);
     this.chill.step(dt);
     if (this.hp <= 0) {
       this.deathTime -= dt;

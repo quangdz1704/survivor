@@ -1,5 +1,6 @@
 import type Phaser from "phaser";
 import { ELITE_IDS, ELITES } from "../core/encounters";
+import { COUNTERPLAY } from "../core/counterplay";
 import type { EliteId } from "../core/encounters";
 import type { RunModel } from "../core/game";
 import type { EnemyActor } from "./EnemyActor";
@@ -18,6 +19,7 @@ interface Slot {
   dx: number;
   dy: number;
   chest: { x: number; y: number } | null;
+  attackHit: boolean;
 }
 export const ELITE_PULSE_RADIUS = 90;
 export const ELITE_DASH_LENGTH = 210;
@@ -55,6 +57,7 @@ export class EliteEncounters {
     dx: 0,
     dy: 0,
     chest: null,
+    attackHit: false,
   }));
   constructor(
     scene: Phaser.Scene,
@@ -74,6 +77,7 @@ export class EliteEncounters {
         cooldown: 3,
         phase: "chase",
         remaining: 0,
+        attackHit: false,
       });
     }
     this.ground.clear();
@@ -81,7 +85,13 @@ export class EliteEncounters {
   }
   register(id: EliteId, enemy: EnemyActor) {
     const slot = this.slots.find((s) => s.id === id)!;
-    Object.assign(slot, { enemy, cooldown: 3, phase: "chase", remaining: 0 });
+    Object.assign(slot, {
+      enemy,
+      cooldown: 3,
+      phase: "chase",
+      remaining: 0,
+      attackHit: false,
+    });
   }
   defeat(enemy: EnemyActor, run: RunModel) {
     const slot = this.slots.find((s) => s.enemy === enemy);
@@ -127,7 +137,7 @@ export class EliteEncounters {
       if (slot.chest) this.drawChest(slot.chest.x, slot.chest.y);
       if (!enemy?.living) continue;
       if (slot.phase === "chase") {
-        slot.cooldown -= dt;
+        if (enemy.counter.remaining <= 0) slot.cooldown -= dt;
         if (
           slot.cooldown <= 0 &&
           Math.hypot(px - enemy.x, py - enemy.y) < 290
@@ -140,6 +150,7 @@ export class EliteEncounters {
           slot.dx = (px - enemy.x) / length;
           slot.dy = (py - enemy.y) / length;
           enemy.charging = 0.01;
+          slot.attackHit = false;
         }
       } else {
         slot.remaining -= dt;
@@ -170,8 +181,9 @@ export class EliteEncounters {
               this.effects.ring(slot.x, slot.y, ELITE_PULSE_RADIUS, color, 350);
               this.effects.burst(slot.x, slot.y, color, 16);
               audioManager.play("fireball");
-              if (Math.hypot(px - slot.x, py - slot.y) <= ELITE_PULSE_RADIUS)
-                hurt(ELITES[slot.id].attackDamage);
+              slot.attackHit =
+                Math.hypot(px - slot.x, py - slot.y) <= ELITE_PULSE_RADIUS;
+              if (slot.attackHit) hurt(ELITES[slot.id].attackDamage);
               if (this.generation !== generation) return;
               this.endAttack(slot);
             } else {
@@ -196,8 +208,10 @@ export class EliteEncounters {
           );
           if (
             nearSegment(px, py, oldX, oldY, enemy.x, enemy.y, enemy.radius + 13)
-          )
+          ) {
+            slot.attackHit = true;
             hurt(ELITES[slot.id].attackDamage);
+          }
           if (this.generation !== generation) return;
           this.ground
             .lineStyle(7, color, 0.35)
@@ -234,7 +248,10 @@ export class EliteEncounters {
   private endAttack(slot: Slot) {
     slot.phase = "chase";
     slot.cooldown = slot.id === "slime-king" ? 4 : 4.5;
-    if (slot.enemy) slot.enemy.charging = 0;
+    if (slot.enemy) {
+      slot.enemy.charging = 0;
+      slot.enemy.counter.open(!slot.attackHit, COUNTERPLAY.eliteDuration);
+    }
   }
   private drawChest(x: number, y: number) {
     const bob = this.effects.enabled ? Math.sin(this.time * 3) * 2 : 0;
