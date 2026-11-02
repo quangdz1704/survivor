@@ -1,5 +1,6 @@
 import { RAGE, EVOLVED } from "./combatBalance";
 import { Trial, TRIAL } from "./trials";
+import type { Onboarding } from "./tutorial";
 import { rollGear } from "./equipment";
 import { MASTERY, MASTERY_IDS, initialMasteries, isMastery } from "./mastery";
 import type { MasteryId } from "./mastery";
@@ -139,6 +140,7 @@ export interface Profile {
   settledRuns: string[];
   loadout: Loadout;
   campaign: Campaign;
+  onboarding: Onboarding;
 }
 export interface PlayerStats {
   maxHp: number;
@@ -218,7 +220,16 @@ export function newProfile(): Profile {
     settledRuns: [],
     loadout: initialLoadout(),
     campaign: initialCampaign(),
+    onboarding: "new",
   };
+}
+/** Practice is a fresh clearing, isolated from the player's saved build/campaign. */
+export function newPracticeProfile(profile: Profile): Profile {
+  const practice = newProfile();
+  practice.hero = profile.hero;
+  practice.settings = { ...profile.settings };
+  practice.loadout.pet = null;
+  return practice;
 }
 export const ENEMIES: Record<
   EnemyKind,

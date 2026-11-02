@@ -44,6 +44,14 @@ export function sanitizeProfile(value: unknown): Profile {
     wins: Math.floor(finite(data.wins, 0, 0, 1e7)),
     loadout: sanitizeLoadout(data.loadout),
     campaign: initialCampaign(),
+    onboarding:
+      data.onboarding === "done" || data.onboarding === "skipped"
+        ? data.onboarding
+        : data.onboarding === "new"
+          ? "new"
+          : finite(data.totalRuns, 0, 0, 1e7) > 0
+            ? "done"
+            : "new",
     settledRuns: Array.isArray(data.settledRuns)
       ? data.settledRuns
           .filter(
