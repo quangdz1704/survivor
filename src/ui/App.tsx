@@ -33,6 +33,7 @@ import { SettingsPanel } from "./components/SettingsPanel";
 import { HeroChooser } from "./components/HeroChooser";
 import { CampaignChooser } from "./components/CampaignChooser";
 import { RageControl } from "./components/RageControl";
+import { RiskEventChoice, RiskEventStatus } from "./components/RiskEvent";
 import { MAPS, DIFFICULTIES } from "../core/campaign";
 import { GEAR, PETS } from "../core/equipment";
 import { Armory } from "./components/Armory";
@@ -69,7 +70,8 @@ export function App() {
     const offReady = bridge.whenReady(state.setReady),
       offStats = bridge.subscribe(state.setStats),
       offChoices = bridge.event("choices", state.setChoices),
-      offTreasure = bridge.event("treasure", state.setRelicChoices);
+      offTreasure = bridge.event("treasure", state.setRelicChoices),
+      offTrial = bridge.event("trial", state.setTrialOpen);
     const offResult = bridge.event("result", (runResult) => {
       state.setResult(runResult);
       void profileRepository
@@ -102,6 +104,7 @@ export function App() {
       offStats();
       offChoices();
       offTreasure();
+      offTrial();
       offResult();
       offUpdate();
       game.destroy(true);
@@ -140,6 +143,10 @@ export function App() {
     const key = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       const current = useUI.getState().mode;
+      if (current === "trial") {
+        bridge.send("trial", "close");
+        return;
+      }
       if (current === "playing") pauseGame();
       else if (current === "paused") {
         audioManager.unlock();
@@ -368,6 +375,7 @@ export function App() {
         {mode !== "menu" && (
           <>
             <GameHUD pause={pause} />
+            <RiskEventStatus />
             {mode === "playing" && (
               <>
                 <Joystick />
@@ -403,6 +411,7 @@ export function App() {
         )}
         {mode === "levelup" && <LevelUp />}
         {mode === "treasure" && <Treasure />}
+        {mode === "trial" && <RiskEventChoice />}
         {mode === "ended" && result && (
           <div className="modal-backdrop">
             <section className="modal result-modal">
@@ -544,7 +553,9 @@ export function App() {
                 <p>
                   <strong>Thách đấu thủ lĩnh</strong>Mini-boss xuất hiện ở phút
                   1 và phút 3. Né vòng sáng hoặc đường lao; hạ chúng rồi nhặt
-                  rương để chọn bảo vật và túi trang bị để mang về trại.
+                  rương để chọn bảo vật và túi trang bị để mang về trại. Né đòn
+                  nặng để boss lộ lõi vàng, áp sát phản công gây sát thương
+                  ×1.5.
                 </p>
               </div>
               <div className="guide-row">
@@ -555,6 +566,15 @@ export function App() {
                   hoặc SPACE. Mỗi lần kéo dài 3 giây, tối đa 2 lần mỗi trận.
                   Kiếm trận, Bão tuyết và Lốc lá vẫn nhận nâng cấp sát thương,
                   tầm phủ và đạn hỗ trợ sau tiến hóa.
+                </p>
+              </div>
+              <div className="guide-row">
+                <span>06</span>
+                <p>
+                  <strong>Giao kèo mạo hiểm</strong>Tế đàn xuất hiện ở phút 1:30
+                  và 3:30. Đến gần và bấm xem để nhận hoặc bỏ qua. Nhận khế ước
+                  sẽ gọi quái gấp đôi trong 45 giây; sống sót để kiếm một món
+                  trang bị mang về khi kết thúc trận.
                 </p>
               </div>
               <button className="play-button compact" onClick={start}>
@@ -572,7 +592,7 @@ export function App() {
       </section>
       <footer className="desktop-footer">
         <span>
-          <span className="live-dot" /> SURVIVOR MINI 2.1
+          <span className="live-dot" /> SURVIVOR MINI 2.2
         </span>
         <span>
           WASD di chuyển <i>·</i> SPACE cuồng nộ <i>·</i> ESC tạm dừng

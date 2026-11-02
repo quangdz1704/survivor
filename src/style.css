@@ -2742,3 +2742,150 @@ button:active {
     right: 14px;
   }
 }
+
+/* Optional world event: compact while playing, explicit decision on inspection. */
+.trial-status {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 157px;
+  z-index: 6;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 11px 12px;
+  border: 1px solid #cfb27f70;
+  border-radius: 13px;
+  background: linear-gradient(110deg, #242838ee, #243c38ed);
+  box-shadow: 0 8px 22px #081e2440;
+  color: #fff1cf;
+  pointer-events: none;
+}
+.trial-status-icon {
+  color: #f1ca85;
+  flex-shrink: 0;
+}
+.trial-status > div {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.trial-status small {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #d8bb92;
+}
+.trial-status strong {
+  font-size: 14px;
+}
+.trial-status div > span {
+  font-size: 10px;
+  color: #c7d1c6;
+}
+.trial-status button {
+  pointer-events: auto;
+  border: 1px solid #edd59a8a;
+  border-radius: 9px;
+  padding: 8px 10px;
+  background: #ead099;
+  color: #283e39;
+  font-weight: 800;
+  font-size: 11px;
+  line-height: 1.3;
+  min-height: 44px;
+}
+.trial-active {
+  border-color: #f2a0b675;
+}
+.trial-active .trial-status-icon,
+.trial-active small {
+  color: #f0a3ba;
+}
+.trial-won {
+  border-color: #a8dc9b90;
+}
+.trial-won .trial-status-icon,
+.trial-won small {
+  color: #b9e6a4;
+}
+.trial-modal {
+  position: relative;
+  border-color: #ba9c7480;
+  background:
+    radial-gradient(ellipse at top, #4b3457, transparent 55%), #172f32;
+}
+.trial-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+.trial-emblem {
+  display: grid;
+  place-items: center;
+  width: 78px;
+  height: 78px;
+  margin: 0 auto 22px;
+  color: #f5cc8c;
+  border: 1px solid #f5cc8c60;
+  border-radius: 24px;
+  background: #f5cc8c10;
+  box-shadow: 0 0 40px #f4aa6920;
+}
+.trial-modal h2 {
+  font-size: 28px;
+}
+.trial-terms {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 0;
+  margin: 0 0 12px;
+  text-align: left;
+}
+.trial-terms > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #edbf95;
+}
+.trial-terms > div:last-child {
+  color: #a9dbb2;
+}
+.trial-terms svg {
+  flex-shrink: 0;
+}
+.trial-terms span {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #c6d3cb;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.trial-terms strong {
+  font-size: 14px;
+  color: #fff0d3;
+}
+.trial-footnote {
+  display: block;
+  margin-top: 18px;
+  font-size: 10px;
+  color: #aabeb7;
+  line-height: 1.7;
+}
+@media (max-width: 350px) {
+  .trial-status {
+    left: 9px;
+    right: 9px;
+    padding: 9px;
+    gap: 7px;
+  }
+  .trial-status strong {
+    font-size: 12px;
+  }
+  .trial-modal h2 {
+    font-size: 24px;
+  }
+}

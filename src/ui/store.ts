@@ -14,6 +14,7 @@ interface UIState {
   stats: Snapshot;
   choices: UpgradeChoice[];
   relicChoices: RelicId[];
+  trialOpen: boolean;
   result: RunResult | null;
   rewardSaved: boolean;
   effects: boolean;
@@ -28,6 +29,7 @@ interface UIState {
   setSensitivity: (sensitivity: number) => void;
   setChoices: (choices: UpgradeChoice[]) => void;
   setRelicChoices: (relicChoices: RelicId[]) => void;
+  setTrialOpen: (open: boolean) => void;
   setResult: (result: RunResult) => void;
   markRewardSaved: () => void;
 }
@@ -41,6 +43,7 @@ export const useUI = create<UIState>((set) => ({
   stats: emptySnapshot(),
   choices: [],
   relicChoices: [],
+  trialOpen: false,
   result: null,
   rewardSaved: false,
   effects: true,
@@ -78,7 +81,9 @@ export const useUI = create<UIState>((set) => ({
         ? "levelup"
         : state.relicChoices.length
           ? "treasure"
-          : "playing",
+          : state.trialOpen
+            ? "trial"
+            : "playing",
     })),
   setRelicChoices: (relicChoices) =>
     set((state) => ({
@@ -87,7 +92,20 @@ export const useUI = create<UIState>((set) => ({
         ? "treasure"
         : state.choices.length
           ? "levelup"
-          : "playing",
+          : state.trialOpen
+            ? "trial"
+            : "playing",
+    })),
+  setTrialOpen: (trialOpen) =>
+    set((state) => ({
+      trialOpen,
+      mode: state.choices.length
+        ? "levelup"
+        : state.relicChoices.length
+          ? "treasure"
+          : trialOpen
+            ? "trial"
+            : "playing",
     })),
   setResult: (result) =>
     set({
@@ -96,6 +114,7 @@ export const useUI = create<UIState>((set) => ({
       mode: "ended",
       choices: [],
       relicChoices: [],
+      trialOpen: false,
     }),
   markRewardSaved: () => set({ rewardSaved: true }),
 }));

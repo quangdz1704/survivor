@@ -1,4 +1,7 @@
 import { EquipmentDrops } from "./EquipmentDrops";
+import { RiskShrine } from "./RiskShrine";
+import { COUNTERPLAY } from "../core/counterplay";
+import { CounterVisual } from "./CounterVisual";
 import { rollGear } from "../core/equipment";
 import { RAGE, EVOLVED } from "../core/combatBalance";
 import Phaser from "phaser";
@@ -58,6 +61,8 @@ export class ForestScene extends Phaser.Scene {
   private rage!: RageCombat;
   private pet!: PetActor;
   private equipmentDrops!: EquipmentDrops;
+  private shrine!: RiskShrine;
+  private counters!: CounterVisual;
   private bossPattern = 0;
   private encounters!: EliteEncounters;
   private relicTargets: EnemyActor[] = [];
@@ -103,6 +108,8 @@ export class ForestScene extends Phaser.Scene {
     this.rage = new RageCombat(this, this.effects);
     this.pet = new PetActor(this, this.effects);
     this.equipmentDrops = new EquipmentDrops(this, this.effects);
+    this.shrine = new RiskShrine(this);
+    this.counters = new CounterVisual(this);
     this.encounters = new EliteEncounters(this, this.effects);
     this.pickups = new Pickups(this, this.effects);
     this.shadow = this.add
@@ -137,6 +144,7 @@ export class ForestScene extends Phaser.Scene {
       }),
       bridge.on("choose", (id) => this.choose(id)),
       bridge.on("relic", (id) => this.chooseRelic(id)),
+      bridge.on("trial", (action) => this.trialCommand(action)),
       bridge.on("rage", () => this.activateRage()),
       bridge.on("rageWeapon", (id) => {
         this.run?.selectRage(id);
@@ -196,6 +204,7 @@ export class ForestScene extends Phaser.Scene {
   private clearRun() {
     bridge.emit("choices", []);
     bridge.emit("treasure", []);
+    bridge.emit("trial", false);
     this.tweens.resumeAll();
     for (const enemy of this.enemies) enemy.setActive(false).setVisible(false);
     this.combat.reset();
@@ -203,6 +212,8 @@ export class ForestScene extends Phaser.Scene {
     this.rage.reset();
     this.pet.reset();
     this.equipmentDrops.reset();
+    this.shrine.reset();
+    this.counters.reset();
     this.encounters.reset();
     this.pickups.clear();
     this.effects.clear();
@@ -261,6 +272,21 @@ export class ForestScene extends Phaser.Scene {
     audioManager.play("treasure");
     bridge.emit("choices", [...run.choices]);
     bridge.emit("treasure", [...run.relicChoices]);
+    this.syncPause();
+    this.publish();
+  }
+  private trialCommand(action: "inspect" | "accept" | "skip" | "close") {
+    const run = this.run;
+    if (!this.activeRun || !run || run.ended || this.manualPaused) return;
+    const changed =
+      action === "inspect"
+        ? !run.pending &&
+          run.trial.inspect(this.shrine.nearby(this.player.x, this.player.y))
+        : run.trial.decide(action);
+    if (!changed) return;
+    this.move = { x: 0, y: 0 };
+    this.motion.reset();
+    bridge.emit("trial", run.trial.open);
     this.syncPause();
     this.publish();
   }
@@ -379,6 +405,7 @@ export class ForestScene extends Phaser.Scene {
       return;
     if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) this.activateRage();
     run.tick(dt, false);
+    this.shrine.update(run.time, run.trial, this.player.x, this.player.y);
     this.invincible = Math.max(0, this.invincible - dt);
     let x = this.move.x,
       y = this.move.y;
@@ -481,16 +508,22 @@ export class ForestScene extends Phaser.Scene {
         );
       }
       const speed =
-        enemy.charging > 0
+        enemy.charging > 0 || enemy.counter.remaining > 0
           ? 0
           : enemy.speed *
             sprint *
             enemy.movementMultiplier() *
             (isBoss(enemy.kind) && enemy.hp < enemy.maxHp * 0.35 ? 1.25 : 1);
       const stepX =
-          (dx / d) * speed * dt + (enemy.charging > 0 ? 0 : enemy.knockX * dt),
+          (dx / d) * speed * dt +
+          (enemy.charging > 0 || enemy.counter.remaining > 0
+            ? 0
+            : enemy.knockX * dt),
         stepY =
-          (dy / d) * speed * dt + (enemy.charging > 0 ? 0 : enemy.knockY * dt);
+          (dy / d) * speed * dt +
+          (enemy.charging > 0 || enemy.counter.remaining > 0
+            ? 0
+            : enemy.knockY * dt);
       enemy.knockX *= Math.exp(-16 * dt);
       enemy.knockY *= Math.exp(-16 * dt);
       enemy.x = Phaser.Math.Clamp(enemy.x + stepX, 15, WORLD_SIZE - 15);
@@ -505,7 +538,11 @@ export class ForestScene extends Phaser.Scene {
           enemy.y > view.top - 160 &&
           enemy.y < view.bottom + 160,
       );
-      if (d < enemy.radius + 13 && this.invincible === 0) {
+      if (
+        d < enemy.radius + 13 &&
+        this.invincible === 0 &&
+        enemy.counter.remaining <= 0
+      ) {
         this.hurtPlayer(enemy.damage);
         if (run.hp <= 0) {
           this.finish(false);
@@ -557,6 +594,7 @@ export class ForestScene extends Phaser.Scene {
     );
     if (run.ended) return;
     this.equipmentDrops.update(dt, this.player.x, this.player.y, run);
+    this.counters.update(this.enemies, run.time, this.effectsEnabled);
     const treasure = this.encounters.collect(this.player.x, this.player.y, run);
     this.effects.update(dt);
     if (run.pending) {
@@ -592,7 +630,11 @@ export class ForestScene extends Phaser.Scene {
               0,
               Math.min(4, 1 + wave.phase),
             );
-      for (let i = 0; i < difficulty.group; i++)
+      for (
+        let i = 0;
+        i < difficulty.group * (run.trial.phase === "active" ? 2 : 1);
+        i++
+      )
         this.spawn(composition[Math.floor(this.random() * composition.length)]);
     }
     for (const id of run.dueElites()) {
@@ -625,6 +667,7 @@ export class ForestScene extends Phaser.Scene {
   private updateBoss(dt: number) {
     const boss = this.boss;
     if (!boss?.living) return;
+    if (boss.counter.remaining > 0) return;
     if (boss.kind !== "golem") {
       this.updateCampaignBoss(dt, boss);
       return;
@@ -641,11 +684,11 @@ export class ForestScene extends Phaser.Scene {
         this.effects.golemBlast(x, y);
         if (this.effectsEnabled) this.cameras.main.shake(220, 0.006);
         audioManager.play("explosion");
-        if (
-          Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y) <
-            GOLEM_BLAST_RADIUS &&
-          this.invincible === 0
-        ) {
+        const intersected =
+          Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y) <=
+          GOLEM_BLAST_RADIUS;
+        boss.counter.open(!intersected, COUNTERPLAY.golemDuration);
+        if (intersected && this.invincible === 0) {
           this.hurtPlayer(
             42 * DIFFICULTIES[this.run!.profile.campaign.difficulty].damage,
           );
@@ -737,7 +780,14 @@ export class ForestScene extends Phaser.Scene {
       const length = 400,
         dx = Math.cos(angle) * length,
         dy = Math.sin(angle) * length;
-      this.hostile.zone(
+      let laneHit = false;
+      let crossQueued = false;
+      const resolveLane = (intersected: boolean) => {
+        if (!boss.living) return;
+        boss.charging = 0;
+        boss.counter.open(!intersected, COUNTERPLAY.laneDuration);
+      };
+      const laneQueued = this.hostile.zone(
         boss.x,
         boss.y,
         ice ? 30 : 40,
@@ -746,9 +796,25 @@ export class ForestScene extends Phaser.Scene {
         1.1,
         boss.x + dx,
         boss.y + dy,
+        (intersected) => {
+          laneHit = intersected;
+          if (!crossQueued) resolveLane(intersected);
+        },
       );
+      if (!laneQueued) return;
+      boss.charging = 0.01;
       if (enraged)
-        this.hostile.zone(x - 130, y + 80, 50, 46, ice, 1.25, x + 130, y - 80);
+        crossQueued = this.hostile.zone(
+          x - 130,
+          y + 80,
+          50,
+          46,
+          ice,
+          1.25,
+          x + 130,
+          y - 80,
+          (intersected) => resolveLane(laneHit || intersected),
+        );
     }
     this.effects.ring(boss.x, boss.y, 45, ice ? 0xb4edff : 0xffbe7b, 300);
     audioManager.play(ice ? "frost" : "fireball");
@@ -777,7 +843,7 @@ export class ForestScene extends Phaser.Scene {
       !!enemy.elite || isBoss(enemy.kind),
     );
     const hit = rolledDamage(
-      baseDamage * multiplier,
+      baseDamage * multiplier * enemy.counter.multiplier,
       this.run!.stats,
       this.random,
     );
@@ -850,6 +916,8 @@ export class ForestScene extends Phaser.Scene {
     this.rage.reset();
     this.pet.reset();
     this.equipmentDrops.reset();
+    this.shrine.reset();
+    this.counters.reset();
     this.hostile.reset();
     this.motion.reset();
     this.move = { x: 0, y: 0 };
@@ -896,12 +964,38 @@ export class ForestScene extends Phaser.Scene {
       elites: this.encounters.snapshot(),
       chests: this.encounters.chests(),
       boss: this.boss?.living
-        ? { hp: this.boss.hp, maxHp: this.boss.maxHp, warning: false }
+        ? {
+            hp: this.boss.hp,
+            maxHp: this.boss.maxHp,
+            warning: false,
+            counter:
+              this.boss.counter.multiplier > 1
+                ? this.boss.counter.remaining
+                : 0,
+          }
         : this.bossDelay > 0
-          ? { hp: 1500, maxHp: 1500, warning: true }
+          ? {
+              hp: ENEMIES[MAPS[run.profile.campaign.map].boss].hp,
+              maxHp: ENEMIES[MAPS[run.profile.campaign.map].boss].hp,
+              warning: true,
+            }
           : null,
       wave: waveAt(run.time).phase + 1,
       fps: Math.round(this.game.loop.actualFps),
+      trial:
+        run.trial.phase === "available" ||
+        run.trial.phase === "active" ||
+        (run.trial.phase === "won" && run.time < run.trial.noticeUntil)
+          ? {
+              phase: run.trial.phase,
+              round: run.trial.round,
+              remaining: run.trial.remaining,
+              nearby: this.shrine.nearby(this.player.x, this.player.y),
+              x: this.shrine.x,
+              y: this.shrine.y,
+              reward: run.trial.reward,
+            }
+          : null,
     });
   }
 }

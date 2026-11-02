@@ -63,6 +63,7 @@ export function GameHUD({ pause }: { pause: () => void }) {
           <button
             className="icon-button pause-button"
             aria-label="Tạm dừng"
+            disabled={mode !== "playing"}
             onClick={pause}
           >
             <Pause size={20} fill="currentColor" />
@@ -95,11 +96,13 @@ export function GameHUD({ pause }: { pause: () => void }) {
         {stats.boss && !stats.boss.warning && (
           <div className="boss-health">
             <span>
-              {stats.map === "forest"
-                ? "GOLEM · KẺ GIỮ CỔNG"
-                : stats.map === "ashlands"
-                  ? "HỎA LONG · VUA TRO TÀN"
-                  : "BĂNG VỆ · CHÚA TỂ TUYẾT"}
+              {(stats.boss.counter ?? 0) > 0
+                ? `LỘ LÕI · PHẢN CÔNG ×1.5 · ${stats.boss.counter!.toFixed(1)}s`
+                : stats.map === "forest"
+                  ? "GOLEM · KẺ GIỮ CỔNG"
+                  : stats.map === "ashlands"
+                    ? "HỎA LONG · VUA TRO TÀN"
+                    : "BĂNG VỆ · CHÚA TỂ TUYẾT"}
             </span>
             <div>
               <i

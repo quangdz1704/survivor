@@ -12,8 +12,10 @@ import type {
 import { initialWeapons, initialEvolutions } from "../core/game";
 import type { RelicId } from "../core/relics";
 import type { EliteId } from "../core/encounters";
+import type { TrialPhase } from "../core/trials";
+import type { GearId } from "../core/equipment";
 export type GameMode =
-  "menu" | "playing" | "paused" | "levelup" | "treasure" | "ended";
+  "menu" | "playing" | "paused" | "levelup" | "treasure" | "trial" | "ended";
 export interface Snapshot {
   hp: number;
   mana: number;
@@ -39,9 +41,23 @@ export interface Snapshot {
   relicActive: { root: boolean; rage: boolean };
   elites: { id: EliteId; hp: number; maxHp: number }[];
   chests: { id: EliteId; x: number; y: number }[];
-  boss: { hp: number; maxHp: number; warning: boolean } | null;
+  boss: {
+    hp: number;
+    maxHp: number;
+    warning: boolean;
+    counter?: number;
+  } | null;
   wave: number;
   fps: number;
+  trial: {
+    phase: TrialPhase;
+    round: number;
+    remaining: number;
+    nearby: boolean;
+    x: number;
+    y: number;
+    reward: GearId | null;
+  } | null;
 }
 export const emptySnapshot = (): Snapshot => ({
   hp: 100,
@@ -71,6 +87,7 @@ export const emptySnapshot = (): Snapshot => ({
   boss: null,
   wave: 1,
   fps: 60,
+  trial: null,
 });
 export interface Commands {
   start: Profile;
@@ -83,6 +100,7 @@ export interface Commands {
   relic: RelicId;
   rage: undefined;
   rageWeapon: WeaponId;
+  trial: "inspect" | "accept" | "skip" | "close";
 }
 interface Events {
   snapshot: Snapshot;
@@ -90,6 +108,7 @@ interface Events {
   choices: UpgradeChoice[];
   treasure: RelicId[];
   result: RunResult;
+  trial: boolean;
 }
 class Bridge {
   private target = new EventTarget();
