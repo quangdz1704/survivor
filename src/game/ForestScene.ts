@@ -2,6 +2,7 @@ import { EquipmentDrops } from "./EquipmentDrops";
 import { RiskShrine } from "./RiskShrine";
 import { COUNTERPLAY } from "../core/counterplay";
 import { CounterVisual } from "./CounterVisual";
+import { TutorialLesson } from "../core/tutorial";
 import { rollGear } from "../core/equipment";
 import { RAGE, EVOLVED } from "../core/combatBalance";
 import Phaser from "phaser";
@@ -33,6 +34,7 @@ import {
   waveAt,
   xpRequired,
   isEvolution,
+  newPracticeProfile,
 } from "../core/game";
 import type {
   EnemyKind,
@@ -85,6 +87,10 @@ export class ForestScene extends Phaser.Scene {
   private bossCooldown = 3;
   private stomp: Stomp | null = null;
   private effectsEnabled = true;
+  private lesson: TutorialLesson | null = null;
+  private lessonEnemy: EnemyActor | null = null;
+  private lessonWarning = false;
+  private lessonRetry = 0;
   constructor() {
     super("forest");
   }
@@ -132,6 +138,7 @@ export class ForestScene extends Phaser.Scene {
     this.input.keyboard!.addCapture(["UP", "DOWN", "LEFT", "RIGHT", "SPACE"]);
     this.removers = [
       bridge.on("start", (profile) => this.begin(profile)),
+      bridge.on("practice", (profile) => this.begin(profile, true)),
       bridge.on("pause", (pause) => {
         this.manualPaused = pause;
         this.motion.reset();
@@ -165,7 +172,11 @@ export class ForestScene extends Phaser.Scene {
     audioManager.configure(settings);
   }
   private syncPause() {
-    if (this.manualPaused || this.run?.pending) {
+    if (
+      this.manualPaused ||
+      this.run?.pending ||
+      this.lesson?.stage === "ready"
+    ) {
       this.tweens.pauseAll();
       audioManager.setScene("paused");
     } else {
@@ -173,8 +184,12 @@ export class ForestScene extends Phaser.Scene {
       audioManager.setScene(this.activeRun ? "game" : "menu");
     }
   }
-  private begin(profile: Profile) {
+  private begin(profile: Profile, practice = false) {
     this.clearRun();
+    if (practice) {
+      profile = newPracticeProfile(profile);
+      this.lesson = new TutorialLesson();
+    }
     this.run = new RunModel(profile, this.random);
     this.world.show(profile.campaign.map);
     this.bossPattern = 0;
@@ -196,12 +211,16 @@ export class ForestScene extends Phaser.Scene {
       .startFollow(this.player, true, 0.09, 0.09)
       .centerOn(1200, 1200);
     this.cameras.main.preRender();
-    for (let i = 0; i < 4; i++)
+    for (let i = 0; !this.lesson && i < 4; i++)
       this.spawn(MAPS[profile.campaign.map].enemies[0], i);
     this.syncPause();
     this.publish();
   }
   private clearRun() {
+    this.lesson = null;
+    this.lessonEnemy = null;
+    this.lessonWarning = false;
+    this.lessonRetry = 0;
     bridge.emit("choices", []);
     bridge.emit("treasure", []);
     bridge.emit("trial", false);
@@ -248,6 +267,7 @@ export class ForestScene extends Phaser.Scene {
     }
     bridge.emit("choices", [...this.run.choices]);
     bridge.emit("treasure", [...this.run.relicChoices]);
+    this.updateLesson(0);
     this.syncPause();
     this.publish();
   }
@@ -277,7 +297,14 @@ export class ForestScene extends Phaser.Scene {
   }
   private trialCommand(action: "inspect" | "accept" | "skip" | "close") {
     const run = this.run;
-    if (!this.activeRun || !run || run.ended || this.manualPaused) return;
+    if (
+      this.lesson ||
+      !this.activeRun ||
+      !run ||
+      run.ended ||
+      this.manualPaused
+    )
+      return;
     const changed =
       action === "inspect"
         ? !run.pending &&
@@ -368,7 +395,12 @@ export class ForestScene extends Phaser.Scene {
     return enemy;
   }
   private activateRage() {
-    if (!this.activeRun || this.manualPaused || !this.run?.activateRage())
+    if (
+      this.lesson ||
+      !this.activeRun ||
+      this.manualPaused ||
+      !this.run?.activateRage()
+    )
       return;
     this.invincible = Math.max(this.invincible, 0.3);
     this.effects.ring(this.player.x, this.player.y, 180, 0xffdc87, 500);
@@ -400,12 +432,12 @@ export class ForestScene extends Phaser.Scene {
       !run ||
       this.manualPaused ||
       run.pending ||
-      run.ended
+      run.ended ||
+      this.lesson?.stage === "ready"
     )
       return;
     if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) this.activateRage();
-    run.tick(dt, false);
-    this.shrine.update(run.time, run.trial, this.player.x, this.player.y);
+    this.advanceRun(dt);
     this.invincible = Math.max(0, this.invincible - dt);
     let x = this.move.x,
       y = this.move.y;
@@ -457,7 +489,7 @@ export class ForestScene extends Phaser.Scene {
         this.player.y < tree.y + 45;
       tree.alpha = near ? 0.24 : 1;
     }
-    this.directWaves(dt);
+    if (!this.lesson) this.directWaves(dt);
     this.encounters.update(dt, this.player.x, this.player.y, (damage) => {
       if (this.invincible > 0 || run.ended) return;
       this.hurtPlayer(
@@ -571,14 +603,15 @@ export class ForestScene extends Phaser.Scene {
         this.hitEnemy(enemy, damage, dx, dy, weapon),
     );
     if (run.ended) return;
-    this.pet.update(
-      dt,
-      this.player.x,
-      this.player.y,
-      run,
-      this.grid,
-      (enemy, damage, dx, dy) => this.hitEnemy(enemy, damage, dx, dy, "pet"),
-    );
+    if (!this.lesson)
+      this.pet.update(
+        dt,
+        this.player.x,
+        this.player.y,
+        run,
+        this.grid,
+        (enemy, damage, dx, dy) => this.hitEnemy(enemy, damage, dx, dy, "pet"),
+      );
     if (run.ended) return;
     this.updateBoss(dt);
     this.hostile.update(dt, this.player.x, this.player.y, (damage) => {
@@ -597,6 +630,10 @@ export class ForestScene extends Phaser.Scene {
     this.counters.update(this.enemies, run.time, this.effectsEnabled);
     const treasure = this.encounters.collect(this.player.x, this.player.y, run);
     this.effects.update(dt);
+    this.updateLesson(
+      dt,
+      Math.hypot(this.player.x - beforeX, this.player.y - beforeY),
+    );
     if (run.pending) {
       this.move = { x: 0, y: 0 };
       this.motion.reset();
@@ -613,6 +650,56 @@ export class ForestScene extends Phaser.Scene {
       this.hudClock = 0;
       this.publish();
     }
+  }
+  private advanceRun(dt: number) {
+    const run = this.run!;
+    // The lesson has elapsed time, but no campaign events or passive mana.
+    if (this.lesson) run.time += dt;
+    else {
+      run.tick(dt, false);
+      this.shrine.update(run.time, run.trial, this.player.x, this.player.y);
+    }
+  }
+  private updateLesson(dt: number, distance = 0) {
+    const lesson = this.lesson,
+      run = this.run;
+    if (!lesson || !run) return;
+    lesson.observe(distance, run.kills, run.level, run.choices.length > 0);
+    if (lesson.stage === "fight" && !this.lessonEnemy) {
+      const target = this.spawn("slime");
+      if (target) {
+        target.x = Math.max(40, Math.min(WORLD_SIZE - 40, this.player.x + 145));
+        target.y = this.player.y;
+        target.speed = target.damage = 0;
+        target.xp = xpRequired(1);
+        this.lessonEnemy = target;
+      }
+    }
+    if (lesson.stage !== "dodge" || this.lessonWarning) return;
+    this.lessonRetry = Math.max(0, this.lessonRetry - dt);
+    if (this.lessonRetry > 0) return;
+    this.lessonWarning = this.hostile.zone(
+      this.player.x,
+      this.player.y,
+      70,
+      0,
+      false,
+      1.5,
+      this.player.x,
+      this.player.y,
+      (intersected) => {
+        if (this.lesson !== lesson) return;
+        this.lessonWarning = false;
+        this.lessonRetry = 0.8;
+        lesson.resolveDodge(intersected);
+        if (lesson.stage === "ready") {
+          this.move = { x: 0, y: 0 };
+          this.motion.reset();
+        }
+        this.syncPause();
+        this.publish();
+      },
+    );
   }
   private directWaves(dt: number) {
     const run = this.run!;
@@ -820,6 +907,7 @@ export class ForestScene extends Phaser.Scene {
     audioManager.play(ice ? "frost" : "fireball");
   }
   private hurtPlayer(damage: number) {
+    if (this.lesson) return;
     const run = this.run!;
     run.hurt(damage);
     this.invincible = 0.8;
@@ -868,11 +956,12 @@ export class ForestScene extends Phaser.Scene {
     audioManager.play("hit");
     if (enemy.hp === 0) {
       this.run!.kills++;
-      this.run!.gainMana(
-        enemy.elite || isBoss(enemy.kind)
-          ? RAGE.manaPerElite
-          : RAGE.manaPerKill,
-      );
+      if (!this.lesson)
+        this.run!.gainMana(
+          enemy.elite || isBoss(enemy.kind)
+            ? RAGE.manaPerElite
+            : RAGE.manaPerKill,
+        );
       enemy.die();
       this.encounters.defeat(enemy, this.run!);
       if (enemy.elite)
@@ -908,6 +997,7 @@ export class ForestScene extends Phaser.Scene {
         this.hitEnemy(enemy, damage, enemy.x - x, enemy.y - y, "relic");
   }
   private finish(victory: boolean) {
+    if (this.lesson) return;
     const result = this.run?.finish(victory);
     if (!result) return;
     this.activeRun = false;
@@ -982,10 +1072,21 @@ export class ForestScene extends Phaser.Scene {
           : null,
       wave: waveAt(run.time).phase + 1,
       fps: Math.round(this.game.loop.actualFps),
+      tutorial: this.lesson
+        ? {
+            stage: this.lesson.stage,
+            distance: this.lesson.distance,
+            attempts: this.lesson.attempts,
+            target: this.lessonEnemy
+              ? { x: this.lessonEnemy.x, y: this.lessonEnemy.y }
+              : null,
+          }
+        : null,
       trial:
-        run.trial.phase === "available" ||
-        run.trial.phase === "active" ||
-        (run.trial.phase === "won" && run.time < run.trial.noticeUntil)
+        !this.lesson &&
+        (run.trial.phase === "available" ||
+          run.trial.phase === "active" ||
+          (run.trial.phase === "won" && run.time < run.trial.noticeUntil))
           ? {
               phase: run.trial.phase,
               round: run.trial.round,

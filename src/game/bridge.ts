@@ -14,6 +14,7 @@ import type { RelicId } from "../core/relics";
 import type { EliteId } from "../core/encounters";
 import type { TrialPhase } from "../core/trials";
 import type { GearId } from "../core/equipment";
+import type { LessonStage } from "../core/tutorial";
 export type GameMode =
   "menu" | "playing" | "paused" | "levelup" | "treasure" | "trial" | "ended";
 export interface Snapshot {
@@ -49,6 +50,12 @@ export interface Snapshot {
   } | null;
   wave: number;
   fps: number;
+  tutorial: {
+    stage: LessonStage;
+    distance: number;
+    attempts: number;
+    target: { x: number; y: number } | null;
+  } | null;
   trial: {
     phase: TrialPhase;
     round: number;
@@ -87,10 +94,12 @@ export const emptySnapshot = (): Snapshot => ({
   boss: null,
   wave: 1,
   fps: 60,
+  tutorial: null,
   trial: null,
 });
 export interface Commands {
   start: Profile;
+  practice: Profile;
   pause: boolean;
   home: undefined;
   move: { x: number; y: number };

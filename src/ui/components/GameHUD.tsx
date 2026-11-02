@@ -90,8 +90,16 @@ export function GameHUD({ pause }: { pause: () => void }) {
           </span>
         </div>
         <div className="location-label">
-          <Leaf size={11} /> {MAPS[stats.map].name.toUpperCase()} <span />{" "}
-          {DIFFICULTIES[stats.difficulty].name.toUpperCase()} · {stats.wave}
+          {stats.tutorial ? (
+            <>
+              <Leaf size={11} /> BÌA RỪNG · TẬP LUYỆN AN TOÀN
+            </>
+          ) : (
+            <>
+              <Leaf size={11} /> {MAPS[stats.map].name.toUpperCase()} <span />{" "}
+              {DIFFICULTIES[stats.difficulty].name.toUpperCase()} · {stats.wave}
+            </>
+          )}
         </div>
         {stats.boss && !stats.boss.warning && (
           <div className="boss-health">
@@ -137,33 +145,35 @@ export function GameHUD({ pause }: { pause: () => void }) {
           </div>
         )}
       </div>
-      <div className="weapon-rack">
-        {WEAPONS.filter((id) => stats.weapons[id] > 0).map((id) => {
-          const evolution = evolutionFor(id);
-          const evolved =
-            evolution !== undefined && stats.evolutions[evolution];
-          const displayId = evolved && evolution ? evolution : id;
-          return (
-            <button
-              type="button"
-              disabled={mode !== "playing" || stats.rageRemaining > 0}
-              onClick={() => bridge.send("rageWeapon", id)}
-              aria-pressed={stats.rageWeapon === id}
-              title={`Cuồng nộ: ${RAGE_NAMES[id]}`}
-              key={id}
-              className={`active-weapon skill-${id} ${evolved ? "evolved-weapon" : ""}`}
-              aria-label={
-                evolved
-                  ? `${UPGRADE_NAMES[displayId]} đã tiến hóa`
-                  : `${UPGRADE_NAMES[id]} cấp ${stats.weapons[id]}`
-              }
-            >
-              <SkillIcon id={displayId} size={23} />
-              <small>{evolved ? "✦" : stats.weapons[id]}</small>
-            </button>
-          );
-        })}
-      </div>
+      {!stats.tutorial && (
+        <div className="weapon-rack">
+          {WEAPONS.filter((id) => stats.weapons[id] > 0).map((id) => {
+            const evolution = evolutionFor(id);
+            const evolved =
+              evolution !== undefined && stats.evolutions[evolution];
+            const displayId = evolved && evolution ? evolution : id;
+            return (
+              <button
+                type="button"
+                disabled={mode !== "playing" || stats.rageRemaining > 0}
+                onClick={() => bridge.send("rageWeapon", id)}
+                aria-pressed={stats.rageWeapon === id}
+                title={`Cuồng nộ: ${RAGE_NAMES[id]}`}
+                key={id}
+                className={`active-weapon skill-${id} ${evolved ? "evolved-weapon" : ""}`}
+                aria-label={
+                  evolved
+                    ? `${UPGRADE_NAMES[displayId]} đã tiến hóa`
+                    : `${UPGRADE_NAMES[id]} cấp ${stats.weapons[id]}`
+                }
+              >
+                <SkillIcon id={displayId} size={23} />
+                <small>{evolved ? "✦" : stats.weapons[id]}</small>
+              </button>
+            );
+          })}
+        </div>
+      )}
       <div className="relic-rack" aria-label="Bảo vật trong lượt">
         {stats.relics.map((id) => (
           <span
@@ -177,7 +187,7 @@ export function GameHUD({ pause }: { pause: () => void }) {
           </span>
         ))}
       </div>
-      {stats.time < 10 && (
+      {stats.time < 10 && !stats.tutorial && (
         <div className="combat-tip">
           <span>
             Chạm bất kỳ đâu và kéo

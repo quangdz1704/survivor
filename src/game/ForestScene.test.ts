@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { CounterWindow } from "../core/counterplay";
+import { TutorialLesson } from "../core/tutorial";
+import { bridge } from "./bridge";
 vi.mock("phaser", () => ({
   default: {
     Scene: class {},
@@ -70,6 +72,9 @@ interface Harness {
   bossCooldown: number;
   bossPattern: number;
   invincible: number;
+  activeRun: boolean;
+  lesson: TutorialLesson | null;
+  lessonEnemy: EnemyActor | null;
   cameras: unknown;
   add: unknown;
   effects: unknown;
@@ -83,6 +88,13 @@ interface Harness {
   directWaves: (dt: number) => void;
   updateBoss: (dt: number) => void;
   publish: () => void;
+  updateLesson: (dt: number, distance?: number) => void;
+  advanceRun: (dt: number) => void;
+  trialCommand: (action: "inspect") => void;
+  simulate: (dt: number) => void;
+  choose: (id: import("../core/game").UpgradeId) => void;
+  finish: (victory: boolean) => void;
+  hurtPlayer: (damage: number) => void;
   hitEnemy: (
     enemy: EnemyActor,
     damage: number,
@@ -138,6 +150,87 @@ function setup(map: MapId = "forest", difficulty: DifficultyId = "normal") {
   return scene;
 }
 describe("campaign scene encounters", () => {
+  it("keeps normal trials and mana dormant even after several minutes of practice", () => {
+    const scene = setup();
+    scene.activeRun = true;
+    scene.lesson = new TutorialLesson();
+    scene.advanceRun(240);
+    expect(scene.run.time).toBe(240);
+    expect(scene.run.trial.phase).toBe("dormant");
+    expect(scene.run.mana).toBe(0);
+    scene.trialCommand("inspect");
+    expect(scene.run.trial.open).toBe(false);
+  });
+  it("freezes lesson clocks and warnings during pause, level-up and the ready panel", () => {
+    const scene = setup();
+    scene.activeRun = true;
+    scene.lesson = new TutorialLesson();
+    scene.lesson.stage = "dodge";
+    Object.assign(scene, { manualPaused: true });
+    scene.simulate(1);
+    expect(scene.run.time).toBe(0);
+    Object.assign(scene, { manualPaused: false });
+    scene.run.gainXp(20);
+    scene.simulate(1);
+    expect(scene.run.time).toBe(0);
+    scene.run.choices = [];
+    scene.lesson.stage = "ready";
+    scene.simulate(1);
+    expect(scene.run.time).toBe(0);
+    expect(scene.hostile.zone).not.toHaveBeenCalled();
+  });
+  it.each(["an", "linh"] as const)(
+    "%s practices through real XP and selection, retries geometry and never settles a training result",
+    (hero) => {
+      const scene = setup();
+      const profile = newProfile();
+      profile.hero = hero;
+      scene.run = new RunModel(profile, () => 0.5);
+      scene.activeRun = true;
+      scene.lesson = new TutorialLesson();
+      Object.assign(scene, { syncPause: vi.fn() });
+      const result = vi.fn(),
+        off = bridge.event("result", result);
+      try {
+        scene.updateLesson(10, 0);
+        expect(scene.lessonEnemy).toBeNull();
+        scene.updateLesson(0.01, 100);
+        expect(scene.lesson.stage).toBe("fight");
+        expect(scene.lessonEnemy).toMatchObject({
+          kind: "slime",
+          speed: 0,
+          damage: 0,
+          xp: 20,
+        });
+        scene.hurtPlayer(99999);
+        expect(scene.run.hp).toBe(scene.run.stats.maxHp);
+        scene.finish(false);
+        expect(result).not.toHaveBeenCalled();
+        expect(scene.run.ended).toBe(false);
+        scene.run.kills = 1;
+        scene.updateLesson(0.01);
+        expect(scene.lesson.stage).toBe("collect");
+        scene.run.gainXp(scene.lessonEnemy!.xp);
+        scene.updateLesson(0.01);
+        expect(scene.lesson.stage).toBe("upgrade");
+        scene.choose(scene.run.choices[0].id);
+        expect(scene.lesson.stage).toBe("dodge");
+        expect(scene.hostile.zone).toHaveBeenCalledTimes(1);
+        const warning = scene.hostile.zone.mock.calls[0];
+        expect(warning.slice(2, 6)).toEqual([70, 0, false, 1.5]);
+        warning[8](true);
+        expect(scene.lesson.stage).toBe("dodge");
+        scene.updateLesson(0.9);
+        expect(scene.hostile.zone).toHaveBeenCalledTimes(2);
+        scene.hostile.zone.mock.calls[1][8](false);
+        expect(scene.lesson.stage).toBe("ready");
+        expect(scene.run.collectedGear).toEqual([]);
+        expect(profile).toEqual({ ...newProfile(), hero });
+      } finally {
+        off();
+      }
+    },
+  );
   it.each(["normal", "hard", "nightmare"] as DifficultyId[])(
     "enforces %s actor budget, reserves the boss and never spawns on the player",
     (difficulty) => {

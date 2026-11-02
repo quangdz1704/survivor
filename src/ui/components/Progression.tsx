@@ -27,17 +27,28 @@ import { useState } from "react";
 import { isMastery } from "../../core/mastery";
 import { EvolutionRecipes } from "./EvolutionRecipes";
 export function LevelUp() {
+  const dialog = useDialogFocus();
   const choices = useUI((s) => s.choices),
     stats = useUI((s) => s.stats);
   return (
     <div className="modal-backdrop level-backdrop">
-      <section className="modal level-modal">
+      <section
+        ref={dialog}
+        className="modal level-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Chọn kỹ năng khi lên cấp"
+      >
         <div className="modal-emblem">
           <Sparkles size={29} />
         </div>
         <span className="eyebrow">SỨC MẠNH ĐANG LỚN DẦN</span>
         <h2>Lên cấp {stats.level}!</h2>
-        <p>Chọn một món quà của khu rừng.</p>
+        <p>
+          {stats.tutorial
+            ? "Tinh thể đã đánh thức sức mạnh mới. Chạm một thẻ bên dưới; thời gian đang tạm dừng."
+            : "Chọn một món quà của khu rừng."}
+        </p>
         <div className="upgrade-choices">
           {choices.map((choice) => (
             <button
